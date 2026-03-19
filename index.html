@@ -1,0 +1,1870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>March Madness 2026 Betting Tracker</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --panel: #111214;
+      --panel-2: #17181b;
+      --panel-3: #1f2024;
+      --border: rgba(255, 255, 255, 0.08);
+      --text: #ffffff;
+      --muted: #a1a1aa;
+      --accent: #e31837;
+      --accent-soft: rgba(227, 24, 55, 0.14);
+      --green: #1fd66b;
+      --green-soft: rgba(31, 214, 107, 0.14);
+      --red: #ff5d73;
+      --red-soft: rgba(255, 93, 115, 0.14);
+      --yellow: #f6c453;
+      --yellow-soft: rgba(246, 196, 83, 0.14);
+      --gray: #8d94a2;
+      --gray-soft: rgba(141, 148, 162, 0.12);
+      --shadow: 0 18px 48px rgba(0, 0, 0, 0.38);
+      --radius: 18px;
+      --radius-sm: 12px;
+      --transition: 220ms ease;
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      color-scheme: dark;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font);
+      background:
+        radial-gradient(circle at top left, rgba(227, 24, 55, 0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.05), transparent 18%),
+        linear-gradient(180deg, #0a0a0a 0%, #0f1013 100%);
+      color: var(--text);
+    }
+
+    button,
+    select {
+      font: inherit;
+    }
+
+    .app {
+      width: min(1400px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 48px;
+    }
+
+    .card,
+    .chart-panel,
+    .table-wrap,
+    .parlay-card,
+    .breakdown-day,
+    .stats-panel {
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: minmax(0, 1.8fr) minmax(260px, 0.9fr);
+      gap: 20px;
+      margin-bottom: 22px;
+    }
+
+    .hero {
+      padding: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -80px -80px auto;
+      width: 220px;
+      height: 220px;
+      background: radial-gradient(circle, rgba(227, 24, 55, 0.38), transparent 62%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.76rem;
+      margin-bottom: 10px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 18px rgba(227, 24, 55, 0.8);
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(1.9rem, 3vw, 3rem);
+      line-height: 1.02;
+      margin-bottom: 10px;
+    }
+
+    .subtle {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .pnl-hero {
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: fit-content;
+      border-radius: 999px;
+      padding: 8px 12px;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--muted);
+      font-size: 0.84rem;
+    }
+
+    .pnl-value {
+      font-size: clamp(2.3rem, 4vw, 3.9rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .positive {
+      color: var(--green);
+    }
+
+    .negative {
+      color: var(--red);
+    }
+
+    .neutral {
+      color: var(--text);
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .summary-card {
+      padding: 18px;
+      min-height: 128px;
+      transition: transform var(--transition), border-color var(--transition), background-color var(--transition);
+    }
+
+    .summary-card.flash-win {
+      animation: pulse-win 700ms ease;
+    }
+
+    .summary-card.flash-loss {
+      animation: pulse-loss 700ms ease;
+    }
+
+    @keyframes pulse-win {
+      0% { box-shadow: 0 0 0 0 rgba(31, 214, 107, 0.16); border-color: rgba(31, 214, 107, 0.45); }
+      100% { box-shadow: var(--shadow); border-color: var(--border); }
+    }
+
+    @keyframes pulse-loss {
+      0% { box-shadow: 0 0 0 0 rgba(255, 93, 115, 0.16); border-color: rgba(255, 93, 115, 0.45); }
+      100% { box-shadow: var(--shadow); border-color: var(--border); }
+    }
+
+    .label {
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      margin-bottom: 12px;
+    }
+
+    .metric {
+      font-size: 1.55rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
+    .section-head h2 {
+      font-size: 1.18rem;
+      letter-spacing: -0.03em;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .segmented {
+      display: inline-flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .segmented button,
+    .toolbar-button,
+    .sort-select,
+    .result-button {
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      border-radius: 999px;
+      transition: background-color var(--transition), border-color var(--transition), transform var(--transition), opacity var(--transition);
+    }
+
+    .segmented button,
+    .toolbar-button,
+    .sort-select {
+      padding: 10px 14px;
+      cursor: pointer;
+    }
+
+    .segmented button.active,
+    .toolbar-button:hover,
+    .sort-select:focus,
+    .segmented button:hover {
+      background: var(--accent-soft);
+      border-color: rgba(227, 24, 55, 0.42);
+      outline: none;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.8fr) minmax(320px, 0.95fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .stack {
+      display: grid;
+      gap: 22px;
+    }
+
+    .table-wrap {
+      overflow: hidden;
+    }
+
+    .table-scroll {
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 980px;
+    }
+
+    thead th {
+      text-align: left;
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      padding: 18px 18px 14px;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+
+    th.sortable {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    th.sortable:hover {
+      color: var(--text);
+    }
+
+    tbody tr.bet-row {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      transition: background-color var(--transition), opacity 260ms ease, transform 260ms ease;
+    }
+
+    tbody tr.bet-row:hover {
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    td {
+      padding: 15px 18px;
+      vertical-align: middle;
+    }
+
+    .row-main {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 600;
+    }
+
+    .expand-toggle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      cursor: pointer;
+      flex: 0 0 auto;
+      transition: transform var(--transition), border-color var(--transition), background-color var(--transition);
+    }
+
+    .expand-toggle[aria-expanded="true"] {
+      transform: rotate(90deg);
+      border-color: rgba(227, 24, 55, 0.44);
+      background: var(--accent-soft);
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 80px;
+      border-radius: 999px;
+      padding: 7px 10px;
+      font-size: 0.79rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border: 1px solid transparent;
+    }
+
+    .status-win {
+      background: var(--green-soft);
+      color: var(--green);
+      border-color: rgba(31, 214, 107, 0.26);
+    }
+
+    .status-loss {
+      background: var(--red-soft);
+      color: var(--red);
+      border-color: rgba(255, 93, 115, 0.26);
+    }
+
+    .status-push {
+      background: var(--gray-soft);
+      color: var(--gray);
+      border-color: rgba(141, 148, 162, 0.22);
+    }
+
+    .status-pending {
+      background: var(--yellow-soft);
+      color: var(--yellow);
+      border-color: rgba(246, 196, 83, 0.28);
+    }
+
+    .result-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .result-button {
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .result-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .result-button.active-win {
+      background: var(--green-soft);
+      border-color: rgba(31, 214, 107, 0.28);
+      color: var(--green);
+    }
+
+    .result-button.active-loss {
+      background: var(--red-soft);
+      border-color: rgba(255, 93, 115, 0.28);
+      color: var(--red);
+    }
+
+    .result-button.active-push {
+      background: var(--gray-soft);
+      border-color: rgba(141, 148, 162, 0.22);
+      color: var(--gray);
+    }
+
+    .detail-row {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .detail-cell {
+      padding-top: 0;
+      padding-bottom: 18px;
+    }
+
+    .detail-panel {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      padding: 18px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+      animation: reveal 240ms ease;
+    }
+
+    @keyframes reveal {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .detail-item {
+      min-width: 0;
+    }
+
+    .detail-item strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .signal {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+    }
+
+    .signal::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 12px rgba(31, 214, 107, 0.72);
+    }
+
+    .chart-panel,
+    .stats-panel,
+    .parlays-panel,
+    .daily-panel {
+      padding: 18px;
+    }
+
+    .chart-canvas {
+      width: 100%;
+      height: 280px;
+      display: block;
+      border-radius: 14px;
+      background:
+        linear-gradient(180deg, rgba(227, 24, 55, 0.05), transparent 75%),
+        rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .parlay-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .parlay-card {
+      padding: 16px;
+      transition: transform var(--transition), border-color var(--transition);
+    }
+
+    .parlay-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(227, 24, 55, 0.2);
+    }
+
+    .parlay-header {
+      display: flex;
+      align-items: start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .parlay-legs {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .mini-cell {
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .mini-cell strong {
+      display: block;
+      color: var(--muted);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 5px;
+    }
+
+    .breakdown-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .breakdown-day {
+      overflow: hidden;
+    }
+
+    .day-toggle {
+      width: 100%;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      text-align: left;
+    }
+
+    .day-toggle:hover {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .day-summary {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .day-content {
+      padding: 0 18px 18px;
+      animation: reveal 240ms ease;
+    }
+
+    .day-bets {
+      display: grid;
+      gap: 10px;
+    }
+
+    .day-bet {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: transform var(--transition), background-color var(--transition);
+    }
+
+    .day-bet:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .stats-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .stat-block {
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .stat-block h3 {
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+    }
+
+    .stat-rows {
+      display: grid;
+      gap: 10px;
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 12px;
+      align-items: center;
+      font-size: 0.94rem;
+    }
+
+    .bar {
+      position: relative;
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+    }
+
+    .bar > span {
+      position: absolute;
+      inset: 0 auto 0 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--accent), #ff7b8f);
+    }
+
+    .fade-in {
+      animation: fade 280ms ease;
+    }
+
+    @keyframes fade {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .empty {
+      color: var(--muted);
+      padding: 24px 18px 28px;
+    }
+
+    .footer-note {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 1180px) {
+      .summary-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .layout,
+      .topbar {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 820px) {
+      .app {
+        width: min(100% - 20px, 100%);
+        padding-top: 18px;
+      }
+
+      .summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .detail-panel,
+      .mini-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .section-head {
+        align-items: start;
+        flex-direction: column;
+      }
+
+      .topbar .hero,
+      .topbar .pnl-hero,
+      .chart-panel,
+      .stats-panel,
+      .parlays-panel,
+      .daily-panel {
+        padding: 16px;
+      }
+
+      td,
+      thead th {
+        padding-left: 12px;
+        padding-right: 12px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .summary-grid,
+      .detail-panel,
+      .mini-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .day-bet,
+      .stat-row,
+      .parlay-header {
+        grid-template-columns: 1fr;
+        display: grid;
+      }
+
+      .pnl-value {
+        font-size: 2.5rem;
+      }
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        color: #111;
+      }
+
+      .app {
+        width: 100%;
+        padding: 0;
+      }
+
+      .card,
+      .chart-panel,
+      .table-wrap,
+      .parlay-card,
+      .breakdown-day,
+      .stats-panel {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        background: #fff;
+        color: #111;
+      }
+
+      .controls,
+      .result-group,
+      .expand-toggle,
+      .toolbar-button {
+        display: none !important;
+      }
+
+      .table-scroll {
+        overflow: visible;
+      }
+
+      table {
+        min-width: 0;
+      }
+
+      .detail-row {
+        display: table-row !important;
+      }
+
+      .detail-panel,
+      .mini-cell,
+      .day-bet,
+      .stat-block {
+        border-color: #ddd;
+        background: #fff;
+      }
+
+      .status-chip {
+        border: 1px solid #ccc;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <section class="card hero">
+        <div class="eyebrow"><span class="dot"></span>Tournament dashboard</div>
+        <h1>March Madness 2026<br>Betting Tracker</h1>
+        <p class="subtle">Track sides, totals, parlays, and closing-day performance in one place. Results persist locally, export cleanly to CSV, and print without extra tooling.</p>
+      </section>
+      <aside class="card pnl-hero">
+        <div class="pill">Running P&amp;L</div>
+        <div id="heroPnl" class="pnl-value neutral">0.00u</div>
+        <div id="heroMeta" class="subtle">0 settled bets, 0 pending</div>
+      </aside>
+    </header>
+
+    <section id="summaryGrid" class="summary-grid"></section>
+
+    <main class="layout">
+      <div class="stack">
+        <section class="table-wrap">
+          <div class="section-head" style="padding: 18px 18px 0;">
+            <div>
+              <h2>Active Bets</h2>
+              <p class="subtle">Sortable by date, time, and result. Click a bet to expand deeper signal notes.</p>
+            </div>
+            <div class="controls">
+              <div id="filterGroup" class="segmented" aria-label="Bet filters"></div>
+              <select id="sortSelect" class="sort-select" aria-label="Sort bets"></select>
+              <button id="exportCsv" class="toolbar-button" type="button">Export CSV</button>
+              <button id="printView" class="toolbar-button" type="button">Print</button>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th class="sortable" data-sort-key="date">Date</th>
+                  <th class="sortable" data-sort-key="gameTime">Game Time</th>
+                  <th>Game</th>
+                  <th>Pick</th>
+                  <th>Line</th>
+                  <th>Units</th>
+                  <th>Book</th>
+                  <th class="sortable" data-sort-key="result">Result</th>
+                  <th>Payout</th>
+                  <th>Mark Result</th>
+                </tr>
+              </thead>
+              <tbody id="betsBody"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="parlays-panel card">
+          <div class="section-head">
+            <div>
+              <h2>Parlays</h2>
+              <p class="subtle">Multi-leg tickets tracked separately from straight bets.</p>
+            </div>
+          </div>
+          <div id="parlayGrid" class="parlay-grid"></div>
+        </section>
+
+        <section class="daily-panel card">
+          <div class="section-head">
+            <div>
+              <h2>Daily Breakdown</h2>
+              <p class="subtle">Collapse by day to isolate exposure and realized units.</p>
+            </div>
+          </div>
+          <div id="dailyBreakdown" class="breakdown-list"></div>
+        </section>
+      </div>
+
+      <aside class="stack">
+        <section class="chart-panel card">
+          <div class="section-head">
+            <div>
+              <h2>Cumulative P&amp;L</h2>
+              <p class="subtle">Unit profit progression across settled bets.</p>
+            </div>
+          </div>
+          <canvas id="pnlChart" class="chart-canvas" width="520" height="280"></canvas>
+          <div class="footer-note">Straight bets and parlays are both included after settlement.</div>
+        </section>
+
+        <section class="stats-panel card">
+          <div class="section-head">
+            <div>
+              <h2>Stats Panel</h2>
+              <p class="subtle">Segmented by bet type, confidence tier, and sharp-signal outcomes.</p>
+            </div>
+          </div>
+          <div id="statsGrid" class="stats-grid"></div>
+        </section>
+      </aside>
+    </main>
+  </div>
+
+  <script>
+    const UNIT_SIZE = 25; // $25 per unit
+    const ODDS_API_KEY = 'e67edf56e83961b61cade3d85be1280e';
+    const ODDS_API_BASE = 'https://api.the-odds-api.com/v4';
+    const SPORT = 'basketball_ncaab';
+
+    // Team name mapping for API matching
+    const TEAM_ALIASES = {
+      'TCU': ['TCU Horned Frogs', 'TCU'],
+      'Ohio State': ['Ohio State Buckeyes', 'Ohio State'],
+      'Houston': ['Houston Cougars', 'Houston'],
+      'Idaho': ['Idaho Vandals', 'Idaho'],
+      'Illinois': ['Illinois Fighting Illini', 'Illinois'],
+      'Penn': ['Penn Quakers', 'Pennsylvania', 'Penn'],
+      'VCU': ['VCU Rams', 'VCU'],
+      'UNC': ['North Carolina Tar Heels', 'North Carolina', 'UNC'],
+      'USF': ['South Florida Bulls', 'South Florida', 'USF'],
+      'Louisville': ['Louisville Cardinals', 'Louisville'],
+      'Saint Louis': ['Saint Louis Billikens', 'Saint Louis'],
+      'Georgia': ['Georgia Bulldogs', 'Georgia'],
+      'High Point': ['High Point Panthers', 'High Point'],
+      'Wisconsin': ['Wisconsin Badgers', 'Wisconsin'],
+      'Gonzaga': ['Gonzaga Bulldogs', 'Gonzaga'],
+      'Kennesaw St': ['Kennesaw State Owls', 'Kennesaw State'],
+    };
+
+    // Auto-fetch scores every 3 minutes
+    async function fetchLiveScores() {
+      try {
+        const res = await fetch(`${ODDS_API_BASE}/sports/${SPORT}/scores/?apiKey=${ODDS_API_KEY}&daysFrom=1`);
+        if (!res.ok) return;
+        const games = await res.json();
+        let updated = false;
+        for (const game of games) {
+          if (!game.completed) continue;
+          const scores = game.scores;
+          if (!scores || scores.length < 2) continue;
+          const home = game.home_team;
+          const away = game.away_team;
+          const homeScore = parseInt(scores.find(s => s.name === home)?.score || 0);
+          const awayScore = parseInt(scores.find(s => s.name === away)?.score || 0);
+          const totalPoints = homeScore + awayScore;
+          const scoreStr = `${away} ${awayScore} - ${home} ${homeScore}`;
+
+          for (const bet of BETS) {
+            if (bet.result) continue; // already graded
+            const teams = bet.game.split(' vs ');
+            const matchesGame = teams.some(t => {
+              const aliases = TEAM_ALIASES[t.trim()] || [t.trim()];
+              return aliases.some(a => a === home || a === away);
+            });
+            if (!matchesGame) continue;
+
+            bet.score = scoreStr;
+            // Grade spread bets
+            if (bet.type === 'spread') {
+              const pickParts = bet.pick.match(/(.+?)\s([+-][\d.]+)/);
+              if (pickParts) {
+                const pickTeam = pickParts[1].trim();
+                const spread = parseFloat(pickParts[2]);
+                const aliases = TEAM_ALIASES[pickTeam] || [pickTeam];
+                const isHome = aliases.some(a => a === home);
+                const pickScore = isHome ? homeScore : awayScore;
+                const oppScore = isHome ? awayScore : homeScore;
+                const margin = pickScore - oppScore + spread;
+                if (margin > 0) bet.result = 'win';
+                else if (margin < 0) bet.result = 'loss';
+                else bet.result = 'push';
+                updated = true;
+              }
+            }
+            // Grade total bets
+            if (bet.type === 'total') {
+              const isUnder = bet.pick.toLowerCase().includes('under') || bet.pick.includes('U');
+              const totalLine = parseFloat(bet.pick.match(/[\d.]+/)?.[0] || 0);
+              if (isUnder) {
+                if (totalPoints < totalLine) bet.result = 'win';
+                else if (totalPoints > totalLine) bet.result = 'loss';
+                else bet.result = 'push';
+              } else {
+                if (totalPoints > totalLine) bet.result = 'win';
+                else if (totalPoints < totalLine) bet.result = 'loss';
+                else bet.result = 'push';
+              }
+              updated = true;
+            }
+          }
+        }
+        // Grade parlays
+        for (const parlay of PARLAYS) {
+          if (parlay.result) continue;
+          const legResults = parlay.legs.map(leg => {
+            const bet = BETS.find(b => b.pick === leg);
+            return bet ? bet.result : null;
+          });
+          if (legResults.some(r => r === 'loss')) { parlay.result = 'loss'; updated = true; }
+          else if (legResults.every(r => r === 'win')) { parlay.result = 'win'; updated = true; }
+          else if (legResults.every(r => r !== null)) { parlay.result = 'push'; updated = true; }
+        }
+        if (updated) {
+          saveState();
+          render();
+        }
+      } catch (e) {
+        console.log('Score fetch error:', e);
+      }
+    }
+
+    // Poll every 3 minutes
+    setInterval(fetchLiveScores, 180000);
+    // Initial fetch after 2 seconds
+    setTimeout(fetchLiveScores, 2000);
+
+    const BETS = [
+      {
+        id: 1,
+        date: "2026-03-19",
+        gameTime: "12:15 PM ET",
+        game: "TCU vs Ohio State",
+        pick: "TCU +2.5",
+        line: -105,
+        units: 1.5,
+        book: "FanDuel ON",
+        type: "spread",
+        confidence: "high",
+        sharpSignal: true,
+        kenpomGap: 4.7,
+        result: null,
+        score: null,
+        notes: "Early dog with model edge and confirmed market support."
+      },
+      {
+        id: 2,
+        date: "2026-03-19",
+        gameTime: "10:10 PM ET",
+        game: "Houston vs Idaho",
+        pick: "Houston -23.5",
+        line: -110,
+        units: 1.5,
+        book: "bet365",
+        type: "spread",
+        confidence: "high",
+        sharpSignal: true,
+        kenpomGap: 31.9,
+        result: null,
+        score: null,
+        notes: "Large efficiency gap with a high-confidence spread rating."
+      },
+      {
+        id: 3,
+        date: "2026-03-19",
+        gameTime: "9:25 PM ET",
+        game: "Illinois vs Penn",
+        pick: "Illinois -25.5",
+        line: -110,
+        units: 1,
+        book: "bet365",
+        type: "spread",
+        confidence: "high",
+        sharpSignal: true,
+        kenpomGap: 30.7,
+        result: null,
+        score: null,
+        notes: "Model projects separation well above the current market number."
+      },
+      {
+        id: 4,
+        date: "2026-03-19",
+        gameTime: "6:50 PM ET",
+        game: "VCU vs UNC",
+        pick: "VCU +2.5",
+        line: -110,
+        units: 1,
+        book: "FanDuel ON",
+        type: "spread",
+        confidence: "medium",
+        sharpSignal: true,
+        kenpomGap: 3.4,
+        result: null,
+        score: null,
+        notes: "Short dog catching points with supporting sharp activity."
+      },
+      {
+        id: 5,
+        date: "2026-03-19",
+        gameTime: "1:30 PM ET",
+        game: "USF vs Louisville",
+        pick: "USF +4.5",
+        line: -110,
+        units: 1,
+        book: "bet365",
+        type: "spread",
+        confidence: "medium",
+        sharpSignal: true,
+        kenpomGap: 8.9,
+        result: null,
+        score: null,
+        notes: "Market number trails the projection by nearly two possessions."
+      },
+      {
+        id: 6,
+        date: "2026-03-19",
+        gameTime: "9:45 PM ET",
+        game: "Saint Louis vs Georgia",
+        pick: "Saint Louis +2.5",
+        line: -115,
+        units: 0.5,
+        book: "bet365",
+        type: "spread",
+        confidence: "low",
+        sharpSignal: true,
+        kenpomGap: 1.9,
+        result: null,
+        score: null,
+        notes: "Smaller stake tied to a thinner edge but still signal-supported."
+      },
+      {
+        id: 7,
+        date: "2026-03-19",
+        gameTime: "1:50 PM ET",
+        game: "High Point vs Wisconsin",
+        pick: "HP/Wis Under 162.5",
+        line: -110,
+        units: 1,
+        book: "bet365",
+        type: "total",
+        confidence: "high",
+        sharpSignal: true,
+        kenpomGap: null,
+        result: null,
+        score: null,
+        notes: "Total sits above projected pace-adjusted expectation."
+      }
+    ];
+
+    const PARLAYS = [
+      {
+        id: "P1",
+        date: "2026-03-19",
+        name: "Early Sharp",
+        legs: ["TCU +2.5", "USF +4.5", "HP/Wis U162.5"],
+        units: 0.5,
+        line: 550,
+        book: "FanDuel ON",
+        type: "parlay",
+        confidence: "medium",
+        sharpSignal: true,
+        result: null,
+        notes: "Stacks three early sharp looks into a plus-money ladder."
+      },
+      {
+        id: "P2",
+        date: "2026-03-19",
+        name: "Chalk Lock",
+        legs: ["Houston ML", "Gonzaga ML", "Illinois ML"],
+        units: 0.5,
+        line: 120,
+        book: "bet365",
+        type: "parlay",
+        confidence: "low",
+        sharpSignal: false,
+        result: null,
+        notes: "Short-price moneyline parlay built for small exposure."
+      }
+    ];
+
+    const STORAGE_KEY = "march-madness-2026-betting-tracker";
+    const FILTERS = ["all", "pending", "settled", "wins", "losses"];
+    const SORT_OPTIONS = [
+      { value: "date-asc", label: "Date: Earliest" },
+      { value: "date-desc", label: "Date: Latest" },
+      { value: "gameTime-asc", label: "Game Time: Earliest" },
+      { value: "gameTime-desc", label: "Game Time: Latest" },
+      { value: "result-asc", label: "Result: Pending to Win" },
+      { value: "result-desc", label: "Result: Win to Pending" }
+    ];
+    const RESULT_ORDER = { pending: 0, push: 1, loss: 2, win: 3 };
+    const TYPE_LABELS = { spread: "Spread", total: "Total", ml: "Moneyline", parlay: "Parlay" };
+    const CONFIDENCE_LABELS = { high: "High", medium: "Medium", low: "Low" };
+
+    let state = {
+      filter: "all",
+      sort: "date-asc",
+      expandedBets: new Set(),
+      openDays: new Set(["2026-03-19"])
+    };
+
+    const dom = {
+      heroPnl: document.getElementById("heroPnl"),
+      heroMeta: document.getElementById("heroMeta"),
+      summaryGrid: document.getElementById("summaryGrid"),
+      filterGroup: document.getElementById("filterGroup"),
+      sortSelect: document.getElementById("sortSelect"),
+      betsBody: document.getElementById("betsBody"),
+      parlayGrid: document.getElementById("parlayGrid"),
+      dailyBreakdown: document.getElementById("dailyBreakdown"),
+      pnlChart: document.getElementById("pnlChart"),
+      statsGrid: document.getElementById("statsGrid"),
+      exportCsv: document.getElementById("exportCsv"),
+      printView: document.getElementById("printView")
+    };
+
+    function cloneData(items) {
+      return items.map((item) => ({ ...item }));
+    }
+
+    let bets = cloneData(BETS);
+    let parlays = cloneData(PARLAYS);
+    let previousSummarySnapshot = {};
+
+    function americanProfit(units, odds) {
+      if (odds > 0) return units * (odds / 100);
+      return units * (100 / Math.abs(odds));
+    }
+
+    function settledProfit(item) {
+      if (item.result === "win") return americanProfit(item.units, item.line);
+      if (item.result === "loss") return -item.units;
+      return 0;
+    }
+
+    function pendingToWin(item) {
+      return americanProfit(item.units, item.line);
+    }
+
+    function formatUnits(value, signed = true) {
+      const rounded = Math.round(value * 1000) / 1000;
+      const formatted = rounded.toFixed(2).replace(/\.00$/, ".00");
+      if (!signed) return `${formatted}u`;
+      if (rounded > 0) return `+${formatted}u`;
+      if (rounded < 0) return `${formatted}u`;
+      return `0.00u`;
+    }
+
+    function formatPercent(value) {
+      if (!Number.isFinite(value)) return "0.0%";
+      return `${value.toFixed(1)}%`;
+    }
+
+    function prettyDate(dateStr) {
+      const date = new Date(`${dateStr}T12:00:00`);
+      return date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+    }
+
+    function dayLabel(dateStr) {
+      const date = new Date(`${dateStr}T12:00:00`);
+      return date.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+    }
+
+    function parseTimeToMinutes(label) {
+      if (!label) return 0;
+      const cleaned = label.replace(" ET", "");
+      const [time, meridiem] = cleaned.split(" ");
+      const [rawHour, rawMinute] = time.split(":").map(Number);
+      let hour = rawHour % 12;
+      if (meridiem === "PM") hour += 12;
+      return hour * 60 + rawMinute;
+    }
+
+    function statusClass(result) {
+      const key = result || "pending";
+      return `status-${key}`;
+    }
+
+    function statusLabel(result) {
+      if (!result) return "Pending";
+      return result.charAt(0).toUpperCase() + result.slice(1);
+    }
+
+    function resultButtonClass(result, target) {
+      if (result !== target) return "";
+      return `active-${target}`;
+    }
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (!saved) return;
+        const betMap = new Map(saved.bets?.map((entry) => [entry.id, entry]) || []);
+        const parlayMap = new Map(saved.parlays?.map((entry) => [entry.id, entry]) || []);
+        bets = cloneData(BETS).map((bet) => ({ ...bet, ...(betMap.get(bet.id) || {}) }));
+        parlays = cloneData(PARLAYS).map((parlay) => ({ ...parlay, ...(parlayMap.get(parlay.id) || {}) }));
+      } catch (error) {
+        bets = cloneData(BETS);
+        parlays = cloneData(PARLAYS);
+      }
+    }
+
+    function saveState() {
+      const payload = {
+        bets: bets.map(({ id, result, score }) => ({ id, result, score })),
+        parlays: parlays.map(({ id, result }) => ({ id, result }))
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    }
+
+    function compareValues(a, b, direction) {
+      if (a < b) return direction === "asc" ? -1 : 1;
+      if (a > b) return direction === "asc" ? 1 : -1;
+      return 0;
+    }
+
+    function getFilteredSortedBets() {
+      const [key, direction] = state.sort.split("-");
+      return bets
+        .filter((bet) => {
+          if (state.filter === "all") return true;
+          if (state.filter === "pending") return !bet.result;
+          if (state.filter === "settled") return Boolean(bet.result);
+          if (state.filter === "wins") return bet.result === "win";
+          if (state.filter === "losses") return bet.result === "loss";
+          return true;
+        })
+        .sort((left, right) => {
+          if (key === "date") {
+            return compareValues(left.date, right.date, direction) || compareValues(parseTimeToMinutes(left.gameTime), parseTimeToMinutes(right.gameTime), direction);
+          }
+          if (key === "gameTime") {
+            return compareValues(parseTimeToMinutes(left.gameTime), parseTimeToMinutes(right.gameTime), direction) || compareValues(left.date, right.date, direction);
+          }
+          const leftResult = RESULT_ORDER[left.result || "pending"];
+          const rightResult = RESULT_ORDER[right.result || "pending"];
+          return compareValues(leftResult, rightResult, direction) || compareValues(parseTimeToMinutes(left.gameTime), parseTimeToMinutes(right.gameTime), "asc");
+        });
+    }
+
+    function allTickets() {
+      return [
+        ...bets.map((bet) => ({ ...bet, ticketType: "bet", label: bet.pick })),
+        ...parlays.map((parlay) => ({ ...parlay, ticketType: "parlay", label: parlay.name }))
+      ];
+    }
+
+    function summarize() {
+      const settledBets = allTickets().filter((item) => item.result);
+      const totalUnitsWagered = allTickets().reduce((sum, item) => sum + item.units, 0);
+      const realized = settledBets.reduce((sum, item) => sum + settledProfit(item), 0);
+      const settledUnitsRisked = settledBets.reduce((sum, item) => sum + item.units, 0);
+      const wins = settledBets.filter((item) => item.result === "win").length;
+      const losses = settledBets.filter((item) => item.result === "loss").length;
+      const pushes = settledBets.filter((item) => item.result === "push").length;
+      const pending = allTickets().filter((item) => !item.result).length;
+      const resolved = wins + losses;
+      const roi = settledUnitsRisked ? (realized / settledUnitsRisked) * 100 : 0;
+      const winRate = resolved ? (wins / resolved) * 100 : 0;
+      const bestBet = settledBets.filter((item) => item.result === "win").sort((a, b) => settledProfit(b) - settledProfit(a))[0] || null;
+      const worstBet = settledBets.filter((item) => item.result === "loss").sort((a, b) => settledProfit(a) - settledProfit(b))[0] || null;
+
+      return {
+        totalUnitsWagered,
+        realized,
+        roi,
+        winRate,
+        bestBet,
+        worstBet,
+        wins,
+        losses,
+        pushes,
+        pending,
+        settledCount: settledBets.length
+      };
+    }
+
+    function buildSummaryCards(summary) {
+      const cards = [
+        { key: "totalUnitsWagered", label: "Total Units Wagered", metric: `${summary.totalUnitsWagered.toFixed(2)}u`, meta: `${summary.settledCount} settled tickets` },
+        { key: "realized", label: "Units Won/Lost", metric: formatUnits(summary.realized), meta: `${summary.wins}W-${summary.losses}L-${summary.pushes}P` },
+        { key: "roi", label: "ROI %", metric: formatPercent(summary.roi), meta: "Settled tickets only" },
+        { key: "winRate", label: "Win Rate", metric: formatPercent(summary.winRate), meta: `${summary.wins} wins in graded decisions` },
+        { key: "bestBet", label: "Best Bet", metric: summary.bestBet ? summary.bestBet.label || summary.bestBet.pick || summary.bestBet.name : "Pending", meta: summary.bestBet ? formatUnits(settledProfit(summary.bestBet)) : "No winners yet" },
+        { key: "worstBet", label: "Worst Bet", metric: summary.worstBet ? summary.worstBet.label || summary.worstBet.pick || summary.worstBet.name : "Pending", meta: summary.worstBet ? formatUnits(settledProfit(summary.worstBet)) : "No losers yet" }
+      ];
+
+      dom.summaryGrid.innerHTML = cards.map((card) => {
+        const previous = previousSummarySnapshot[card.key];
+        const current = card.metric;
+        const flashClass = previous && previous !== current
+          ? (card.key === "realized" && summary.realized < parseFloat(previous) ? "flash-loss" : "flash-win")
+          : "";
+        previousSummarySnapshot[card.key] = current;
+        return `
+          <article class="card summary-card ${flashClass}">
+            <div class="label">${card.label}</div>
+            <div class="metric">${card.metric}</div>
+            <div class="meta">${card.meta}</div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function animateHeroPnl(nextValue, summary) {
+      const startValue = Number(dom.heroPnl.dataset.value || 0);
+      const duration = 500;
+      const startTime = performance.now();
+
+      function frame(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const value = startValue + (nextValue - startValue) * eased;
+        dom.heroPnl.textContent = formatUnits(value);
+        dom.heroPnl.dataset.value = String(value);
+        dom.heroPnl.className = `pnl-value ${value > 0 ? "positive" : value < 0 ? "negative" : "neutral"}`;
+        if (progress < 1) requestAnimationFrame(frame);
+      }
+
+      requestAnimationFrame(frame);
+      dom.heroMeta.textContent = `${summary.settledCount} settled bets, ${summary.pending} pending`;
+    }
+
+    function renderFilters() {
+      dom.filterGroup.innerHTML = FILTERS.map((filter) => `
+        <button type="button" data-filter="${filter}" class="${state.filter === filter ? "active" : ""}">
+          ${filter.charAt(0).toUpperCase() + filter.slice(1)}
+        </button>
+      `).join("");
+    }
+
+    function renderSortOptions() {
+      dom.sortSelect.innerHTML = SORT_OPTIONS.map((option) => `
+        <option value="${option.value}" ${state.sort === option.value ? "selected" : ""}>${option.label}</option>
+      `).join("");
+    }
+
+    function payoutLabel(bet) {
+      if (bet.result) return formatUnits(settledProfit(bet));
+      return `To win ${formatUnits(pendingToWin(bet), false)}`;
+    }
+
+    function renderBetsTable() {
+      const rows = getFilteredSortedBets();
+      if (!rows.length) {
+        dom.betsBody.innerHTML = `<tr><td colspan="10" class="empty">No bets match the current filter.</td></tr>`;
+        return;
+      }
+
+      dom.betsBody.innerHTML = rows.map((bet) => {
+        const expanded = state.expandedBets.has(bet.id);
+        return `
+          <tr class="bet-row fade-in" data-id="${bet.id}">
+            <td>${prettyDate(bet.date)}</td>
+            <td>${bet.gameTime}</td>
+            <td>
+              <div class="row-main">
+                <button class="expand-toggle" type="button" data-expand-id="${bet.id}" aria-expanded="${expanded}" aria-label="Expand bet details">›</button>
+                <span>${bet.game}</span>
+              </div>
+            </td>
+            <td>${bet.pick}</td>
+            <td>${bet.line > 0 ? `+${bet.line}` : bet.line}</td>
+            <td>${bet.units.toFixed(2).replace(/\.00$/, "")}u</td>
+            <td>${bet.book}</td>
+            <td><span class="status-chip ${statusClass(bet.result)}">${statusLabel(bet.result)}</span></td>
+            <td class="${settledProfit(bet) > 0 ? "positive" : settledProfit(bet) < 0 ? "negative" : ""}">${payoutLabel(bet)}</td>
+            <td>
+              <div class="result-group">
+                <button type="button" class="result-button ${resultButtonClass(bet.result, "win")}" data-ticket-type="bet" data-id="${bet.id}" data-result="win">W</button>
+                <button type="button" class="result-button ${resultButtonClass(bet.result, "loss")}" data-ticket-type="bet" data-id="${bet.id}" data-result="loss">L</button>
+                <button type="button" class="result-button ${resultButtonClass(bet.result, "push")}" data-ticket-type="bet" data-id="${bet.id}" data-result="push">Push</button>
+                <button type="button" class="result-button" data-ticket-type="bet" data-id="${bet.id}" data-result="">Reset</button>
+              </div>
+            </td>
+          </tr>
+          ${expanded ? `
+            <tr class="detail-row">
+              <td colspan="10" class="detail-cell">
+                <div class="detail-panel">
+                  <div class="detail-item">
+                    <strong>Bet Type</strong>
+                    <span>${TYPE_LABELS[bet.type]}</span>
+                  </div>
+                  <div class="detail-item">
+                    <strong>Confidence</strong>
+                    <span>${CONFIDENCE_LABELS[bet.confidence]}</span>
+                  </div>
+                  <div class="detail-item">
+                    <strong>KenPom Gap</strong>
+                    <span>${bet.kenpomGap == null ? "N/A" : bet.kenpomGap.toFixed(1)}</span>
+                  </div>
+                  <div class="detail-item">
+                    <strong>Sharp Signal</strong>
+                    <span>${bet.sharpSignal ? '<span class="signal">Active</span>' : 'None'}</span>
+                  </div>
+                  <div class="detail-item">
+                    <strong>Score</strong>
+                    <span>${bet.score || "Pending"}</span>
+                  </div>
+                  <div class="detail-item">
+                    <strong>Stake</strong>
+                    <span>${bet.units.toFixed(2).replace(/\.00$/, "")}u</span>
+                  </div>
+                  <div class="detail-item" style="grid-column: span 2;">
+                    <strong>Notes</strong>
+                    <span>${bet.notes}</span>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          ` : ""}
+        `;
+      }).join("");
+    }
+
+    function renderParlays() {
+      dom.parlayGrid.innerHTML = parlays.map((parlay) => `
+        <article class="parlay-card fade-in">
+          <div class="parlay-header">
+            <div>
+              <div class="label">${prettyDate(parlay.date)}</div>
+              <h3>${parlay.name}</h3>
+            </div>
+            <span class="status-chip ${statusClass(parlay.result)}">${statusLabel(parlay.result)}</span>
+          </div>
+          <ol class="parlay-legs">
+            ${parlay.legs.map((leg) => `<li>${leg}</li>`).join("")}
+          </ol>
+          <div class="mini-grid">
+            <div class="mini-cell">
+              <strong>Odds</strong>
+              <span>${parlay.line > 0 ? `+${parlay.line}` : parlay.line}</span>
+            </div>
+            <div class="mini-cell">
+              <strong>Stake</strong>
+              <span>${parlay.units}u</span>
+            </div>
+            <div class="mini-cell">
+              <strong>Payout</strong>
+              <span class="${settledProfit(parlay) > 0 ? "positive" : settledProfit(parlay) < 0 ? "negative" : ""}">
+                ${payoutLabel(parlay)}
+              </span>
+            </div>
+          </div>
+          <p class="subtle" style="margin-bottom: 12px;">${parlay.notes}</p>
+          <div class="result-group">
+            <button type="button" class="result-button ${resultButtonClass(parlay.result, "win")}" data-ticket-type="parlay" data-id="${parlay.id}" data-result="win">W</button>
+            <button type="button" class="result-button ${resultButtonClass(parlay.result, "loss")}" data-ticket-type="parlay" data-id="${parlay.id}" data-result="loss">L</button>
+            <button type="button" class="result-button ${resultButtonClass(parlay.result, "push")}" data-ticket-type="parlay" data-id="${parlay.id}" data-result="push">Push</button>
+            <button type="button" class="result-button" data-ticket-type="parlay" data-id="${parlay.id}" data-result="">Reset</button>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    function renderDailyBreakdown() {
+      const grouped = new Map();
+      allTickets().forEach((ticket) => {
+        if (!grouped.has(ticket.date)) grouped.set(ticket.date, []);
+        grouped.get(ticket.date).push(ticket);
+      });
+
+      const markup = [...grouped.entries()]
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([date, items]) => {
+          const pnl = items.reduce((sum, item) => sum + settledProfit(item), 0);
+          const wins = items.filter((item) => item.result === "win").length;
+          const losses = items.filter((item) => item.result === "loss").length;
+          const pushes = items.filter((item) => item.result === "push").length;
+          const pending = items.filter((item) => !item.result).length;
+          const open = state.openDays.has(date);
+
+          return `
+            <section class="breakdown-day fade-in">
+              <button type="button" class="day-toggle" data-day="${date}" aria-expanded="${open}">
+                <div>
+                  <strong>${dayLabel(date)}</strong>
+                  <div class="subtle">${items.length} tickets tracked</div>
+                </div>
+                <div class="day-summary">
+                  <span class="${pnl > 0 ? "positive" : pnl < 0 ? "negative" : ""}">${formatUnits(pnl)}</span>
+                  <span class="subtle">${wins}W-${losses}L-${pushes}P, ${pending} pending</span>
+                </div>
+              </button>
+              ${open ? `
+                <div class="day-content">
+                  <div class="day-bets">
+                    ${items
+                      .sort((a, b) => parseTimeToMinutes(a.gameTime) - parseTimeToMinutes(b.gameTime))
+                      .map((bet) => `
+                        <div class="day-bet">
+                          <div>
+                            <strong>${bet.gameTime ? `${bet.gameTime} · ` : ""}${bet.pick || bet.name}</strong>
+                            <div class="subtle">${bet.game || bet.legs?.join(" / ") || "Parlay"} · ${bet.book}</div>
+                          </div>
+                          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                            <span class="status-chip ${statusClass(bet.result)}">${statusLabel(bet.result)}</span>
+                            <strong class="${settledProfit(bet) > 0 ? "positive" : settledProfit(bet) < 0 ? "negative" : ""}">${payoutLabel(bet)}</strong>
+                          </div>
+                        </div>
+                      `).join("")}
+                  </div>
+                </div>
+              ` : ""}
+            </section>
+          `;
+        }).join("");
+
+      dom.dailyBreakdown.innerHTML = markup || `<div class="empty">No dates available.</div>`;
+    }
+
+    function recordString(items) {
+      const wins = items.filter((item) => item.result === "win").length;
+      const losses = items.filter((item) => item.result === "loss").length;
+      const pushes = items.filter((item) => item.result === "push").length;
+      return `${wins}-${losses}-${pushes}`;
+    }
+
+    function groupedStats(items, selector, values) {
+      return values.map((value) => {
+        const filtered = items.filter((item) => selector(item) === value);
+        const graded = filtered.filter((item) => item.result);
+        const wins = graded.filter((item) => item.result === "win").length;
+        const losses = graded.filter((item) => item.result === "loss").length;
+        const hitRate = wins + losses ? (wins / (wins + losses)) * 100 : 0;
+        return {
+          key: value,
+          label: TYPE_LABELS[value] || CONFIDENCE_LABELS[value] || value,
+          record: recordString(graded),
+          hitRate,
+          count: filtered.length
+        };
+      });
+    }
+
+    function renderStats() {
+      const tickets = allTickets();
+      const typeStats = groupedStats(tickets, (item) => item.type, ["spread", "total", "ml", "parlay"]);
+      const confidenceStats = groupedStats(tickets, (item) => item.confidence, ["high", "medium", "low"]);
+      const sharpItems = tickets.filter((item) => item.sharpSignal);
+      const sharpWins = sharpItems.filter((item) => item.result === "win").length;
+      const sharpLosses = sharpItems.filter((item) => item.result === "loss").length;
+      const sharpHitRate = sharpWins + sharpLosses ? (sharpWins / (sharpWins + sharpLosses)) * 100 : 0;
+
+      const blockMarkup = (title, stats) => `
+        <section class="stat-block">
+          <h3>${title}</h3>
+          <div class="stat-rows">
+            ${stats.map((stat) => `
+              <div class="stat-row">
+                <div>
+                  <strong>${stat.label}</strong>
+                  <div class="subtle">${stat.record} · ${stat.count} tracked</div>
+                </div>
+                <div class="bar"><span style="width:${Math.max(stat.hitRate, 4)}%;"></span></div>
+                <div>${formatPercent(stat.hitRate)}</div>
+              </div>
+            `).join("")}
+          </div>
+        </section>
+      `;
+
+      dom.statsGrid.innerHTML = `
+        ${blockMarkup("By Bet Type", typeStats)}
+        ${blockMarkup("By Confidence", confidenceStats)}
+        <section class="stat-block">
+          <h3>Sharp Signal Hit Rate</h3>
+          <div class="stat-rows">
+            <div class="stat-row">
+              <div>
+                <strong>Sharp Plays</strong>
+                <div class="subtle">${recordString(sharpItems.filter((item) => item.result))} · ${sharpItems.length} tracked</div>
+              </div>
+              <div class="bar"><span style="width:${Math.max(sharpHitRate, 4)}%;"></span></div>
+              <div>${formatPercent(sharpHitRate)}</div>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
+    function drawChart() {
+      const canvas = dom.pnlChart;
+      const ctx = canvas.getContext("2d");
+      const ratio = window.devicePixelRatio || 1;
+      const width = canvas.clientWidth || canvas.width;
+      const height = canvas.clientHeight || canvas.height;
+      canvas.width = width * ratio;
+      canvas.height = height * ratio;
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      ctx.clearRect(0, 0, width, height);
+
+      const settled = allTickets()
+        .filter((item) => item.result)
+        .sort((a, b) => (a.date + (a.gameTime || "")).localeCompare(b.date + (b.gameTime || "")));
+
+      const series = [{ label: "Start", value: 0 }];
+      let running = 0;
+      settled.forEach((item) => {
+        running += settledProfit(item);
+        series.push({ label: item.label || item.pick || item.name, value: running });
+      });
+
+      const padding = { top: 22, right: 18, bottom: 28, left: 42 };
+      const chartWidth = width - padding.left - padding.right;
+      const chartHeight = height - padding.top - padding.bottom;
+      const values = series.map((point) => point.value);
+      const min = Math.min(0, ...values);
+      const max = Math.max(0, ...values);
+      const range = max - min || 1;
+
+      ctx.strokeStyle = "rgba(255,255,255,0.08)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let i = 0; i < 4; i += 1) {
+        const y = padding.top + (chartHeight / 3) * i;
+        ctx.moveTo(padding.left, y);
+        ctx.lineTo(width - padding.right, y);
+      }
+      ctx.stroke();
+
+      const zeroY = padding.top + ((max - 0) / range) * chartHeight;
+      ctx.strokeStyle = "rgba(227,24,55,0.35)";
+      ctx.beginPath();
+      ctx.moveTo(padding.left, zeroY);
+      ctx.lineTo(width - padding.right, zeroY);
+      ctx.stroke();
+
+      const getX = (index) => padding.left + (series.length === 1 ? chartWidth / 2 : (chartWidth / (series.length - 1)) * index);
+      const getY = (value) => padding.top + ((max - value) / range) * chartHeight;
+
+      ctx.beginPath();
+      series.forEach((point, index) => {
+        const x = getX(index);
+        const y = getY(point.value);
+        if (index === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+      ctx.strokeStyle = "#e31837";
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      ctx.fillStyle = "#ffffff";
+      series.forEach((point, index) => {
+        const x = getX(index);
+        const y = getY(point.value);
+        ctx.beginPath();
+        ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      ctx.fillStyle = "rgba(255,255,255,0.65)";
+      ctx.font = "12px Inter, sans-serif";
+      ctx.textAlign = "right";
+      ctx.fillText(formatUnits(max), padding.left - 8, padding.top + 4);
+      ctx.fillText(formatUnits(0), padding.left - 8, zeroY + 4);
+      ctx.fillText(formatUnits(min), padding.left - 8, padding.top + chartHeight + 4);
+    }
+
+    function updateTicketResult(ticketType, id, result) {
+      const collection = ticketType === "parlay" ? parlays : bets;
+      const item = collection.find((entry) => String(entry.id) === String(id));
+      if (!item) return;
+      item.result = result || null;
+      saveState();
+      render();
+    }
+
+    function exportCsv() {
+      const headers = ["id", "kind", "date", "gameTime", "game", "pickOrName", "line", "units", "book", "type", "confidence", "sharpSignal", "kenpomGap", "result", "payout"];
+      const rows = [
+        ...bets.map((bet) => [
+          bet.id, "bet", bet.date, bet.gameTime, bet.game, bet.pick, bet.line, bet.units, bet.book, bet.type, bet.confidence, bet.sharpSignal, bet.kenpomGap ?? "", bet.result || "pending", settledProfit(bet).toFixed(3)
+        ]),
+        ...parlays.map((parlay) => [
+          parlay.id, "parlay", parlay.date, "", "", parlay.name, parlay.line, parlay.units, parlay.book, parlay.type, parlay.confidence, parlay.sharpSignal, "", parlay.result || "pending", settledProfit(parlay).toFixed(3)
+        ])
+      ];
+      const csv = [headers, ...rows]
+        .map((row) => row.map((value) => `"${String(value).replace(/"/g, '""')}"`).join(","))
+        .join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "march-madness-2026-betting-tracker.csv";
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function attachEvents() {
+      dom.filterGroup.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-filter]");
+        if (!button) return;
+        state.filter = button.dataset.filter;
+        renderFilters();
+        renderBetsTable();
+      });
+
+      dom.sortSelect.addEventListener("change", (event) => {
+        state.sort = event.target.value;
+        renderBetsTable();
+      });
+
+      document.addEventListener("click", (event) => {
+        const resultButton = event.target.closest("[data-result][data-id]");
+        if (resultButton) {
+          updateTicketResult(resultButton.dataset.ticketType, resultButton.dataset.id, resultButton.dataset.result);
+          return;
+        }
+
+        const toggle = event.target.closest("[data-expand-id]");
+        if (toggle) {
+          const id = Number(toggle.dataset.expandId);
+          if (state.expandedBets.has(id)) state.expandedBets.delete(id);
+          else state.expandedBets.add(id);
+          renderBetsTable();
+          return;
+        }
+
+        const dayToggle = event.target.closest("[data-day]");
+        if (dayToggle) {
+          const date = dayToggle.dataset.day;
+          if (state.openDays.has(date)) state.openDays.delete(date);
+          else state.openDays.add(date);
+          renderDailyBreakdown();
+        }
+      });
+
+      document.querySelectorAll("th.sortable").forEach((header) => {
+        header.addEventListener("click", () => {
+          const current = state.sort.startsWith(header.dataset.sortKey) ? state.sort : `${header.dataset.sortKey}-asc`;
+          const direction = current.endsWith("-asc") ? "desc" : "asc";
+          state.sort = `${header.dataset.sortKey}-${direction}`;
+          dom.sortSelect.value = state.sort;
+          renderBetsTable();
+        });
+      });
+
+      dom.exportCsv.addEventListener("click", exportCsv);
+      dom.printView.addEventListener("click", () => window.print());
+      window.addEventListener("resize", drawChart);
+    }
+
+    function render() {
+      const summary = summarize();
+      buildSummaryCards(summary);
+      animateHeroPnl(summary.realized, summary);
+      renderBetsTable();
+      renderParlays();
+      renderDailyBreakdown();
+      renderStats();
+      drawChart();
+    }
+
+    function init() {
+      loadState();
+      renderFilters();
+      renderSortOptions();
+      attachEvents();
+      render();
+    }
+
+    init();
+  </script>
+</body>
+</html>
