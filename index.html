@@ -1482,16 +1482,17 @@
       "20260404",
       "20260406"
     ];
-    const FILTERS = ["all", "pending", "settled", "wins", "losses"];
+    const FILTERS = ["all", "active", "settled", "wins", "losses"];
     const SORT_OPTIONS = [
       { value: "date-asc", label: "Date: Earliest" },
       { value: "date-desc", label: "Date: Latest" },
       { value: "gameTime-asc", label: "Game Time: Earliest" },
       { value: "gameTime-desc", label: "Game Time: Latest" },
-      { value: "result-asc", label: "Result: Pending to Win" },
-      { value: "result-desc", label: "Result: Win to Pending" }
+      { value: "result-asc", label: "Result: Not Placed to Win" },
+      { value: "result-desc", label: "Result: Win to Not Placed" }
     ];
     const RESULT_ORDER = { "not-placed": 0, placed: 1, push: 2, loss: 3, win: 4 };
+    const FINAL_RESULTS = ["win", "loss", "push"];
     const TYPE_LABELS = { spread: "Spread", total: "Total", ml: "Moneyline", parlay: "Parlay" };
     const CONFIDENCE_LABELS = { high: "High", medium: "Medium", low: "Low" };
     const ROUND_ORDER = ["first-four", "first-round", "second-round", "sweet-16", "elite-8", "final-four", "championship"];
@@ -1563,21 +1564,20 @@
     };
 
     const BETS = [
-      { id: 1, date: "2026-03-19", gameTime: "12:15 PM ET", game: "TCU vs Ohio State", pick: "TCU +2.5", line: -115, originalLine: -105, units: 1.5, book: BET_BOOK, type: "spread", confidence: "high", sharpSignal: true, kenpomGap: 4.7, result: "placed", score: null, notes: "Early dog with model edge and confirmed market support." },
-      { id: 2, date: "2026-03-19", gameTime: "10:10 PM ET", game: "Houston vs Idaho", pick: "Houston -23.5", line: -110, originalLine: -110, units: 1.5, book: BET_BOOK, type: "spread", confidence: "high", sharpSignal: true, kenpomGap: 31.9, result: "placed", score: null, notes: "Large efficiency gap with a high-confidence spread rating." },
-      { id: 3, date: "2026-03-19", gameTime: "9:25 PM ET", game: "Illinois vs Penn", pick: "Illinois -25.5", line: -110, originalLine: -110, units: 1, book: BET_BOOK, type: "spread", confidence: "high", sharpSignal: true, kenpomGap: 30.7, result: "placed", score: null, notes: "Model projects separation well above the current market number." },
-      { id: 4, date: "2026-03-19", gameTime: "6:50 PM ET", game: "VCU vs UNC", pick: "VCU +2.5", line: -110, originalLine: -110, units: 1, book: BET_BOOK, type: "spread", confidence: "medium", sharpSignal: true, kenpomGap: 3.4, result: "placed", score: null, notes: "Short dog catching points with supporting sharp activity." },
-      { id: 5, date: "2026-03-19", gameTime: "1:30 PM ET", game: "USF vs Louisville", pick: "USF +4.5", line: -110, originalLine: -110, units: 1, book: BET_BOOK, type: "spread", confidence: "medium", sharpSignal: true, kenpomGap: 8.9, result: "placed", score: null, notes: "Market number trails the projection by nearly two possessions." },
-      { id: 6, date: "2026-03-19", gameTime: "9:45 PM ET", game: "Saint Louis vs Georgia", pick: "Saint Louis +2.5", line: -115, originalLine: -115, units: 0.5, book: BET_BOOK, type: "spread", confidence: "low", sharpSignal: true, kenpomGap: 1.9, result: "placed", score: null, notes: "Smaller stake tied to a thinner edge but still signal-supported." },
-      { id: 7, date: "2026-03-19", gameTime: "1:50 PM ET", game: "High Point vs Wisconsin", pick: "HP/Wis Under 162.5", line: -110, originalLine: -110, units: 1, book: BET_BOOK, type: "total", confidence: "high", sharpSignal: true, kenpomGap: null, result: "placed", score: null, notes: "Total sits above projected pace-adjusted expectation." }
+      { id: 1, date: "2026-03-19", gameTime: "12:15 PM ET", game: "TCU vs Ohio State", pick: "TCU +2.5", line: -115, originalLine: -105, units: 1.5, book: BET_BOOK, type: "spread", confidence: "high", sharpSignal: true, kenpomGap: 4.7, result: null, score: null, notes: "Early dog with model edge and confirmed market support." },
+      { id: 2, date: "2026-03-19", gameTime: "10:10 PM ET", game: "Houston vs Idaho", pick: "Houston -23.5", line: -110, originalLine: -110, units: 1.5, book: BET_BOOK, type: "spread", confidence: "high", sharpSignal: true, kenpomGap: 31.9, result: null, score: null, notes: "Large efficiency gap with a high-confidence spread rating." },
+      { id: 3, date: "2026-03-19", gameTime: "9:25 PM ET", game: "Illinois vs Penn", pick: "Illinois -25.5", line: -110, originalLine: -110, units: 1, book: BET_BOOK, type: "spread", confidence: "high", sharpSignal: true, kenpomGap: 30.7, result: null, score: null, notes: "Model projects separation well above the current market number." },
+      { id: 4, date: "2026-03-19", gameTime: "6:50 PM ET", game: "VCU vs UNC", pick: "VCU +2.5", line: -110, originalLine: -110, units: 1, book: BET_BOOK, type: "spread", confidence: "medium", sharpSignal: true, kenpomGap: 3.4, result: null, score: null, notes: "Short dog catching points with supporting sharp activity." },
+      { id: 5, date: "2026-03-19", gameTime: "1:30 PM ET", game: "USF vs Louisville", pick: "USF +4.5", line: -110, originalLine: -110, units: 1, book: BET_BOOK, type: "spread", confidence: "medium", sharpSignal: true, kenpomGap: 8.9, result: null, score: null, notes: "Market number trails the projection by nearly two possessions." },
+      { id: 6, date: "2026-03-19", gameTime: "9:45 PM ET", game: "Saint Louis vs Georgia", pick: "Saint Louis +2.5", line: -115, originalLine: -115, units: 0.5, book: BET_BOOK, type: "spread", confidence: "low", sharpSignal: true, kenpomGap: 1.9, result: null, score: null, notes: "Smaller stake tied to a thinner edge but still signal-supported." },
+      { id: 7, date: "2026-03-19", gameTime: "1:50 PM ET", game: "High Point vs Wisconsin", pick: "HP/Wis Under 162.5", line: -110, originalLine: -110, units: 1, book: BET_BOOK, type: "total", confidence: "high", sharpSignal: true, kenpomGap: null, result: null, score: null, notes: "Total sits above projected pace-adjusted expectation." }
     ];
 
     const PARLAYS = [
-      { id: "P1", date: "2026-03-19", name: "Early Sharp", legs: ["TCU +2.5", "USF +4.5", "HP/Wis Under 162.5"], units: 0.5, line: 550, book: BET_BOOK, type: "parlay", confidence: "medium", sharpSignal: true, result: "placed", notes: "Stacks three early sharp looks into a plus-money ladder." },
-      { id: "P2", date: "2026-03-19", name: "Chalk Lock", legs: ["Houston ML", "Gonzaga ML", "Illinois ML"], units: 0.5, line: 120, book: BET_BOOK, type: "parlay", confidence: "low", sharpSignal: false, result: "placed", notes: "Short-price moneyline parlay built for small exposure." }
+      { id: "P1", date: "2026-03-19", name: "Early Sharp", legs: ["TCU +2.5", "USF +4.5", "HP/Wis Under 162.5"], units: 0.5, line: 550, book: BET_BOOK, type: "parlay", confidence: "medium", sharpSignal: true, result: null, notes: "Stacks three early sharp looks into a plus-money ladder." }
     ];
 
-    const STORAGE_KEY = "march-madness-2026-betting-tracker";
+    const STORAGE_KEY = "march-madness-2026-bets";
 
     const dom = {
       heroPnl: document.getElementById("heroPnl"),
@@ -1799,6 +1799,21 @@
       return result === target ? `active-${target}` : "";
     }
 
+    function sanitizeResult(result) {
+      return ["placed", ...FINAL_RESULTS].includes(result) ? result : null;
+    }
+
+    function nextResultForAction(currentResult, targetResult) {
+      const current = sanitizeResult(currentResult);
+      const target = sanitizeResult(targetResult);
+      if (!target) return current;
+      if (target === "placed") {
+        return current === null ? "placed" : current === "placed" ? null : "placed";
+      }
+      if (current !== "placed" && current !== target) return current;
+      return current === target ? "placed" : target;
+    }
+
     function compareValues(a, b, direction) {
       if (a < b) return direction === "asc" ? -1 : 1;
       if (a > b) return direction === "asc" ? 1 : -1;
@@ -1810,7 +1825,7 @@
       return [...bets]
         .filter((bet) => {
           if (state.filter === "all") return true;
-          if (state.filter === "pending") return !isSettled(bet.result);
+          if (state.filter === "active") return !isSettled(bet.result);
           if (state.filter === "settled") return isSettled(bet.result);
           if (state.filter === "wins") return bet.result === "win";
           if (state.filter === "losses") return bet.result === "loss";
@@ -1950,19 +1965,28 @@
       if (!item.result) {
         return `
           <div class="result-group">
-            <button type="button" class="result-button" data-ticket-type="${ticketType}" data-id="${item.id}" data-result="placed">Place</button>
+            <button type="button" class="result-button" data-ticket-type="${ticketType}" data-id="${item.id}" data-result="placed">Mark Placed</button>
           </div>
         `;
       }
 
-      const resetTarget = item.result === "placed" ? "" : "placed";
-      const resetLabel = item.result === "placed" ? "Unplace" : "Reset";
+      if (item.result === "placed") {
+        return `
+          <div class="result-group">
+            <button type="button" class="result-button ${resultButtonClass(item.result, "win")}" data-ticket-type="${ticketType}" data-id="${item.id}" data-result="win">Win</button>
+            <button type="button" class="result-button ${resultButtonClass(item.result, "loss")}" data-ticket-type="${ticketType}" data-id="${item.id}" data-result="loss">Loss</button>
+            <button type="button" class="result-button ${resultButtonClass(item.result, "push")}" data-ticket-type="${ticketType}" data-id="${item.id}" data-result="push">Push</button>
+            <button type="button" class="result-button" data-ticket-type="${ticketType}" data-id="${item.id}" data-result="placed">Not Placed</button>
+          </div>
+        `;
+      }
+
       return `
         <div class="result-group">
-          <button type="button" class="result-button ${resultButtonClass(item.result, "win")}" data-ticket-type="${ticketType}" data-id="${item.id}" data-result="win">W</button>
-          <button type="button" class="result-button ${resultButtonClass(item.result, "loss")}" data-ticket-type="${ticketType}" data-id="${item.id}" data-result="loss">L</button>
+          <button type="button" class="result-button ${resultButtonClass(item.result, "win")}" data-ticket-type="${ticketType}" data-id="${item.id}" data-result="win">Win</button>
+          <button type="button" class="result-button ${resultButtonClass(item.result, "loss")}" data-ticket-type="${ticketType}" data-id="${item.id}" data-result="loss">Loss</button>
           <button type="button" class="result-button ${resultButtonClass(item.result, "push")}" data-ticket-type="${ticketType}" data-id="${item.id}" data-result="push">Push</button>
-          <button type="button" class="result-button" data-ticket-type="${ticketType}" data-id="${item.id}" data-result="${resetTarget}">${resetLabel}</button>
+          <button type="button" class="result-button" data-ticket-type="${ticketType}" data-id="${item.id}" data-result="placed">Back to Placed</button>
         </div>
       `;
     }
@@ -2767,9 +2791,9 @@
 
     function saveState() {
       const payload = {
-        version: 2,
-        bets: bets.map(({ id, result, score, line }) => ({ id, result, score, line })),
-        parlays: parlays.map(({ id, result }) => ({ id, result }))
+        version: 3,
+        bets: cloneData(bets),
+        parlays: cloneData(parlays)
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     }
@@ -2778,18 +2802,15 @@
       try {
         const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
         if (!saved) return;
-        const betMap = new Map(saved.bets?.map((entry) => [entry.id, entry]) || []);
-        const parlayMap = new Map(saved.parlays?.map((entry) => [entry.id, entry]) || []);
-        const shouldMigrateLegacyPending = !saved.version || saved.version < 2;
+        const betMap = new Map((saved.bets || []).map((entry) => [entry.id, entry]));
+        const parlayMap = new Map((saved.parlays || []).map((entry) => [entry.id, entry]));
         bets = cloneData(BETS).map((bet) => {
-          const entry = betMap.get(bet.id) || {};
-          const nextResult = shouldMigrateLegacyPending && entry.result == null ? bet.result : ("result" in entry ? entry.result : bet.result);
-          return { ...bet, ...entry, result: nextResult };
+          const entry = betMap.get(bet.id);
+          return entry ? { ...bet, ...entry, result: sanitizeResult(entry.result) } : bet;
         });
         parlays = cloneData(PARLAYS).map((parlay) => {
-          const entry = parlayMap.get(parlay.id) || {};
-          const nextResult = shouldMigrateLegacyPending && entry.result == null ? parlay.result : ("result" in entry ? entry.result : parlay.result);
-          return { ...parlay, ...entry, result: nextResult };
+          const entry = parlayMap.get(parlay.id);
+          return entry ? { ...parlay, ...entry, result: sanitizeResult(entry.result) } : parlay;
         });
       } catch (error) {
         bets = cloneData(BETS);
@@ -2867,7 +2888,7 @@
       const collection = ticketType === "parlay" ? parlays : bets;
       const item = collection.find((entry) => String(entry.id) === String(id));
       if (!item) return;
-      item.result = result || null;
+      item.result = nextResultForAction(item.result, result);
       saveState();
       render();
     }
