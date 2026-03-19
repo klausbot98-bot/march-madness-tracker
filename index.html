@@ -733,127 +733,35 @@
       padding: 20px;
     }
 
-    .round-stack,
-    .schedule-rounds,
-    .bracket-layout,
-    .region-columns,
-    .region-rounds,
-    .finals-column,
-    .schedule-region-grid {
+    .schedule-days,
+    .schedule-day-list,
+    .bracket-regions,
+    .bracket-region-board,
+    .bracket-round-list {
       display: grid;
       gap: 16px;
     }
 
-    .round-card,
-    .region-card,
-    .game-card,
-    .final-card {
+    .schedule-day-card,
+    .bracket-region-card,
+    .schedule-list-card,
+    .bracket-matchup {
       border-radius: var(--radius);
       border: 1px solid var(--border);
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.015));
       box-shadow: var(--shadow);
     }
 
-    .round-card,
-    .region-card,
-    .final-card {
+    .schedule-day-card,
+    .bracket-region-card {
       padding: 18px;
     }
 
-    .schedule-region-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .region-columns {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .region-card h3,
-    .round-card h3,
-    .final-card h3 {
+    .schedule-day-card h3,
+    .bracket-region-card h3 {
       margin-bottom: 12px;
       font-size: 1rem;
       letter-spacing: -0.02em;
-    }
-
-    .region-rounds {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      align-items: start;
-    }
-
-    .round-column {
-      display: grid;
-      gap: 10px;
-    }
-
-    .round-column h4 {
-      margin: 0 0 4px;
-      font-size: 0.8rem;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .game-list {
-      display: grid;
-      gap: 10px;
-    }
-
-    .game-card {
-      padding: 14px;
-      transition: transform var(--transition), border-color var(--transition), background-color var(--transition);
-    }
-
-    .game-card:hover {
-      transform: translateY(-2px);
-    }
-
-    .game-card.bet-highlight {
-      border-color: rgba(227, 24, 55, 0.62);
-      box-shadow: 0 18px 48px rgba(227, 24, 55, 0.14);
-    }
-
-    .game-card.completed {
-      border-color: rgba(31, 214, 107, 0.18);
-    }
-
-    .game-card.tbd {
-      opacity: 0.78;
-    }
-
-    .game-topline,
-    .game-meta,
-    .game-scoreline {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .game-topline {
-      margin-bottom: 10px;
-    }
-
-    .game-teams {
-      display: grid;
-      gap: 8px;
-    }
-
-    .team-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 8px 10px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .team-row.winner {
-      border-color: rgba(31, 214, 107, 0.24);
-      background: rgba(31, 214, 107, 0.08);
     }
 
     .seed {
@@ -870,7 +778,76 @@
       flex: 0 0 auto;
     }
 
-    .team-label {
+    .schedule-days,
+    .bracket-regions {
+      grid-template-columns: 1fr;
+    }
+
+    .schedule-day-head,
+    .schedule-game-meta,
+    .schedule-team-row,
+    .bracket-team-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .schedule-day-head {
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .schedule-day-list,
+    .bracket-round-list {
+      gap: 12px;
+    }
+
+    .schedule-list-card {
+      padding: 14px 16px;
+    }
+
+    .schedule-list-card.bet-highlight,
+    .bracket-matchup.bet-highlight {
+      border-color: rgba(227, 24, 55, 0.62);
+      box-shadow: 0 18px 48px rgba(227, 24, 55, 0.14);
+    }
+
+    .schedule-list-card.completed,
+    .bracket-matchup.completed {
+      border-color: rgba(31, 214, 107, 0.18);
+    }
+
+    .schedule-game-meta {
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .schedule-game-time {
+      font-weight: 700;
+    }
+
+    .schedule-game-channel,
+    .schedule-game-score,
+    .round-slot-count,
+    .bracket-round-label {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .schedule-team-stack,
+    .bracket-team-stack {
+      display: grid;
+      gap: 8px;
+    }
+
+    .schedule-team-row,
+    .bracket-team-row {
+      min-width: 0;
+    }
+
+    .schedule-team-id,
+    .bracket-team-id {
       display: flex;
       align-items: center;
       gap: 10px;
@@ -878,10 +855,66 @@
       font-weight: 600;
     }
 
-    .team-name {
+    .schedule-team-name,
+    .bracket-team-name {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+
+    .schedule-game-score {
+      font-weight: 700;
+    }
+
+    .bracket-regions {
+      gap: 18px;
+    }
+
+    .bracket-region-board {
+      grid-template-columns: repeat(4, minmax(180px, 1fr));
+      align-items: start;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .bracket-round {
+      min-width: 180px;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
+    .bracket-round-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .bracket-round-head h4 {
+      margin: 0;
+      font-size: 0.84rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    .bracket-matchup {
+      padding: 12px;
+    }
+
+    .bracket-matchup.tbd {
+      opacity: 0.76;
+    }
+
+    .bracket-team-row + .bracket-team-row {
+      margin-top: 8px;
+    }
+
+    .bracket-team-row.winner {
+      color: var(--text);
     }
 
     .winner-tag {
@@ -892,14 +925,12 @@
       letter-spacing: 0.06em;
     }
 
-    .bracket-layout {
-      grid-template-columns: minmax(0, 1fr) minmax(280px, 0.6fr) minmax(0, 1fr);
-      align-items: start;
-    }
-
-    .finals-column {
-      align-self: stretch;
-      gap: 18px;
+    .bracket-footer {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
     .empty-state {
@@ -920,10 +951,7 @@
       }
 
       .layout,
-      .topbar,
-      .bracket-layout,
-      .schedule-region-grid,
-      .region-columns {
+      .topbar {
         grid-template-columns: 1fr;
       }
     }
@@ -948,10 +976,6 @@
         flex-direction: column;
       }
 
-      .region-rounds {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
       .topbar .hero,
       .topbar .pnl-hero,
       .chart-panel,
@@ -973,9 +997,20 @@
     @media (max-width: 560px) {
       .summary-grid,
       .detail-panel,
-      .mini-grid,
-      .region-rounds {
+      .mini-grid {
         grid-template-columns: 1fr;
+      }
+
+      .schedule-list-card {
+        padding: 12px 14px;
+      }
+
+      .bracket-region-board {
+        grid-template-columns: repeat(4, minmax(160px, 1fr));
+      }
+
+      .bracket-round {
+        min-width: 160px;
       }
 
       .day-bet,
@@ -1381,6 +1416,13 @@
       return date.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
     }
 
+    function scheduleDayLabel(dateStr) {
+      const date = new Date(`${dateStr}T12:00:00`);
+      const weekday = date.toLocaleDateString(undefined, { weekday: "long" });
+      const monthDay = date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+      return `${weekday} ${monthDay}`;
+    }
+
     function parseTimeToMinutes(label) {
       if (!label || label === "TBD") return Number.MAX_SAFE_INTEGER;
       const cleaned = label.replace(" ET", "").trim();
@@ -1396,7 +1438,7 @@
       if (!dateValue) return "TBD";
       const date = new Date(dateValue);
       if (Number.isNaN(date.getTime())) return "TBD";
-      return date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit", hour12: true, timeZone: "America/Toronto" });
+      return `${date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit", hour12: true, timeZone: "America/Toronto" })} ET`;
     }
 
     function normalizeName(value) {
@@ -1911,6 +1953,10 @@
       };
     }
 
+    function isMainBracketGame(game) {
+      return game.round !== "first-four";
+    }
+
     function buildFallbackTournamentGames() {
       const games = [];
       const add = (config) => games.push(createGame(config));
@@ -1940,7 +1986,6 @@
         }
       });
 
-      for (let slot = 1; slot <= 4; slot += 1) add({ id: `fallback-first-four-${slot}`, date: slot <= 2 ? "2026-03-17" : "2026-03-18", round: "first-four", slot, displayTime: "TBD", channel: "truTV", teams: [{ seed: null, name: "TBD" }, { seed: null, name: "TBD" }] });
       REGION_ORDER.forEach((region) => {
         for (let slot = 1; slot <= 4; slot += 1) add({ id: `fallback-second-round-${region}-${slot}`, date: slot <= 2 ? "2026-03-21" : "2026-03-22", round: "second-round", region, slot, displayTime: "TBD", channel: "TBD", teams: [{ seed: null, name: "TBD" }, { seed: null, name: "TBD" }] });
         for (let slot = 1; slot <= 2; slot += 1) add({ id: `fallback-sweet-16-${region}-${slot}`, date: ["South", "West"].includes(region) ? "2026-03-26" : "2026-03-27", round: "sweet-16", region, slot, displayTime: "TBD", channel: "CBS/TBS", teams: [{ seed: null, name: "TBD" }, { seed: null, name: "TBD" }] });
@@ -2038,6 +2083,7 @@
     function mergeTournamentGames(fallbackGames, fetchedGames) {
       const sequenceByGroup = new Map();
       const fetchedNormalized = fetchedGames
+        .filter(isMainBracketGame)
         .sort((a, b) => `${a.round}${a.region || ""}${a.eventDate || ""}${a.id}`.localeCompare(`${b.round}${b.region || ""}${b.eventDate || ""}${b.id}`))
         .map((game) => {
           const groupKey = `${game.round}|${game.region || "finals"}`;
@@ -2063,7 +2109,9 @@
         });
 
       const merged = new Map();
-      fallbackGames.forEach((game) => merged.set(`${game.round}|${game.region || "finals"}|${game.slot}`, game));
+      fallbackGames
+        .filter(isMainBracketGame)
+        .forEach((game) => merged.set(`${game.round}|${game.region || "finals"}|${game.slot}`, game));
       fetchedNormalized.forEach((game) => merged.set(`${game.round}|${game.region || "finals"}|${game.slot}`, game));
       return [...merged.values()].sort((a, b) => {
         const roundDiff = ROUND_ORDER.indexOf(a.round) - ROUND_ORDER.indexOf(b.round);
@@ -2076,42 +2124,82 @@
       });
     }
 
-    function scheduleGroups() {
-      return ROUND_ORDER.map((round) => ({
-        round,
-        label: ROUND_LABELS[round],
-        games: tournamentGames.filter((game) => game.round === round)
-      })).filter((entry) => entry.games.length);
+    function mainTournamentGames() {
+      return tournamentGames.filter(isMainBracketGame);
     }
 
-    function gameCardMarkup(game) {
-      const classes = ["game-card", "fade-in"];
+    function scheduleGroups() {
+      const grouped = new Map();
+      mainTournamentGames()
+        .slice()
+        .sort((a, b) => {
+          const dateDiff = a.date.localeCompare(b.date);
+          if (dateDiff) return dateDiff;
+          const timeDiff = parseTimeToMinutes(a.displayTime) - parseTimeToMinutes(b.displayTime);
+          if (timeDiff) return timeDiff;
+          return a.slot - b.slot;
+        })
+        .forEach((game) => {
+          if (!grouped.has(game.date)) grouped.set(game.date, []);
+          grouped.get(game.date).push(game);
+        });
+      return [...grouped.entries()].map(([date, games]) => ({ date, games }));
+    }
+
+    function scheduleCardMarkup(game) {
+      const classes = ["schedule-list-card", "fade-in"];
+      if (game.hasBet) classes.push("bet-highlight");
+      if (game.completed) classes.push("completed");
+      return `
+        <article class="${classes.join(" ")}">
+          <div class="schedule-game-meta">
+            <span class="schedule-game-time">${game.displayTime}</span>
+            <span class="schedule-game-channel">${game.channel}</span>
+          </div>
+          <div class="schedule-team-stack">
+            ${game.teams.map((team) => `
+              <div class="schedule-team-row">
+                <div class="schedule-team-id">
+                  <span class="seed">${team.seed ?? "?"}</span>
+                  <span class="schedule-team-name">${team.name}</span>
+                </div>
+                <div class="schedule-game-score">
+                  ${game.completed && team.score != null ? `<strong>${team.score}</strong>` : ""}
+                </div>
+              </div>
+            `).join("")}
+          </div>
+          <div class="bracket-footer">
+            <span class="schedule-game-channel">${game.region ? `${game.region} Region` : ROUND_LABELS[game.round]}</span>
+            <span class="schedule-game-channel">${game.hasBet ? "Bet tracked" : (game.completed && game.score ? game.score : "")}</span>
+          </div>
+        </article>
+      `;
+    }
+
+    function bracketMatchupMarkup(game) {
+      const classes = ["bracket-matchup"];
       if (game.hasBet) classes.push("bet-highlight");
       if (game.completed) classes.push("completed");
       if (game.teams.every((team) => team.name === "TBD")) classes.push("tbd");
       return `
         <article class="${classes.join(" ")}">
-          <div class="game-topline">
-            <strong>${prettyDate(game.date)}</strong>
-            <span class="money-meta">${game.displayTime} · ${game.channel}</span>
-          </div>
-          <div class="game-teams">
+          <div class="bracket-team-stack">
             ${game.teams.map((team) => `
-              <div class="team-row ${team.winner ? "winner" : ""}">
-                <div class="team-label">
+              <div class="bracket-team-row ${team.winner ? "winner" : ""}">
+                <div class="bracket-team-id">
                   <span class="seed">${team.seed ?? "?"}</span>
-                  <span class="team-name">${team.name}</span>
+                  <span class="bracket-team-name">${team.name}</span>
                 </div>
-                <div>
-                  ${team.score != null && game.completed ? `<strong>${team.score}</strong>` : ""}
-                  ${team.winner ? `<span class="winner-tag">W</span>` : ""}
+                <div class="schedule-game-score">
+                  ${game.completed && team.score != null ? `<strong>${team.score}</strong>` : team.winner ? `<span class="winner-tag">W</span>` : ""}
                 </div>
               </div>
             `).join("")}
           </div>
-          <div class="game-meta" style="margin-top:10px;">
-            <span class="money-meta">${game.region ? `${game.region} Region` : ROUND_LABELS[game.round]}</span>
-            <span class="money-meta">${game.hasBet ? "Bet tracked" : game.completed && game.score ? game.score : game.note || ""}</span>
+          <div class="bracket-footer">
+            <span class="bracket-round-label">${game.displayTime}</span>
+            <span class="bracket-round-label">${game.hasBet ? "Bet tracked" : game.completed && game.score ? game.score : ""}</span>
           </div>
         </article>
       `;
@@ -2125,83 +2213,54 @@
           ? `ESPN updated ${tournamentStatus.updatedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`
           : "Loading schedule...";
 
-      dom.scheduleView.innerHTML = groups.map(({ round, label, games }) => {
-        if (round === "first-round") {
-          return `
-            <section class="round-card">
-              <h3>${label}</h3>
-              <div class="schedule-region-grid">
-                ${REGION_ORDER.map((region) => {
-                  const regionalGames = games.filter((game) => game.region === region).sort((a, b) => a.slot - b.slot);
-                  return `
-                    <div class="region-card">
-                      <h3>${region} Region</h3>
-                      <div class="game-list">
-                        ${regionalGames.map(gameCardMarkup).join("")}
-                      </div>
-                    </div>
-                  `;
-                }).join("")}
+      dom.scheduleView.innerHTML = groups.length ? `
+        <div class="schedule-days">
+          ${groups.map(({ date, games }) => `
+            <section class="schedule-day-card">
+              <div class="schedule-day-head">
+                <h3>${scheduleDayLabel(date)}</h3>
+                <span class="round-slot-count">${games.length} games</span>
+              </div>
+              <div class="schedule-day-list">
+                ${games.map(scheduleCardMarkup).join("")}
               </div>
             </section>
-          `;
-        }
-
-        const groupedByRegion = REGION_ORDER.some((region) => games.some((game) => game.region === region));
-        const body = groupedByRegion ? `
-          <div class="schedule-region-grid">
-            ${REGION_ORDER.filter((region) => games.some((game) => game.region === region)).map((region) => `
-              <div class="region-card">
-                <h3>${region} Region</h3>
-                <div class="game-list">
-                  ${games.filter((game) => game.region === region).sort((a, b) => a.slot - b.slot).map(gameCardMarkup).join("")}
-                </div>
-              </div>
-            `).join("")}
-          </div>
-        ` : `
-          <div class="game-list">
-            ${games.sort((a, b) => a.slot - b.slot).map(gameCardMarkup).join("")}
-          </div>
-        `;
-
-        return `
-          <section class="round-card">
-            <h3>${label}</h3>
-            ${body}
-          </section>
-        `;
-      }).join("");
+          `).join("")}
+        </div>
+      ` : `<div class="empty-state">No main bracket games available.</div>`;
     }
 
     function renderBracket() {
-      const regionBlock = (region) => {
-        const rounds = [
-          { key: "first-round", title: "1st Round" },
-          { key: "second-round", title: "2nd Round" },
-          { key: "sweet-16", title: "Sweet 16" },
-          { key: "elite-8", title: "Elite 8" }
-        ];
-        return `
-          <section class="region-card">
-            <h3>${region} Region</h3>
-            <div class="region-rounds">
-              ${rounds.map((round) => `
-                <div class="round-column">
-                  <h4>${round.title}</h4>
-                  <div class="game-list">
-                    ${tournamentGames
-                      .filter((game) => game.region === region && game.round === round.key)
-                      .sort((a, b) => a.slot - b.slot)
-                      .map(gameCardMarkup)
-                      .join("")}
+      const rounds = [
+        { key: "first-round", title: "First Round", expected: 8 },
+        { key: "second-round", title: "Second Round", expected: 4 },
+        { key: "sweet-16", title: "Sweet 16", expected: 2 },
+        { key: "elite-8", title: "Elite 8", expected: 1 }
+      ];
+
+      const regionBlock = (region) => `
+        <section class="bracket-region-card">
+          <h3>${region} Region</h3>
+          <div class="bracket-region-board">
+            ${rounds.map((round) => {
+              const games = mainTournamentGames()
+                .filter((game) => game.region === region && game.round === round.key)
+                .sort((a, b) => a.slot - b.slot);
+              return `
+                <div class="bracket-round">
+                  <div class="bracket-round-head">
+                    <h4>${round.title}</h4>
+                    <span class="round-slot-count">${games.length}/${round.expected}</span>
+                  </div>
+                  <div class="bracket-round-list">
+                    ${games.map(bracketMatchupMarkup).join("")}
                   </div>
                 </div>
-              `).join("")}
-            </div>
-          </section>
-        `;
-      };
+              `;
+            }).join("")}
+          </div>
+        </section>
+      `;
 
       dom.bracketStatus.textContent = tournamentStatus.error
         ? "Fallback bracket active"
@@ -2210,29 +2269,8 @@
           : "Loading bracket...";
 
       dom.bracketView.innerHTML = `
-        <div class="bracket-layout">
-          <div class="region-columns">
-            ${regionBlock("South")}
-            ${regionBlock("West")}
-          </div>
-          <div class="finals-column">
-            <section class="final-card">
-              <h3>Final Four</h3>
-              <div class="game-list">
-                ${tournamentGames.filter((game) => game.round === "final-four").sort((a, b) => a.slot - b.slot).map(gameCardMarkup).join("")}
-              </div>
-            </section>
-            <section class="final-card">
-              <h3>Championship</h3>
-              <div class="game-list">
-                ${tournamentGames.filter((game) => game.round === "championship").sort((a, b) => a.slot - b.slot).map(gameCardMarkup).join("")}
-              </div>
-            </section>
-          </div>
-          <div class="region-columns">
-            ${regionBlock("East")}
-            ${regionBlock("Midwest")}
-          </div>
+        <div class="bracket-regions">
+          ${REGION_ORDER.map(regionBlock).join("")}
         </div>
       `;
     }
