@@ -427,10 +427,68 @@
       border-color: rgba(141, 148, 162, 0.22);
     }
 
-    .status-pending {
+    .status-placed {
       background: var(--yellow-soft);
       color: var(--yellow);
       border-color: rgba(246, 196, 83, 0.28);
+    }
+
+    .status-not-placed {
+      background: var(--gray-soft);
+      color: var(--gray);
+      border-color: rgba(141, 148, 162, 0.22);
+    }
+
+    .line-cell {
+      min-width: 112px;
+    }
+
+    .line-display {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .line-button {
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      padding: 0;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 600;
+    }
+
+    .line-button:hover {
+      color: var(--yellow);
+    }
+
+    .line-original {
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .line-edit {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .line-input {
+      width: 84px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      padding: 7px 10px;
+    }
+
+    .line-input:focus {
+      outline: none;
+      border-color: rgba(227, 24, 55, 0.42);
+      box-shadow: 0 0 0 1px rgba(227, 24, 55, 0.18);
     }
 
     .result-group {
@@ -1282,7 +1340,7 @@
       <aside class="card pnl-hero">
         <div class="pill">Running P&amp;L</div>
         <div id="heroPnl" class="pnl-value neutral">$0.00</div>
-        <div id="heroMeta" class="subtle">0 settled bets, 0 pending</div>
+        <div id="heroMeta" class="subtle">0 settled, 0 placed, 0 not placed</div>
       </aside>
     </header>
 
@@ -1356,11 +1414,11 @@
             <div class="section-head">
               <div>
                 <h2>Cumulative P&amp;L</h2>
-                <p class="subtle">Dollar profit progression across settled bets.</p>
+                <p class="subtle">Tracks bankroll impact from placed tickets through final grading.</p>
               </div>
             </div>
             <canvas id="pnlChart" class="chart-canvas" width="520" height="280"></canvas>
-            <div class="footer-note">Straight bets and parlays are both included after settlement.</div>
+            <div class="footer-note">Not placed tickets are excluded, placed tickets count as stake out, and settled tickets show final net.</div>
           </section>
 
           <section class="stats-panel card">
@@ -1433,7 +1491,7 @@
       { value: "result-asc", label: "Result: Pending to Win" },
       { value: "result-desc", label: "Result: Win to Pending" }
     ];
-    const RESULT_ORDER = { pending: 0, push: 1, loss: 2, win: 3 };
+    const RESULT_ORDER = { "not-placed": 0, placed: 1, push: 2, loss: 3, win: 4 };
     const TYPE_LABELS = { spread: "Spread", total: "Total", ml: "Moneyline", parlay: "Parlay" };
     const CONFIDENCE_LABELS = { high: "High", medium: "Medium", low: "Low" };
     const ROUND_ORDER = ["first-four", "first-round", "second-round", "sweet-16", "elite-8", "final-four", "championship"];
@@ -1505,18 +1563,18 @@
     };
 
     const BETS = [
-      { id: 1, date: "2026-03-19", gameTime: "12:15 PM ET", game: "TCU vs Ohio State", pick: "TCU +2.5", line: -105, units: 1.5, book: BET_BOOK, type: "spread", confidence: "high", sharpSignal: true, kenpomGap: 4.7, result: null, score: null, notes: "Early dog with model edge and confirmed market support." },
-      { id: 2, date: "2026-03-19", gameTime: "10:10 PM ET", game: "Houston vs Idaho", pick: "Houston -23.5", line: -110, units: 1.5, book: BET_BOOK, type: "spread", confidence: "high", sharpSignal: true, kenpomGap: 31.9, result: null, score: null, notes: "Large efficiency gap with a high-confidence spread rating." },
-      { id: 3, date: "2026-03-19", gameTime: "9:25 PM ET", game: "Illinois vs Penn", pick: "Illinois -25.5", line: -110, units: 1, book: BET_BOOK, type: "spread", confidence: "high", sharpSignal: true, kenpomGap: 30.7, result: null, score: null, notes: "Model projects separation well above the current market number." },
-      { id: 4, date: "2026-03-19", gameTime: "6:50 PM ET", game: "VCU vs UNC", pick: "VCU +2.5", line: -110, units: 1, book: BET_BOOK, type: "spread", confidence: "medium", sharpSignal: true, kenpomGap: 3.4, result: null, score: null, notes: "Short dog catching points with supporting sharp activity." },
-      { id: 5, date: "2026-03-19", gameTime: "1:30 PM ET", game: "USF vs Louisville", pick: "USF +4.5", line: -110, units: 1, book: BET_BOOK, type: "spread", confidence: "medium", sharpSignal: true, kenpomGap: 8.9, result: null, score: null, notes: "Market number trails the projection by nearly two possessions." },
-      { id: 6, date: "2026-03-19", gameTime: "9:45 PM ET", game: "Saint Louis vs Georgia", pick: "Saint Louis +2.5", line: -115, units: 0.5, book: BET_BOOK, type: "spread", confidence: "low", sharpSignal: true, kenpomGap: 1.9, result: null, score: null, notes: "Smaller stake tied to a thinner edge but still signal-supported." },
-      { id: 7, date: "2026-03-19", gameTime: "1:50 PM ET", game: "High Point vs Wisconsin", pick: "HP/Wis Under 162.5", line: -110, units: 1, book: BET_BOOK, type: "total", confidence: "high", sharpSignal: true, kenpomGap: null, result: null, score: null, notes: "Total sits above projected pace-adjusted expectation." }
+      { id: 1, date: "2026-03-19", gameTime: "12:15 PM ET", game: "TCU vs Ohio State", pick: "TCU +2.5", line: -115, originalLine: -105, units: 1.5, book: BET_BOOK, type: "spread", confidence: "high", sharpSignal: true, kenpomGap: 4.7, result: "placed", score: null, notes: "Early dog with model edge and confirmed market support." },
+      { id: 2, date: "2026-03-19", gameTime: "10:10 PM ET", game: "Houston vs Idaho", pick: "Houston -23.5", line: -110, originalLine: -110, units: 1.5, book: BET_BOOK, type: "spread", confidence: "high", sharpSignal: true, kenpomGap: 31.9, result: "placed", score: null, notes: "Large efficiency gap with a high-confidence spread rating." },
+      { id: 3, date: "2026-03-19", gameTime: "9:25 PM ET", game: "Illinois vs Penn", pick: "Illinois -25.5", line: -110, originalLine: -110, units: 1, book: BET_BOOK, type: "spread", confidence: "high", sharpSignal: true, kenpomGap: 30.7, result: "placed", score: null, notes: "Model projects separation well above the current market number." },
+      { id: 4, date: "2026-03-19", gameTime: "6:50 PM ET", game: "VCU vs UNC", pick: "VCU +2.5", line: -110, originalLine: -110, units: 1, book: BET_BOOK, type: "spread", confidence: "medium", sharpSignal: true, kenpomGap: 3.4, result: "placed", score: null, notes: "Short dog catching points with supporting sharp activity." },
+      { id: 5, date: "2026-03-19", gameTime: "1:30 PM ET", game: "USF vs Louisville", pick: "USF +4.5", line: -110, originalLine: -110, units: 1, book: BET_BOOK, type: "spread", confidence: "medium", sharpSignal: true, kenpomGap: 8.9, result: "placed", score: null, notes: "Market number trails the projection by nearly two possessions." },
+      { id: 6, date: "2026-03-19", gameTime: "9:45 PM ET", game: "Saint Louis vs Georgia", pick: "Saint Louis +2.5", line: -115, originalLine: -115, units: 0.5, book: BET_BOOK, type: "spread", confidence: "low", sharpSignal: true, kenpomGap: 1.9, result: "placed", score: null, notes: "Smaller stake tied to a thinner edge but still signal-supported." },
+      { id: 7, date: "2026-03-19", gameTime: "1:50 PM ET", game: "High Point vs Wisconsin", pick: "HP/Wis Under 162.5", line: -110, originalLine: -110, units: 1, book: BET_BOOK, type: "total", confidence: "high", sharpSignal: true, kenpomGap: null, result: "placed", score: null, notes: "Total sits above projected pace-adjusted expectation." }
     ];
 
     const PARLAYS = [
-      { id: "P1", date: "2026-03-19", name: "Early Sharp", legs: ["TCU +2.5", "USF +4.5", "HP/Wis Under 162.5"], units: 0.5, line: 550, book: BET_BOOK, type: "parlay", confidence: "medium", sharpSignal: true, result: null, notes: "Stacks three early sharp looks into a plus-money ladder." },
-      { id: "P2", date: "2026-03-19", name: "Chalk Lock", legs: ["Houston ML", "Gonzaga ML", "Illinois ML"], units: 0.5, line: 120, book: BET_BOOK, type: "parlay", confidence: "low", sharpSignal: false, result: null, notes: "Short-price moneyline parlay built for small exposure." }
+      { id: "P1", date: "2026-03-19", name: "Early Sharp", legs: ["TCU +2.5", "USF +4.5", "HP/Wis Under 162.5"], units: 0.5, line: 550, book: BET_BOOK, type: "parlay", confidence: "medium", sharpSignal: true, result: "placed", notes: "Stacks three early sharp looks into a plus-money ladder." },
+      { id: "P2", date: "2026-03-19", name: "Chalk Lock", legs: ["Houston ML", "Gonzaga ML", "Illinois ML"], units: 0.5, line: 120, book: BET_BOOK, type: "parlay", confidence: "low", sharpSignal: false, result: "placed", notes: "Short-price moneyline parlay built for small exposure." }
     ];
 
     const STORAGE_KEY = "march-madness-2026-betting-tracker";
@@ -1549,6 +1607,7 @@
       sort: "date-asc",
       activeTab: "dashboard",
       activeBracketRegion: "South",
+      editingLineId: null,
       expandedBets: new Set(),
       openDays: new Set(["2026-03-19"])
     };
@@ -1573,14 +1632,30 @@
       return stake * (100 / Math.abs(odds));
     }
 
-    function settledProfit(item) {
+    function isSettled(result) {
+      return ["win", "loss", "push"].includes(result);
+    }
+
+    function isPlaced(result) {
+      return result === "placed" || isSettled(result);
+    }
+
+    function ticketProfit(item) {
+      if (item.result === "placed") return -unitToDollars(item.units);
       if (item.result === "win") return americanProfit(item.units, item.line);
       if (item.result === "loss") return -unitToDollars(item.units);
       return 0;
     }
 
-    function pendingToWin(item) {
+    function placedToWin(item) {
       return americanProfit(item.units, item.line);
+    }
+
+    function formatLineValue(line) {
+      if (!Number.isFinite(line)) return "N/A";
+      if (Number.isInteger(line)) return line > 0 ? `+${line}` : `${line}`;
+      const fixed = line.toFixed(1).replace(/\.0$/, "");
+      return line > 0 ? `+${fixed}` : fixed;
     }
 
     function formatCurrency(value, { signed = true } = {}) {
@@ -1710,12 +1785,13 @@
     }
 
     function statusClass(result) {
-      const key = result || "pending";
+      const key = result || "not-placed";
       return `status-${key}`;
     }
 
     function statusLabel(result) {
-      if (!result) return "Pending";
+      if (!result) return "Not Placed";
+      if (result === "placed") return "Placed";
       return result.charAt(0).toUpperCase() + result.slice(1);
     }
 
@@ -1734,8 +1810,8 @@
       return [...bets]
         .filter((bet) => {
           if (state.filter === "all") return true;
-          if (state.filter === "pending") return !bet.result;
-          if (state.filter === "settled") return Boolean(bet.result);
+          if (state.filter === "pending") return !isSettled(bet.result);
+          if (state.filter === "settled") return isSettled(bet.result);
           if (state.filter === "wins") return bet.result === "win";
           if (state.filter === "losses") return bet.result === "loss";
           return true;
@@ -1747,8 +1823,8 @@
           if (key === "gameTime") {
             return compareValues(parseTimeToMinutes(left.gameTime), parseTimeToMinutes(right.gameTime), direction) || compareValues(left.date, right.date, direction);
           }
-          const leftResult = RESULT_ORDER[left.result || "pending"];
-          const rightResult = RESULT_ORDER[right.result || "pending"];
+          const leftResult = RESULT_ORDER[left.result || "not-placed"];
+          const rightResult = RESULT_ORDER[right.result || "not-placed"];
           return compareValues(leftResult, rightResult, direction) || compareValues(parseTimeToMinutes(left.gameTime), parseTimeToMinutes(right.gameTime), "asc");
         });
     }
@@ -1762,33 +1838,37 @@
 
     function summarize() {
       const tickets = allTickets();
-      const settledTickets = tickets.filter((item) => item.result);
-      const totalWagered = tickets.reduce((sum, item) => sum + unitToDollars(item.units), 0);
-      const realized = settledTickets.reduce((sum, item) => sum + settledProfit(item), 0);
+      const settledTickets = tickets.filter((item) => isSettled(item.result));
+      const placedTickets = tickets.filter((item) => item.result === "placed");
+      const activeTickets = tickets.filter((item) => isPlaced(item.result));
+      const totalWagered = activeTickets.reduce((sum, item) => sum + unitToDollars(item.units), 0);
+      const realized = tickets.reduce((sum, item) => sum + ticketProfit(item), 0);
       const settledRisked = settledTickets.reduce((sum, item) => sum + unitToDollars(item.units), 0);
       const wins = settledTickets.filter((item) => item.result === "win").length;
       const losses = settledTickets.filter((item) => item.result === "loss").length;
       const pushes = settledTickets.filter((item) => item.result === "push").length;
-      const pending = tickets.filter((item) => !item.result).length;
+      const placedCount = placedTickets.length;
+      const notPlaced = tickets.filter((item) => !item.result).length;
+      const atRisk = placedTickets.reduce((sum, item) => sum + unitToDollars(item.units), 0);
       const resolved = wins + losses;
       const roi = settledRisked ? (realized / settledRisked) * 100 : 0;
       const winRate = resolved ? (wins / resolved) * 100 : 0;
-      const bestBet = settledTickets.filter((item) => item.result === "win").sort((a, b) => settledProfit(b) - settledProfit(a))[0] || null;
-      const worstBet = settledTickets.filter((item) => item.result === "loss").sort((a, b) => settledProfit(a) - settledProfit(b))[0] || null;
-      const totalWon = settledTickets.filter((item) => item.result === "win").reduce((sum, item) => sum + settledProfit(item), 0);
-      const totalLost = Math.abs(settledTickets.filter((item) => item.result === "loss").reduce((sum, item) => sum + settledProfit(item), 0));
+      const bestBet = settledTickets.filter((item) => item.result === "win").sort((a, b) => ticketProfit(b) - ticketProfit(a))[0] || null;
+      const worstBet = settledTickets.filter((item) => item.result === "loss").sort((a, b) => ticketProfit(a) - ticketProfit(b))[0] || null;
+      const totalWon = settledTickets.filter((item) => item.result === "win").reduce((sum, item) => sum + ticketProfit(item), 0);
+      const totalLost = Math.abs(settledTickets.filter((item) => item.result === "loss").reduce((sum, item) => sum + ticketProfit(item), 0));
 
-      return { totalWagered, realized, roi, winRate, bestBet, worstBet, wins, losses, pushes, pending, settledCount: settledTickets.length, totalWon, totalLost };
+      return { totalWagered, realized, roi, winRate, bestBet, worstBet, wins, losses, pushes, placedCount, atRisk, notPlaced, settledCount: settledTickets.length, totalWon, totalLost };
     }
 
     function buildSummaryCards(summary) {
       const cards = [
-        { key: "totalWagered", label: "Total Wagered", metric: formatCurrency(summary.totalWagered, { signed: false }), meta: `${(summary.totalWagered / UNIT_SIZE).toFixed(2)}u risked`, raw: summary.totalWagered },
-        { key: "realized", label: "Won / Lost", metric: formatCurrency(summary.realized), meta: `${summary.wins}W-${summary.losses}L-${summary.pushes}P`, raw: summary.realized },
-        { key: "totalWon", label: "Gross Won", metric: formatCurrency(summary.totalWon, { signed: false }), meta: `${summary.settledCount} settled tickets`, raw: summary.totalWon },
-        { key: "totalLost", label: "Gross Lost", metric: formatCurrency(summary.totalLost, { signed: false }), meta: `${summary.pending} pending tickets`, raw: summary.totalLost },
-        { key: "bestBet", label: "Best Bet", metric: summary.bestBet ? summary.bestBet.label || summary.bestBet.pick || summary.bestBet.name : "Pending", meta: summary.bestBet ? formatCurrencyWithUnits(settledProfit(summary.bestBet), summary.bestBet.units) : "No winners yet", raw: summary.bestBet ? settledProfit(summary.bestBet) : 0 },
-        { key: "worstBet", label: "Worst Bet", metric: summary.worstBet ? summary.worstBet.label || summary.worstBet.pick || summary.worstBet.name : "Pending", meta: summary.worstBet ? formatCurrencyWithUnits(settledProfit(summary.worstBet), summary.worstBet.units) : "No losers yet", raw: summary.worstBet ? settledProfit(summary.worstBet) : 0 }
+        { key: "realized", label: "Running P&L", metric: formatCurrency(summary.realized), meta: `${summary.wins}W-${summary.losses}L-${summary.pushes}P settled`, raw: summary.realized },
+        { key: "placedCount", label: "Bets Placed", metric: `${summary.placedCount} tickets`, meta: `${formatCurrency(summary.atRisk, { signed: false })} at risk`, raw: summary.placedCount },
+        { key: "settledCount", label: "Settled Bets", metric: `${summary.settledCount} tickets`, meta: `${summary.wins}W-${summary.losses}L-${summary.pushes}P`, raw: summary.settledCount },
+        { key: "totalWon", label: "Gross Won", metric: formatCurrency(summary.totalWon, { signed: false }), meta: `${formatCurrency(summary.totalLost, { signed: false })} gross lost`, raw: summary.totalWon },
+        { key: "bestBet", label: "Best Bet", metric: summary.bestBet ? summary.bestBet.label || summary.bestBet.pick || summary.bestBet.name : "Pending", meta: summary.bestBet ? formatCurrencyWithUnits(ticketProfit(summary.bestBet), summary.bestBet.units) : "No winners yet", raw: summary.bestBet ? ticketProfit(summary.bestBet) : 0 },
+        { key: "worstBet", label: "Worst Bet", metric: summary.worstBet ? summary.worstBet.label || summary.worstBet.pick || summary.worstBet.name : "Pending", meta: summary.worstBet ? formatCurrencyWithUnits(ticketProfit(summary.worstBet), summary.worstBet.units) : `${summary.notPlaced} not placed`, raw: summary.worstBet ? ticketProfit(summary.worstBet) : 0 }
       ];
 
       dom.summaryGrid.innerHTML = cards.map((card) => {
@@ -1823,7 +1903,7 @@
       }
 
       requestAnimationFrame(frame);
-      dom.heroMeta.innerHTML = `${summary.settledCount} settled bets, ${summary.pending} pending <span class="unit-meta">(${(nextValue / UNIT_SIZE).toFixed(2)}u)</span>`;
+      dom.heroMeta.innerHTML = `${summary.settledCount} settled, ${summary.placedCount} placed, ${summary.notPlaced} not placed <span class="unit-meta">(${(nextValue / UNIT_SIZE).toFixed(2)}u)</span>`;
     }
 
     function renderFilters() {
@@ -1841,8 +1921,50 @@
     }
 
     function payoutLabel(item) {
-      if (item.result) return formatCurrencyWithUnits(settledProfit(item), item.units);
-      return `To win ${formatCurrency(pendingToWin(item), { signed: false })} <span class="unit-meta">(${(pendingToWin(item) / UNIT_SIZE).toFixed(2)}u)</span>`;
+      if (!item.result) return `No action <span class="unit-meta">(${formatUnitsSecondary(item.units)})</span>`;
+      if (item.result === "placed") return `${formatCurrency(-unitToDollars(item.units))} <span class="unit-meta">(risk ${formatUnitsSecondary(item.units)})</span>`;
+      return formatCurrencyWithUnits(ticketProfit(item), item.units);
+    }
+
+    function lineMarkup(bet) {
+      if (state.editingLineId === bet.id) {
+        return `
+          <form class="line-edit" data-line-form="${bet.id}">
+            <input class="line-input" type="number" inputmode="numeric" step="1" value="${bet.line}" data-line-input="${bet.id}" aria-label="Edit line for ${bet.pick}">
+            <button type="submit" class="result-button">Save</button>
+            <button type="button" class="result-button" data-line-cancel="${bet.id}">Cancel</button>
+          </form>
+        `;
+      }
+
+      const changed = Number(bet.line) !== Number(bet.originalLine);
+      return `
+        <div class="line-display">
+          <button type="button" class="line-button" data-line-edit="${bet.id}">${formatLineValue(bet.line)}</button>
+          ${changed ? `<span class="line-original">was ${formatLineValue(bet.originalLine)}</span>` : ""}
+        </div>
+      `;
+    }
+
+    function resultButtonsMarkup(ticketType, item) {
+      if (!item.result) {
+        return `
+          <div class="result-group">
+            <button type="button" class="result-button" data-ticket-type="${ticketType}" data-id="${item.id}" data-result="placed">Place</button>
+          </div>
+        `;
+      }
+
+      const resetTarget = item.result === "placed" ? "" : "placed";
+      const resetLabel = item.result === "placed" ? "Unplace" : "Reset";
+      return `
+        <div class="result-group">
+          <button type="button" class="result-button ${resultButtonClass(item.result, "win")}" data-ticket-type="${ticketType}" data-id="${item.id}" data-result="win">W</button>
+          <button type="button" class="result-button ${resultButtonClass(item.result, "loss")}" data-ticket-type="${ticketType}" data-id="${item.id}" data-result="loss">L</button>
+          <button type="button" class="result-button ${resultButtonClass(item.result, "push")}" data-ticket-type="${ticketType}" data-id="${item.id}" data-result="push">Push</button>
+          <button type="button" class="result-button" data-ticket-type="${ticketType}" data-id="${item.id}" data-result="${resetTarget}">${resetLabel}</button>
+        </div>
+      `;
     }
 
     function renderBetsTable() {
@@ -1865,18 +1987,11 @@
               </div>
             </td>
             <td>${bet.pick}</td>
-            <td>${bet.line > 0 ? `+${bet.line}` : bet.line}</td>
+            <td class="line-cell">${lineMarkup(bet)}</td>
             <td>${formatStake(bet.units)}</td>
             <td><span class="status-chip ${statusClass(bet.result)}">${statusLabel(bet.result)}</span></td>
-            <td class="${settledProfit(bet) > 0 ? "positive" : settledProfit(bet) < 0 ? "negative" : ""}">${payoutLabel(bet)}</td>
-            <td>
-              <div class="result-group">
-                <button type="button" class="result-button ${resultButtonClass(bet.result, "win")}" data-ticket-type="bet" data-id="${bet.id}" data-result="win">W</button>
-                <button type="button" class="result-button ${resultButtonClass(bet.result, "loss")}" data-ticket-type="bet" data-id="${bet.id}" data-result="loss">L</button>
-                <button type="button" class="result-button ${resultButtonClass(bet.result, "push")}" data-ticket-type="bet" data-id="${bet.id}" data-result="push">Push</button>
-                <button type="button" class="result-button" data-ticket-type="bet" data-id="${bet.id}" data-result="">Reset</button>
-              </div>
-            </td>
+            <td class="${ticketProfit(bet) > 0 ? "positive" : ticketProfit(bet) < 0 ? "negative" : ""}">${payoutLabel(bet)}</td>
+            <td>${resultButtonsMarkup("bet", bet)}</td>
           </tr>
           ${expanded ? `
             <tr class="detail-row">
@@ -1946,19 +2061,14 @@
             </div>
             <div class="mini-cell">
               <strong>P&amp;L</strong>
-              <span class="${settledProfit(parlay) > 0 ? "positive" : settledProfit(parlay) < 0 ? "negative" : ""}">
+              <span class="${ticketProfit(parlay) > 0 ? "positive" : ticketProfit(parlay) < 0 ? "negative" : ""}">
                 ${payoutLabel(parlay)}
               </span>
             </div>
           </div>
           <p class="subtle" style="margin-bottom: 10px;">${parlay.notes}</p>
           <div class="money-meta" style="margin-bottom: 12px;">Book: ${BET_BOOK}</div>
-          <div class="result-group">
-            <button type="button" class="result-button ${resultButtonClass(parlay.result, "win")}" data-ticket-type="parlay" data-id="${parlay.id}" data-result="win">W</button>
-            <button type="button" class="result-button ${resultButtonClass(parlay.result, "loss")}" data-ticket-type="parlay" data-id="${parlay.id}" data-result="loss">L</button>
-            <button type="button" class="result-button ${resultButtonClass(parlay.result, "push")}" data-ticket-type="parlay" data-id="${parlay.id}" data-result="push">Push</button>
-            <button type="button" class="result-button" data-ticket-type="parlay" data-id="${parlay.id}" data-result="">Reset</button>
-          </div>
+          ${resultButtonsMarkup("parlay", parlay)}
         </article>
       `).join("");
     }
@@ -1973,11 +2083,12 @@
       dom.dailyBreakdown.innerHTML = [...grouped.entries()]
         .sort((a, b) => a[0].localeCompare(b[0]))
         .map(([date, items]) => {
-          const pnl = items.reduce((sum, item) => sum + settledProfit(item), 0);
+          const pnl = items.reduce((sum, item) => sum + ticketProfit(item), 0);
           const wins = items.filter((item) => item.result === "win").length;
           const losses = items.filter((item) => item.result === "loss").length;
           const pushes = items.filter((item) => item.result === "push").length;
-          const pending = items.filter((item) => !item.result).length;
+          const placed = items.filter((item) => item.result === "placed").length;
+          const notPlaced = items.filter((item) => !item.result).length;
           const open = state.openDays.has(date);
 
           return `
@@ -1989,7 +2100,7 @@
                 </div>
                 <div class="day-summary">
                   <span class="${pnl > 0 ? "positive" : pnl < 0 ? "negative" : ""}">${formatCurrency(pnl)}</span>
-                  <span class="subtle">${wins}W-${losses}L-${pushes}P, ${pending} pending</span>
+                  <span class="subtle">${wins}W-${losses}L-${pushes}P, ${placed} placed, ${notPlaced} not placed</span>
                 </div>
               </button>
               ${open ? `
@@ -2005,7 +2116,7 @@
                           </div>
                           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
                             <span class="status-chip ${statusClass(ticket.result)}">${statusLabel(ticket.result)}</span>
-                            <strong class="${settledProfit(ticket) > 0 ? "positive" : settledProfit(ticket) < 0 ? "negative" : ""}">${payoutLabel(ticket)}</strong>
+                            <strong class="${ticketProfit(ticket) > 0 ? "positive" : ticketProfit(ticket) < 0 ? "negative" : ""}">${payoutLabel(ticket)}</strong>
                           </div>
                         </div>
                       `).join("")}
@@ -2028,14 +2139,15 @@
       return values.map((value) => {
         const filtered = items.filter((item) => selector(item) === value);
         const graded = filtered.filter((item) => item.result);
-        const wins = graded.filter((item) => item.result === "win").length;
-        const losses = graded.filter((item) => item.result === "loss").length;
+        const settled = graded.filter((item) => isSettled(item.result));
+        const wins = settled.filter((item) => item.result === "win").length;
+        const losses = settled.filter((item) => item.result === "loss").length;
         const hitRate = wins + losses ? (wins / (wins + losses)) * 100 : 0;
-        const profit = graded.reduce((sum, item) => sum + settledProfit(item), 0);
+        const profit = graded.reduce((sum, item) => sum + ticketProfit(item), 0);
         return {
           key: value,
           label: TYPE_LABELS[value] || CONFIDENCE_LABELS[value] || value,
-          record: recordString(graded),
+          record: recordString(settled),
           hitRate,
           count: filtered.length,
           profit
@@ -2048,10 +2160,11 @@
       const typeStats = groupedStats(tickets, (item) => item.type, ["spread", "total", "ml", "parlay"]);
       const confidenceStats = groupedStats(tickets, (item) => item.confidence, ["high", "medium", "low"]);
       const sharpItems = tickets.filter((item) => item.sharpSignal);
-      const sharpWins = sharpItems.filter((item) => item.result === "win").length;
-      const sharpLosses = sharpItems.filter((item) => item.result === "loss").length;
+      const sharpSettled = sharpItems.filter((item) => isSettled(item.result));
+      const sharpWins = sharpSettled.filter((item) => item.result === "win").length;
+      const sharpLosses = sharpSettled.filter((item) => item.result === "loss").length;
       const sharpHitRate = sharpWins + sharpLosses ? (sharpWins / (sharpWins + sharpLosses)) * 100 : 0;
-      const sharpProfit = sharpItems.filter((item) => item.result).reduce((sum, item) => sum + settledProfit(item), 0);
+      const sharpProfit = sharpItems.filter((item) => item.result).reduce((sum, item) => sum + ticketProfit(item), 0);
 
       const blockMarkup = (title, stats) => `
         <section class="stat-block">
@@ -2080,7 +2193,7 @@
             <div class="stat-row">
               <div>
                 <strong>Sharp Plays</strong>
-                <div class="subtle">${recordString(sharpItems.filter((item) => item.result))} · ${sharpItems.length} tracked · ${formatCurrency(sharpProfit)}</div>
+                <div class="subtle">${recordString(sharpSettled)} · ${sharpItems.length} tracked · ${formatCurrency(sharpProfit)}</div>
               </div>
               <div class="bar"><span style="width:${Math.max(sharpHitRate, 4)}%;"></span></div>
               <div>${formatPercent(sharpHitRate)}</div>
@@ -2108,7 +2221,7 @@
       const series = [{ label: "Start", value: 0 }];
       let running = 0;
       settled.forEach((item) => {
-        running += settledProfit(item);
+        running += ticketProfit(item);
         series.push({ label: item.label || item.pick || item.name, value: running });
       });
 
@@ -2654,7 +2767,8 @@
 
     function saveState() {
       const payload = {
-        bets: bets.map(({ id, result, score }) => ({ id, result, score })),
+        version: 2,
+        bets: bets.map(({ id, result, score, line }) => ({ id, result, score, line })),
         parlays: parlays.map(({ id, result }) => ({ id, result }))
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
@@ -2666,8 +2780,17 @@
         if (!saved) return;
         const betMap = new Map(saved.bets?.map((entry) => [entry.id, entry]) || []);
         const parlayMap = new Map(saved.parlays?.map((entry) => [entry.id, entry]) || []);
-        bets = cloneData(BETS).map((bet) => ({ ...bet, ...(betMap.get(bet.id) || {}) }));
-        parlays = cloneData(PARLAYS).map((parlay) => ({ ...parlay, ...(parlayMap.get(parlay.id) || {}) }));
+        const shouldMigrateLegacyPending = !saved.version || saved.version < 2;
+        bets = cloneData(BETS).map((bet) => {
+          const entry = betMap.get(bet.id) || {};
+          const nextResult = shouldMigrateLegacyPending && entry.result == null ? bet.result : ("result" in entry ? entry.result : bet.result);
+          return { ...bet, ...entry, result: nextResult };
+        });
+        parlays = cloneData(PARLAYS).map((parlay) => {
+          const entry = parlayMap.get(parlay.id) || {};
+          const nextResult = shouldMigrateLegacyPending && entry.result == null ? parlay.result : ("result" in entry ? entry.result : parlay.result);
+          return { ...parlay, ...entry, result: nextResult };
+        });
       } catch (error) {
         bets = cloneData(BETS);
         parlays = cloneData(PARLAYS);
@@ -2693,7 +2816,7 @@
           const scoreStr = `${away} ${awayScore} - ${home} ${homeScore}`;
 
           for (const bet of bets) {
-            if (bet.result) continue;
+            if (bet.result !== "placed") continue;
             const gameTeams = [away, home];
             if (!betMatchesGame(bet, gameTeams)) continue;
             bet.score = scoreStr;
@@ -2724,7 +2847,7 @@
         }
 
         for (const parlay of parlays) {
-          if (parlay.result) continue;
+          if (parlay.result !== "placed") continue;
           const legResults = parlay.legs.map((leg) => bets.find((bet) => bet.pick === leg)?.result ?? null);
           if (legResults.some((result) => result === "loss")) { parlay.result = "loss"; updated = true; }
           else if (legResults.length && legResults.every((result) => result === "win")) { parlay.result = "win"; updated = true; }
@@ -2749,14 +2872,23 @@
       render();
     }
 
+    function updateBetLine(id, line) {
+      const bet = bets.find((entry) => String(entry.id) === String(id));
+      if (!bet || !Number.isFinite(line) || line === 0) return;
+      bet.line = line;
+      state.editingLineId = null;
+      saveState();
+      render();
+    }
+
     function exportCsv() {
       const headers = ["id", "kind", "date", "gameTime", "game", "pickOrName", "line", "stake_dollars", "units", "book", "type", "confidence", "sharpSignal", "kenpomGap", "result", "pnl_dollars"];
       const rows = [
         ...bets.map((bet) => [
-          bet.id, "bet", bet.date, bet.gameTime, bet.game, bet.pick, bet.line, unitToDollars(bet.units).toFixed(2), bet.units, BET_BOOK, bet.type, bet.confidence, bet.sharpSignal, bet.kenpomGap ?? "", bet.result || "pending", settledProfit(bet).toFixed(2)
+          bet.id, "bet", bet.date, bet.gameTime, bet.game, bet.pick, bet.line, unitToDollars(bet.units).toFixed(2), bet.units, BET_BOOK, bet.type, bet.confidence, bet.sharpSignal, bet.kenpomGap ?? "", bet.result || "not_placed", ticketProfit(bet).toFixed(2)
         ]),
         ...parlays.map((parlay) => [
-          parlay.id, "parlay", parlay.date, "", "", parlay.name, parlay.line, unitToDollars(parlay.units).toFixed(2), parlay.units, BET_BOOK, parlay.type, parlay.confidence, parlay.sharpSignal, "", parlay.result || "pending", settledProfit(parlay).toFixed(2)
+          parlay.id, "parlay", parlay.date, "", "", parlay.name, parlay.line, unitToDollars(parlay.units).toFixed(2), parlay.units, BET_BOOK, parlay.type, parlay.confidence, parlay.sharpSignal, "", parlay.result || "not_placed", ticketProfit(parlay).toFixed(2)
         ])
       ];
       const csv = [headers, ...rows]
@@ -2809,6 +2941,25 @@
           return;
         }
 
+        const lineButton = event.target.closest("[data-line-edit]");
+        if (lineButton) {
+          state.editingLineId = Number(lineButton.dataset.lineEdit);
+          renderBetsTable();
+          requestAnimationFrame(() => {
+            const input = document.querySelector(`[data-line-input="${state.editingLineId}"]`);
+            input?.focus();
+            input?.select();
+          });
+          return;
+        }
+
+        const lineCancel = event.target.closest("[data-line-cancel]");
+        if (lineCancel) {
+          state.editingLineId = null;
+          renderBetsTable();
+          return;
+        }
+
         const toggle = event.target.closest("[data-expand-id]");
         if (toggle) {
           const id = Number(toggle.dataset.expandId);
@@ -2832,6 +2983,23 @@
           state.activeBracketRegion = bracketRegion.dataset.bracketRegion;
           renderBracket();
         }
+      });
+
+      document.addEventListener("submit", (event) => {
+        const form = event.target.closest("[data-line-form]");
+        if (!form) return;
+        event.preventDefault();
+        const id = form.dataset.lineForm;
+        const input = form.querySelector("[data-line-input]");
+        const line = Number(input?.value);
+        if (!Number.isFinite(line) || line === 0) return;
+        updateBetLine(id, line);
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key !== "Escape" || state.editingLineId == null) return;
+        state.editingLineId = null;
+        renderBetsTable();
       });
 
       document.querySelectorAll("th.sortable").forEach((header) => {
