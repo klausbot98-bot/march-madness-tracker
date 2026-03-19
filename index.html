@@ -56,7 +56,7 @@
     }
 
     .app {
-      width: min(1400px, calc(100% - 32px));
+      width: min(1800px, calc(100% - 32px));
       margin: 0 auto;
       padding: 28px 0 48px;
     }
@@ -312,7 +312,7 @@
 
     .layout {
       display: grid;
-      grid-template-columns: minmax(0, 1.8fr) minmax(320px, 0.95fr);
+      grid-template-columns: minmax(0, 2.5fr) minmax(280px, 0.8fr);
       gap: 22px;
       align-items: start;
     }
@@ -328,6 +328,7 @@
 
     .table-scroll {
       overflow: auto;
+      max-width: none;
     }
 
     table {
@@ -345,6 +346,11 @@
       padding: 18px 18px 14px;
       border-bottom: 1px solid var(--border);
       white-space: nowrap;
+    }
+
+    thead th:last-child,
+    tbody td:last-child {
+      scroll-margin-right: 20px;
     }
 
     th.sortable {
@@ -1603,7 +1609,7 @@
     };
 
     let state = {
-      filter: "all",
+      filter: "active",
       sort: "date-asc",
       activeTab: "dashboard",
       activeBracketRegion: "South",
