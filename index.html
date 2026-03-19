@@ -244,6 +244,39 @@
       align-items: center;
     }
 
+    .tab-bar {
+      display: inline-flex;
+      gap: 8px;
+      padding: 8px;
+      margin-bottom: 22px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+    }
+
+    .tab-button {
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 10px 18px;
+      cursor: pointer;
+      transition: background-color var(--transition), border-color var(--transition), color var(--transition), transform var(--transition);
+    }
+
+    .tab-button:hover,
+    .tab-button.active {
+      color: var(--text);
+      background: var(--accent-soft);
+      border-color: rgba(227, 24, 55, 0.35);
+      transform: translateY(-1px);
+    }
+
+    .tab-panel {
+      animation: fade 280ms ease;
+    }
+
     .segmented {
       display: inline-flex;
       flex-wrap: wrap;
@@ -689,6 +722,194 @@
       font-size: 0.88rem;
     }
 
+    .money-meta,
+    .unit-meta {
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .schedule-panel,
+    .bracket-panel {
+      padding: 20px;
+    }
+
+    .round-stack,
+    .schedule-rounds,
+    .bracket-layout,
+    .region-columns,
+    .region-rounds,
+    .finals-column,
+    .schedule-region-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .round-card,
+    .region-card,
+    .game-card,
+    .final-card {
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.015));
+      box-shadow: var(--shadow);
+    }
+
+    .round-card,
+    .region-card,
+    .final-card {
+      padding: 18px;
+    }
+
+    .schedule-region-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .region-columns {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .region-card h3,
+    .round-card h3,
+    .final-card h3 {
+      margin-bottom: 12px;
+      font-size: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .region-rounds {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      align-items: start;
+    }
+
+    .round-column {
+      display: grid;
+      gap: 10px;
+    }
+
+    .round-column h4 {
+      margin: 0 0 4px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .game-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .game-card {
+      padding: 14px;
+      transition: transform var(--transition), border-color var(--transition), background-color var(--transition);
+    }
+
+    .game-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .game-card.bet-highlight {
+      border-color: rgba(227, 24, 55, 0.62);
+      box-shadow: 0 18px 48px rgba(227, 24, 55, 0.14);
+    }
+
+    .game-card.completed {
+      border-color: rgba(31, 214, 107, 0.18);
+    }
+
+    .game-card.tbd {
+      opacity: 0.78;
+    }
+
+    .game-topline,
+    .game-meta,
+    .game-scoreline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .game-topline {
+      margin-bottom: 10px;
+    }
+
+    .game-teams {
+      display: grid;
+      gap: 8px;
+    }
+
+    .team-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .team-row.winner {
+      border-color: rgba(31, 214, 107, 0.24);
+      background: rgba(31, 214, 107, 0.08);
+    }
+
+    .seed {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 700;
+      flex: 0 0 auto;
+    }
+
+    .team-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      font-weight: 600;
+    }
+
+    .team-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .winner-tag {
+      color: var(--green);
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .bracket-layout {
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 0.6fr) minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .finals-column {
+      align-self: stretch;
+      gap: 18px;
+    }
+
+    .empty-state {
+      padding: 20px;
+      color: var(--muted);
+      border: 1px dashed rgba(255, 255, 255, 0.12);
+      border-radius: var(--radius-sm);
+      text-align: center;
+    }
+
     .hidden {
       display: none !important;
     }
@@ -699,7 +920,10 @@
       }
 
       .layout,
-      .topbar {
+      .topbar,
+      .bracket-layout,
+      .schedule-region-grid,
+      .region-columns {
         grid-template-columns: 1fr;
       }
     }
@@ -724,12 +948,18 @@
         flex-direction: column;
       }
 
+      .region-rounds {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
       .topbar .hero,
       .topbar .pnl-hero,
       .chart-panel,
       .stats-panel,
       .parlays-panel,
-      .daily-panel {
+      .daily-panel,
+      .schedule-panel,
+      .bracket-panel {
         padding: 16px;
       }
 
@@ -743,7 +973,8 @@
     @media (max-width: 560px) {
       .summary-grid,
       .detail-panel,
-      .mini-grid {
+      .mini-grid,
+      .region-rounds {
         grid-template-columns: 1fr;
       }
 
@@ -821,366 +1052,153 @@
       <section class="card hero">
         <div class="eyebrow"><span class="dot"></span>Tournament dashboard</div>
         <h1>March Madness 2026<br>Betting Tracker</h1>
-        <p class="subtle">Track sides, totals, parlays, and closing-day performance in one place. Results persist locally, export cleanly to CSV, and print without extra tooling.</p>
+        <p class="subtle">Track sides, totals, parlays, bracket movement, and tournament scheduling in one place. Results persist locally, export cleanly to CSV, and print without extra tooling.</p>
       </section>
       <aside class="card pnl-hero">
         <div class="pill">Running P&amp;L</div>
-        <div id="heroPnl" class="pnl-value neutral">0.00u</div>
+        <div id="heroPnl" class="pnl-value neutral">$0.00</div>
         <div id="heroMeta" class="subtle">0 settled bets, 0 pending</div>
       </aside>
     </header>
 
-    <section id="summaryGrid" class="summary-grid"></section>
+    <nav id="tabBar" class="tab-bar" aria-label="Main views">
+      <button type="button" class="tab-button active" data-tab="dashboard">Dashboard</button>
+      <button type="button" class="tab-button" data-tab="bracket">Bracket</button>
+      <button type="button" class="tab-button" data-tab="schedule">Schedule</button>
+    </nav>
 
-    <main class="layout">
-      <div class="stack">
-        <section class="table-wrap">
-          <div class="section-head" style="padding: 18px 18px 0;">
-            <div>
-              <h2>Active Bets</h2>
-              <p class="subtle">Sortable by date, time, and result. Click a bet to expand deeper signal notes.</p>
-            </div>
-            <div class="controls">
-              <div id="filterGroup" class="segmented" aria-label="Bet filters"></div>
-              <select id="sortSelect" class="sort-select" aria-label="Sort bets"></select>
-              <button id="exportCsv" class="toolbar-button" type="button">Export CSV</button>
-              <button id="printView" class="toolbar-button" type="button">Print</button>
-            </div>
-          </div>
-          <div class="table-scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th class="sortable" data-sort-key="date">Date</th>
-                  <th class="sortable" data-sort-key="gameTime">Game Time</th>
-                  <th>Game</th>
-                  <th>Pick</th>
-                  <th>Line</th>
-                  <th>Units</th>
-                  <th>Book</th>
-                  <th class="sortable" data-sort-key="result">Result</th>
-                  <th>Payout</th>
-                  <th>Mark Result</th>
-                </tr>
-              </thead>
-              <tbody id="betsBody"></tbody>
-            </table>
-          </div>
-        </section>
+    <section id="dashboardPanel" class="tab-panel">
+      <section id="summaryGrid" class="summary-grid"></section>
 
-        <section class="parlays-panel card">
-          <div class="section-head">
-            <div>
-              <h2>Parlays</h2>
-              <p class="subtle">Multi-leg tickets tracked separately from straight bets.</p>
+      <main class="layout">
+        <div class="stack">
+          <section class="table-wrap">
+            <div class="section-head" style="padding: 18px 18px 0;">
+              <div>
+                <h2>Active Bets</h2>
+                <p class="subtle">Sortable by date, time, and result. Click a bet to expand deeper signal notes.</p>
+              </div>
+              <div class="controls">
+                <div id="filterGroup" class="segmented" aria-label="Bet filters"></div>
+                <select id="sortSelect" class="sort-select" aria-label="Sort bets"></select>
+                <button id="exportCsv" class="toolbar-button" type="button">Export CSV</button>
+                <button id="printView" class="toolbar-button" type="button">Print</button>
+              </div>
             </div>
-          </div>
-          <div id="parlayGrid" class="parlay-grid"></div>
-        </section>
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th class="sortable" data-sort-key="date">Date</th>
+                    <th class="sortable" data-sort-key="gameTime">Game Time</th>
+                    <th>Game</th>
+                    <th>Pick</th>
+                    <th>Line</th>
+                    <th>Stake</th>
+                    <th class="sortable" data-sort-key="result">Result</th>
+                    <th>P&amp;L</th>
+                    <th>Mark Result</th>
+                  </tr>
+                </thead>
+                <tbody id="betsBody"></tbody>
+              </table>
+            </div>
+          </section>
 
-        <section class="daily-panel card">
-          <div class="section-head">
-            <div>
-              <h2>Daily Breakdown</h2>
-              <p class="subtle">Collapse by day to isolate exposure and realized units.</p>
+          <section class="parlays-panel card">
+            <div class="section-head">
+              <div>
+                <h2>Parlays</h2>
+                <p class="subtle">Multi-leg tickets tracked separately from straight bets.</p>
+              </div>
             </div>
-          </div>
-          <div id="dailyBreakdown" class="breakdown-list"></div>
-        </section>
-      </div>
+            <div id="parlayGrid" class="parlay-grid"></div>
+          </section>
 
-      <aside class="stack">
-        <section class="chart-panel card">
-          <div class="section-head">
-            <div>
-              <h2>Cumulative P&amp;L</h2>
-              <p class="subtle">Unit profit progression across settled bets.</p>
+          <section class="daily-panel card">
+            <div class="section-head">
+              <div>
+                <h2>Daily Breakdown</h2>
+                <p class="subtle">Collapse by day to isolate exposure and realized dollars.</p>
+              </div>
             </div>
-          </div>
-          <canvas id="pnlChart" class="chart-canvas" width="520" height="280"></canvas>
-          <div class="footer-note">Straight bets and parlays are both included after settlement.</div>
-        </section>
+            <div id="dailyBreakdown" class="breakdown-list"></div>
+          </section>
+        </div>
 
-        <section class="stats-panel card">
-          <div class="section-head">
-            <div>
-              <h2>Stats Panel</h2>
-              <p class="subtle">Segmented by bet type, confidence tier, and sharp-signal outcomes.</p>
+        <aside class="stack">
+          <section class="chart-panel card">
+            <div class="section-head">
+              <div>
+                <h2>Cumulative P&amp;L</h2>
+                <p class="subtle">Dollar profit progression across settled bets.</p>
+              </div>
             </div>
+            <canvas id="pnlChart" class="chart-canvas" width="520" height="280"></canvas>
+            <div class="footer-note">Straight bets and parlays are both included after settlement.</div>
+          </section>
+
+          <section class="stats-panel card">
+            <div class="section-head">
+              <div>
+                <h2>Stats Panel</h2>
+                <p class="subtle">Segmented by bet type, confidence tier, and sharp-signal outcomes.</p>
+              </div>
+            </div>
+            <div id="statsGrid" class="stats-grid"></div>
+          </section>
+        </aside>
+      </main>
+    </section>
+
+    <section id="bracketPanel" class="tab-panel hidden">
+      <section class="card bracket-panel">
+        <div class="section-head">
+          <div>
+            <h2>Tournament Bracket</h2>
+            <p class="subtle">Four-region bracket with live winners filled as games complete. Bet-tracked games carry the red accent.</p>
           </div>
-          <div id="statsGrid" class="stats-grid"></div>
-        </section>
-      </aside>
-    </main>
+          <div id="bracketStatus" class="pill">Loading bracket...</div>
+        </div>
+        <div id="bracketView"></div>
+      </section>
+    </section>
+
+    <section id="schedulePanel" class="tab-panel hidden">
+      <section class="card schedule-panel">
+        <div class="section-head">
+          <div>
+            <h2>Tournament Schedule</h2>
+            <p class="subtle">All tournament games by round. First-round games are grouped by region with seeds, windows, channels, and completed scores.</p>
+          </div>
+          <div id="scheduleStatus" class="pill">Loading schedule...</div>
+        </div>
+        <div id="scheduleView"></div>
+      </section>
+    </section>
   </div>
 
   <script>
-    const UNIT_SIZE = 25; // $25 per unit
-    const ODDS_API_KEY = 'e67edf56e83961b61cade3d85be1280e';
-    const ODDS_API_BASE = 'https://api.the-odds-api.com/v4';
-    const SPORT = 'basketball_ncaab';
-
-    // Team name mapping for API matching
-    const TEAM_ALIASES = {
-      'TCU': ['TCU Horned Frogs', 'TCU'],
-      'Ohio State': ['Ohio State Buckeyes', 'Ohio State'],
-      'Houston': ['Houston Cougars', 'Houston'],
-      'Idaho': ['Idaho Vandals', 'Idaho'],
-      'Illinois': ['Illinois Fighting Illini', 'Illinois'],
-      'Penn': ['Penn Quakers', 'Pennsylvania', 'Penn'],
-      'VCU': ['VCU Rams', 'VCU'],
-      'UNC': ['North Carolina Tar Heels', 'North Carolina', 'UNC'],
-      'USF': ['South Florida Bulls', 'South Florida', 'USF'],
-      'Louisville': ['Louisville Cardinals', 'Louisville'],
-      'Saint Louis': ['Saint Louis Billikens', 'Saint Louis'],
-      'Georgia': ['Georgia Bulldogs', 'Georgia'],
-      'High Point': ['High Point Panthers', 'High Point'],
-      'Wisconsin': ['Wisconsin Badgers', 'Wisconsin'],
-      'Gonzaga': ['Gonzaga Bulldogs', 'Gonzaga'],
-      'Kennesaw St': ['Kennesaw State Owls', 'Kennesaw State'],
-    };
-
-    // Auto-fetch scores every 3 minutes
-    async function fetchLiveScores() {
-      try {
-        const res = await fetch(`${ODDS_API_BASE}/sports/${SPORT}/scores/?apiKey=${ODDS_API_KEY}&daysFrom=1`);
-        if (!res.ok) return;
-        const games = await res.json();
-        let updated = false;
-        for (const game of games) {
-          if (!game.completed) continue;
-          const scores = game.scores;
-          if (!scores || scores.length < 2) continue;
-          const home = game.home_team;
-          const away = game.away_team;
-          const homeScore = parseInt(scores.find(s => s.name === home)?.score || 0);
-          const awayScore = parseInt(scores.find(s => s.name === away)?.score || 0);
-          const totalPoints = homeScore + awayScore;
-          const scoreStr = `${away} ${awayScore} - ${home} ${homeScore}`;
-
-          for (const bet of BETS) {
-            if (bet.result) continue; // already graded
-            const teams = bet.game.split(' vs ');
-            const matchesGame = teams.some(t => {
-              const aliases = TEAM_ALIASES[t.trim()] || [t.trim()];
-              return aliases.some(a => a === home || a === away);
-            });
-            if (!matchesGame) continue;
-
-            bet.score = scoreStr;
-            // Grade spread bets
-            if (bet.type === 'spread') {
-              const pickParts = bet.pick.match(/(.+?)\s([+-][\d.]+)/);
-              if (pickParts) {
-                const pickTeam = pickParts[1].trim();
-                const spread = parseFloat(pickParts[2]);
-                const aliases = TEAM_ALIASES[pickTeam] || [pickTeam];
-                const isHome = aliases.some(a => a === home);
-                const pickScore = isHome ? homeScore : awayScore;
-                const oppScore = isHome ? awayScore : homeScore;
-                const margin = pickScore - oppScore + spread;
-                if (margin > 0) bet.result = 'win';
-                else if (margin < 0) bet.result = 'loss';
-                else bet.result = 'push';
-                updated = true;
-              }
-            }
-            // Grade total bets
-            if (bet.type === 'total') {
-              const isUnder = bet.pick.toLowerCase().includes('under') || bet.pick.includes('U');
-              const totalLine = parseFloat(bet.pick.match(/[\d.]+/)?.[0] || 0);
-              if (isUnder) {
-                if (totalPoints < totalLine) bet.result = 'win';
-                else if (totalPoints > totalLine) bet.result = 'loss';
-                else bet.result = 'push';
-              } else {
-                if (totalPoints > totalLine) bet.result = 'win';
-                else if (totalPoints < totalLine) bet.result = 'loss';
-                else bet.result = 'push';
-              }
-              updated = true;
-            }
-          }
-        }
-        // Grade parlays
-        for (const parlay of PARLAYS) {
-          if (parlay.result) continue;
-          const legResults = parlay.legs.map(leg => {
-            const bet = BETS.find(b => b.pick === leg);
-            return bet ? bet.result : null;
-          });
-          if (legResults.some(r => r === 'loss')) { parlay.result = 'loss'; updated = true; }
-          else if (legResults.every(r => r === 'win')) { parlay.result = 'win'; updated = true; }
-          else if (legResults.every(r => r !== null)) { parlay.result = 'push'; updated = true; }
-        }
-        if (updated) {
-          saveState();
-          render();
-        }
-      } catch (e) {
-        console.log('Score fetch error:', e);
-      }
-    }
-
-    // Poll every 3 minutes
-    setInterval(fetchLiveScores, 180000);
-    // Initial fetch after 2 seconds
-    setTimeout(fetchLiveScores, 2000);
-
-    const BETS = [
-      {
-        id: 1,
-        date: "2026-03-19",
-        gameTime: "12:15 PM ET",
-        game: "TCU vs Ohio State",
-        pick: "TCU +2.5",
-        line: -105,
-        units: 1.5,
-        book: "FanDuel ON",
-        type: "spread",
-        confidence: "high",
-        sharpSignal: true,
-        kenpomGap: 4.7,
-        result: null,
-        score: null,
-        notes: "Early dog with model edge and confirmed market support."
-      },
-      {
-        id: 2,
-        date: "2026-03-19",
-        gameTime: "10:10 PM ET",
-        game: "Houston vs Idaho",
-        pick: "Houston -23.5",
-        line: -110,
-        units: 1.5,
-        book: "bet365",
-        type: "spread",
-        confidence: "high",
-        sharpSignal: true,
-        kenpomGap: 31.9,
-        result: null,
-        score: null,
-        notes: "Large efficiency gap with a high-confidence spread rating."
-      },
-      {
-        id: 3,
-        date: "2026-03-19",
-        gameTime: "9:25 PM ET",
-        game: "Illinois vs Penn",
-        pick: "Illinois -25.5",
-        line: -110,
-        units: 1,
-        book: "bet365",
-        type: "spread",
-        confidence: "high",
-        sharpSignal: true,
-        kenpomGap: 30.7,
-        result: null,
-        score: null,
-        notes: "Model projects separation well above the current market number."
-      },
-      {
-        id: 4,
-        date: "2026-03-19",
-        gameTime: "6:50 PM ET",
-        game: "VCU vs UNC",
-        pick: "VCU +2.5",
-        line: -110,
-        units: 1,
-        book: "FanDuel ON",
-        type: "spread",
-        confidence: "medium",
-        sharpSignal: true,
-        kenpomGap: 3.4,
-        result: null,
-        score: null,
-        notes: "Short dog catching points with supporting sharp activity."
-      },
-      {
-        id: 5,
-        date: "2026-03-19",
-        gameTime: "1:30 PM ET",
-        game: "USF vs Louisville",
-        pick: "USF +4.5",
-        line: -110,
-        units: 1,
-        book: "bet365",
-        type: "spread",
-        confidence: "medium",
-        sharpSignal: true,
-        kenpomGap: 8.9,
-        result: null,
-        score: null,
-        notes: "Market number trails the projection by nearly two possessions."
-      },
-      {
-        id: 6,
-        date: "2026-03-19",
-        gameTime: "9:45 PM ET",
-        game: "Saint Louis vs Georgia",
-        pick: "Saint Louis +2.5",
-        line: -115,
-        units: 0.5,
-        book: "bet365",
-        type: "spread",
-        confidence: "low",
-        sharpSignal: true,
-        kenpomGap: 1.9,
-        result: null,
-        score: null,
-        notes: "Smaller stake tied to a thinner edge but still signal-supported."
-      },
-      {
-        id: 7,
-        date: "2026-03-19",
-        gameTime: "1:50 PM ET",
-        game: "High Point vs Wisconsin",
-        pick: "HP/Wis Under 162.5",
-        line: -110,
-        units: 1,
-        book: "bet365",
-        type: "total",
-        confidence: "high",
-        sharpSignal: true,
-        kenpomGap: null,
-        result: null,
-        score: null,
-        notes: "Total sits above projected pace-adjusted expectation."
-      }
+    const UNIT_SIZE = 25;
+    const ODDS_API_KEY = "e67edf56e83961b61cade3d85be1280e";
+    const ODDS_API_BASE = "https://api.the-odds-api.com/v4";
+    const ESPN_API_BASE = "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard";
+    const SPORT = "basketball_ncaab";
+    const BET_BOOK = "bet365";
+    const TOURNAMENT_FETCH_DATES = [
+      "20260317",
+      "20260318",
+      "20260319",
+      "20260320",
+      "20260321",
+      "20260322",
+      "20260326",
+      "20260327",
+      "20260328",
+      "20260329",
+      "20260404",
+      "20260406"
     ];
-
-    const PARLAYS = [
-      {
-        id: "P1",
-        date: "2026-03-19",
-        name: "Early Sharp",
-        legs: ["TCU +2.5", "USF +4.5", "HP/Wis U162.5"],
-        units: 0.5,
-        line: 550,
-        book: "FanDuel ON",
-        type: "parlay",
-        confidence: "medium",
-        sharpSignal: true,
-        result: null,
-        notes: "Stacks three early sharp looks into a plus-money ladder."
-      },
-      {
-        id: "P2",
-        date: "2026-03-19",
-        name: "Chalk Lock",
-        legs: ["Houston ML", "Gonzaga ML", "Illinois ML"],
-        units: 0.5,
-        line: 120,
-        book: "bet365",
-        type: "parlay",
-        confidence: "low",
-        sharpSignal: false,
-        result: null,
-        notes: "Short-price moneyline parlay built for small exposure."
-      }
-    ];
-
-    const STORAGE_KEY = "march-madness-2026-betting-tracker";
     const FILTERS = ["all", "pending", "settled", "wins", "losses"];
     const SORT_OPTIONS = [
       { value: "date-asc", label: "Date: Earliest" },
@@ -1193,13 +1211,78 @@
     const RESULT_ORDER = { pending: 0, push: 1, loss: 2, win: 3 };
     const TYPE_LABELS = { spread: "Spread", total: "Total", ml: "Moneyline", parlay: "Parlay" };
     const CONFIDENCE_LABELS = { high: "High", medium: "Medium", low: "Low" };
-
-    let state = {
-      filter: "all",
-      sort: "date-asc",
-      expandedBets: new Set(),
-      openDays: new Set(["2026-03-19"])
+    const ROUND_ORDER = ["first-four", "first-round", "second-round", "sweet-16", "elite-8", "final-four", "championship"];
+    const ROUND_LABELS = {
+      "first-four": "First Four",
+      "first-round": "First Round",
+      "second-round": "Second Round",
+      "sweet-16": "Sweet 16",
+      "elite-8": "Elite 8",
+      "final-four": "Final Four",
+      "championship": "Championship"
     };
+    const REGION_ORDER = ["South", "West", "East", "Midwest"];
+    const REGION_SLOT_BY_SEEDS = {
+      "1-16": 1,
+      "8-9": 2,
+      "5-12": 3,
+      "4-13": 4,
+      "6-11": 5,
+      "3-14": 6,
+      "7-10": 7,
+      "2-15": 8
+    };
+
+    const TEAM_ALIASES = {
+      TCU: ["TCU Horned Frogs", "TCU"],
+      "Ohio State": ["Ohio State Buckeyes", "Ohio State", "OSU"],
+      Houston: ["Houston Cougars", "Houston"],
+      Idaho: ["Idaho Vandals", "Idaho"],
+      Illinois: ["Illinois Fighting Illini", "Illinois"],
+      Penn: ["Penn Quakers", "Pennsylvania", "Penn"],
+      VCU: ["VCU Rams", "VCU"],
+      UNC: ["North Carolina Tar Heels", "North Carolina", "UNC"],
+      "North Carolina": ["North Carolina Tar Heels", "North Carolina", "UNC"],
+      USF: ["South Florida Bulls", "South Florida", "USF"],
+      "South Florida": ["South Florida Bulls", "South Florida", "USF"],
+      Louisville: ["Louisville Cardinals", "Louisville"],
+      "Saint Louis": ["Saint Louis Billikens", "Saint Louis"],
+      Georgia: ["Georgia Bulldogs", "Georgia"],
+      "High Point": ["High Point Panthers", "High Point"],
+      Wisconsin: ["Wisconsin Badgers", "Wisconsin"],
+      Gonzaga: ["Gonzaga Bulldogs", "Gonzaga"],
+      "Kennesaw St": ["Kennesaw State Owls", "Kennesaw State", "Kennesaw St"],
+      "Saint Marys": ["Saint Mary's Gaels", "Saint Mary's", "Saint Marys"],
+      "McNeese St": ["McNeese Cowboys", "McNeese State", "McNeese St"],
+      NDSU: ["North Dakota State Bison", "NDSU", "North Dakota State"],
+      Siena: ["Siena Saints", "Siena"],
+      Howard: ["Howard Bison", "Howard"],
+      Hawaii: ["Hawai'i Rainbow Warriors", "Hawaii", "Hawai'i"],
+      Duke: ["Duke Blue Devils", "Duke"],
+      Vanderbilt: ["Vanderbilt Commodores", "Vanderbilt"],
+      Nebraska: ["Nebraska Cornhuskers", "Nebraska"],
+      Troy: ["Troy Trojans", "Troy"],
+      "Michigan St": ["Michigan State Spartans", "Michigan State", "Michigan St"],
+      Michigan: ["Michigan Wolverines", "Michigan"],
+      Howard: ["Howard Bison", "Howard"]
+    };
+
+    const BETS = [
+      { id: 1, date: "2026-03-19", gameTime: "12:15 PM ET", game: "TCU vs Ohio State", pick: "TCU +2.5", line: -105, units: 1.5, book: BET_BOOK, type: "spread", confidence: "high", sharpSignal: true, kenpomGap: 4.7, result: null, score: null, notes: "Early dog with model edge and confirmed market support." },
+      { id: 2, date: "2026-03-19", gameTime: "10:10 PM ET", game: "Houston vs Idaho", pick: "Houston -23.5", line: -110, units: 1.5, book: BET_BOOK, type: "spread", confidence: "high", sharpSignal: true, kenpomGap: 31.9, result: null, score: null, notes: "Large efficiency gap with a high-confidence spread rating." },
+      { id: 3, date: "2026-03-19", gameTime: "9:25 PM ET", game: "Illinois vs Penn", pick: "Illinois -25.5", line: -110, units: 1, book: BET_BOOK, type: "spread", confidence: "high", sharpSignal: true, kenpomGap: 30.7, result: null, score: null, notes: "Model projects separation well above the current market number." },
+      { id: 4, date: "2026-03-19", gameTime: "6:50 PM ET", game: "VCU vs UNC", pick: "VCU +2.5", line: -110, units: 1, book: BET_BOOK, type: "spread", confidence: "medium", sharpSignal: true, kenpomGap: 3.4, result: null, score: null, notes: "Short dog catching points with supporting sharp activity." },
+      { id: 5, date: "2026-03-19", gameTime: "1:30 PM ET", game: "USF vs Louisville", pick: "USF +4.5", line: -110, units: 1, book: BET_BOOK, type: "spread", confidence: "medium", sharpSignal: true, kenpomGap: 8.9, result: null, score: null, notes: "Market number trails the projection by nearly two possessions." },
+      { id: 6, date: "2026-03-19", gameTime: "9:45 PM ET", game: "Saint Louis vs Georgia", pick: "Saint Louis +2.5", line: -115, units: 0.5, book: BET_BOOK, type: "spread", confidence: "low", sharpSignal: true, kenpomGap: 1.9, result: null, score: null, notes: "Smaller stake tied to a thinner edge but still signal-supported." },
+      { id: 7, date: "2026-03-19", gameTime: "1:50 PM ET", game: "High Point vs Wisconsin", pick: "HP/Wis Under 162.5", line: -110, units: 1, book: BET_BOOK, type: "total", confidence: "high", sharpSignal: true, kenpomGap: null, result: null, score: null, notes: "Total sits above projected pace-adjusted expectation." }
+    ];
+
+    const PARLAYS = [
+      { id: "P1", date: "2026-03-19", name: "Early Sharp", legs: ["TCU +2.5", "USF +4.5", "HP/Wis Under 162.5"], units: 0.5, line: 550, book: BET_BOOK, type: "parlay", confidence: "medium", sharpSignal: true, result: null, notes: "Stacks three early sharp looks into a plus-money ladder." },
+      { id: "P2", date: "2026-03-19", name: "Chalk Lock", legs: ["Houston ML", "Gonzaga ML", "Illinois ML"], units: 0.5, line: 120, book: BET_BOOK, type: "parlay", confidence: "low", sharpSignal: false, result: null, notes: "Short-price moneyline parlay built for small exposure." }
+    ];
+
+    const STORAGE_KEY = "march-madness-2026-betting-tracker";
 
     const dom = {
       heroPnl: document.getElementById("heroPnl"),
@@ -1213,25 +1296,48 @@
       pnlChart: document.getElementById("pnlChart"),
       statsGrid: document.getElementById("statsGrid"),
       exportCsv: document.getElementById("exportCsv"),
-      printView: document.getElementById("printView")
+      printView: document.getElementById("printView"),
+      tabBar: document.getElementById("tabBar"),
+      dashboardPanel: document.getElementById("dashboardPanel"),
+      bracketPanel: document.getElementById("bracketPanel"),
+      schedulePanel: document.getElementById("schedulePanel"),
+      bracketView: document.getElementById("bracketView"),
+      scheduleView: document.getElementById("scheduleView"),
+      bracketStatus: document.getElementById("bracketStatus"),
+      scheduleStatus: document.getElementById("scheduleStatus")
     };
+
+    let state = {
+      filter: "all",
+      sort: "date-asc",
+      activeTab: "dashboard",
+      expandedBets: new Set(),
+      openDays: new Set(["2026-03-19"])
+    };
+
+    let bets = cloneData(BETS);
+    let parlays = cloneData(PARLAYS);
+    let previousSummarySnapshot = {};
+    let tournamentGames = buildFallbackTournamentGames();
+    let tournamentStatus = { loaded: false, error: null, updatedAt: null };
 
     function cloneData(items) {
       return items.map((item) => ({ ...item }));
     }
 
-    let bets = cloneData(BETS);
-    let parlays = cloneData(PARLAYS);
-    let previousSummarySnapshot = {};
+    function unitToDollars(units) {
+      return units * UNIT_SIZE;
+    }
 
     function americanProfit(units, odds) {
-      if (odds > 0) return units * (odds / 100);
-      return units * (100 / Math.abs(odds));
+      const stake = unitToDollars(units);
+      if (odds > 0) return stake * (odds / 100);
+      return stake * (100 / Math.abs(odds));
     }
 
     function settledProfit(item) {
       if (item.result === "win") return americanProfit(item.units, item.line);
-      if (item.result === "loss") return -item.units;
+      if (item.result === "loss") return -unitToDollars(item.units);
       return 0;
     }
 
@@ -1239,13 +1345,25 @@
       return americanProfit(item.units, item.line);
     }
 
-    function formatUnits(value, signed = true) {
-      const rounded = Math.round(value * 1000) / 1000;
-      const formatted = rounded.toFixed(2).replace(/\.00$/, ".00");
-      if (!signed) return `${formatted}u`;
-      if (rounded > 0) return `+${formatted}u`;
-      if (rounded < 0) return `${formatted}u`;
-      return `0.00u`;
+    function formatCurrency(value, { signed = true } = {}) {
+      const rounded = Math.round(value * 100) / 100;
+      const abs = Math.abs(rounded).toFixed(2);
+      if (!signed) return `$${abs}`;
+      if (rounded > 0) return `+$${abs}`;
+      if (rounded < 0) return `-$${abs}`;
+      return "$0.00";
+    }
+
+    function formatUnitsSecondary(units) {
+      return `${units.toFixed(2).replace(/\.00$/, "")}u`;
+    }
+
+    function formatStake(units) {
+      return `${formatCurrency(unitToDollars(units), { signed: false })} <span class="unit-meta">(${formatUnitsSecondary(units)})</span>`;
+    }
+
+    function formatCurrencyWithUnits(value, units) {
+      return `${formatCurrency(value)} <span class="unit-meta">(${formatUnitsSecondary(units)})</span>`;
     }
 
     function formatPercent(value) {
@@ -1264,13 +1382,52 @@
     }
 
     function parseTimeToMinutes(label) {
-      if (!label) return 0;
-      const cleaned = label.replace(" ET", "");
+      if (!label || label === "TBD") return Number.MAX_SAFE_INTEGER;
+      const cleaned = label.replace(" ET", "").trim();
+      if (!cleaned.includes(":")) return Number.MAX_SAFE_INTEGER;
       const [time, meridiem] = cleaned.split(" ");
       const [rawHour, rawMinute] = time.split(":").map(Number);
       let hour = rawHour % 12;
       if (meridiem === "PM") hour += 12;
       return hour * 60 + rawMinute;
+    }
+
+    function formatGameTime(dateValue) {
+      if (!dateValue) return "TBD";
+      const date = new Date(dateValue);
+      if (Number.isNaN(date.getTime())) return "TBD";
+      return date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit", hour12: true, timeZone: "America/Toronto" });
+    }
+
+    function normalizeName(value) {
+      return String(value || "")
+        .toLowerCase()
+        .replace(/&/g, "and")
+        .replace(/[^a-z0-9]+/g, "")
+        .trim();
+    }
+
+    function getAliasVariants(name) {
+      const entries = TEAM_ALIASES[name] || [name];
+      return new Set(entries.concat(name).map(normalizeName));
+    }
+
+    function teamMatches(left, right) {
+      const leftAliases = getAliasVariants(left);
+      const rightAliases = getAliasVariants(right);
+      return [...leftAliases].some((alias) => rightAliases.has(alias));
+    }
+
+    function extractBetTeams(gameLabel) {
+      return String(gameLabel || "")
+        .split(" vs ")
+        .map((team) => team.trim())
+        .filter(Boolean);
+    }
+
+    function betMatchesGame(bet, gameTeams) {
+      const betTeams = extractBetTeams(bet.game);
+      return betTeams.length === 2 && betTeams.every((team) => gameTeams.some((candidate) => teamMatches(team, candidate)));
     }
 
     function statusClass(result) {
@@ -1284,30 +1441,7 @@
     }
 
     function resultButtonClass(result, target) {
-      if (result !== target) return "";
-      return `active-${target}`;
-    }
-
-    function loadState() {
-      try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-        if (!saved) return;
-        const betMap = new Map(saved.bets?.map((entry) => [entry.id, entry]) || []);
-        const parlayMap = new Map(saved.parlays?.map((entry) => [entry.id, entry]) || []);
-        bets = cloneData(BETS).map((bet) => ({ ...bet, ...(betMap.get(bet.id) || {}) }));
-        parlays = cloneData(PARLAYS).map((parlay) => ({ ...parlay, ...(parlayMap.get(parlay.id) || {}) }));
-      } catch (error) {
-        bets = cloneData(BETS);
-        parlays = cloneData(PARLAYS);
-      }
-    }
-
-    function saveState() {
-      const payload = {
-        bets: bets.map(({ id, result, score }) => ({ id, result, score })),
-        parlays: parlays.map(({ id, result }) => ({ id, result }))
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      return result === target ? `active-${target}` : "";
     }
 
     function compareValues(a, b, direction) {
@@ -1318,7 +1452,7 @@
 
     function getFilteredSortedBets() {
       const [key, direction] = state.sort.split("-");
-      return bets
+      return [...bets]
         .filter((bet) => {
           if (state.filter === "all") return true;
           if (state.filter === "pending") return !bet.result;
@@ -1348,52 +1482,42 @@
     }
 
     function summarize() {
-      const settledBets = allTickets().filter((item) => item.result);
-      const totalUnitsWagered = allTickets().reduce((sum, item) => sum + item.units, 0);
-      const realized = settledBets.reduce((sum, item) => sum + settledProfit(item), 0);
-      const settledUnitsRisked = settledBets.reduce((sum, item) => sum + item.units, 0);
-      const wins = settledBets.filter((item) => item.result === "win").length;
-      const losses = settledBets.filter((item) => item.result === "loss").length;
-      const pushes = settledBets.filter((item) => item.result === "push").length;
-      const pending = allTickets().filter((item) => !item.result).length;
+      const tickets = allTickets();
+      const settledTickets = tickets.filter((item) => item.result);
+      const totalWagered = tickets.reduce((sum, item) => sum + unitToDollars(item.units), 0);
+      const realized = settledTickets.reduce((sum, item) => sum + settledProfit(item), 0);
+      const settledRisked = settledTickets.reduce((sum, item) => sum + unitToDollars(item.units), 0);
+      const wins = settledTickets.filter((item) => item.result === "win").length;
+      const losses = settledTickets.filter((item) => item.result === "loss").length;
+      const pushes = settledTickets.filter((item) => item.result === "push").length;
+      const pending = tickets.filter((item) => !item.result).length;
       const resolved = wins + losses;
-      const roi = settledUnitsRisked ? (realized / settledUnitsRisked) * 100 : 0;
+      const roi = settledRisked ? (realized / settledRisked) * 100 : 0;
       const winRate = resolved ? (wins / resolved) * 100 : 0;
-      const bestBet = settledBets.filter((item) => item.result === "win").sort((a, b) => settledProfit(b) - settledProfit(a))[0] || null;
-      const worstBet = settledBets.filter((item) => item.result === "loss").sort((a, b) => settledProfit(a) - settledProfit(b))[0] || null;
+      const bestBet = settledTickets.filter((item) => item.result === "win").sort((a, b) => settledProfit(b) - settledProfit(a))[0] || null;
+      const worstBet = settledTickets.filter((item) => item.result === "loss").sort((a, b) => settledProfit(a) - settledProfit(b))[0] || null;
+      const totalWon = settledTickets.filter((item) => item.result === "win").reduce((sum, item) => sum + settledProfit(item), 0);
+      const totalLost = Math.abs(settledTickets.filter((item) => item.result === "loss").reduce((sum, item) => sum + settledProfit(item), 0));
 
-      return {
-        totalUnitsWagered,
-        realized,
-        roi,
-        winRate,
-        bestBet,
-        worstBet,
-        wins,
-        losses,
-        pushes,
-        pending,
-        settledCount: settledBets.length
-      };
+      return { totalWagered, realized, roi, winRate, bestBet, worstBet, wins, losses, pushes, pending, settledCount: settledTickets.length, totalWon, totalLost };
     }
 
     function buildSummaryCards(summary) {
       const cards = [
-        { key: "totalUnitsWagered", label: "Total Units Wagered", metric: `${summary.totalUnitsWagered.toFixed(2)}u`, meta: `${summary.settledCount} settled tickets` },
-        { key: "realized", label: "Units Won/Lost", metric: formatUnits(summary.realized), meta: `${summary.wins}W-${summary.losses}L-${summary.pushes}P` },
-        { key: "roi", label: "ROI %", metric: formatPercent(summary.roi), meta: "Settled tickets only" },
-        { key: "winRate", label: "Win Rate", metric: formatPercent(summary.winRate), meta: `${summary.wins} wins in graded decisions` },
-        { key: "bestBet", label: "Best Bet", metric: summary.bestBet ? summary.bestBet.label || summary.bestBet.pick || summary.bestBet.name : "Pending", meta: summary.bestBet ? formatUnits(settledProfit(summary.bestBet)) : "No winners yet" },
-        { key: "worstBet", label: "Worst Bet", metric: summary.worstBet ? summary.worstBet.label || summary.worstBet.pick || summary.worstBet.name : "Pending", meta: summary.worstBet ? formatUnits(settledProfit(summary.worstBet)) : "No losers yet" }
+        { key: "totalWagered", label: "Total Wagered", metric: formatCurrency(summary.totalWagered, { signed: false }), meta: `${(summary.totalWagered / UNIT_SIZE).toFixed(2)}u risked`, raw: summary.totalWagered },
+        { key: "realized", label: "Won / Lost", metric: formatCurrency(summary.realized), meta: `${summary.wins}W-${summary.losses}L-${summary.pushes}P`, raw: summary.realized },
+        { key: "totalWon", label: "Gross Won", metric: formatCurrency(summary.totalWon, { signed: false }), meta: `${summary.settledCount} settled tickets`, raw: summary.totalWon },
+        { key: "totalLost", label: "Gross Lost", metric: formatCurrency(summary.totalLost, { signed: false }), meta: `${summary.pending} pending tickets`, raw: summary.totalLost },
+        { key: "bestBet", label: "Best Bet", metric: summary.bestBet ? summary.bestBet.label || summary.bestBet.pick || summary.bestBet.name : "Pending", meta: summary.bestBet ? formatCurrencyWithUnits(settledProfit(summary.bestBet), summary.bestBet.units) : "No winners yet", raw: summary.bestBet ? settledProfit(summary.bestBet) : 0 },
+        { key: "worstBet", label: "Worst Bet", metric: summary.worstBet ? summary.worstBet.label || summary.worstBet.pick || summary.worstBet.name : "Pending", meta: summary.worstBet ? formatCurrencyWithUnits(settledProfit(summary.worstBet), summary.worstBet.units) : "No losers yet", raw: summary.worstBet ? settledProfit(summary.worstBet) : 0 }
       ];
 
       dom.summaryGrid.innerHTML = cards.map((card) => {
         const previous = previousSummarySnapshot[card.key];
-        const current = card.metric;
-        const flashClass = previous && previous !== current
-          ? (card.key === "realized" && summary.realized < parseFloat(previous) ? "flash-loss" : "flash-win")
+        const flashClass = previous != null && previous !== card.raw
+          ? (card.key === "realized" && card.raw < previous ? "flash-loss" : "flash-win")
           : "";
-        previousSummarySnapshot[card.key] = current;
+        previousSummarySnapshot[card.key] = card.raw;
         return `
           <article class="card summary-card ${flashClass}">
             <div class="label">${card.label}</div>
@@ -1413,14 +1537,14 @@
         const progress = Math.min((now - startTime) / duration, 1);
         const eased = 1 - Math.pow(1 - progress, 3);
         const value = startValue + (nextValue - startValue) * eased;
-        dom.heroPnl.textContent = formatUnits(value);
+        dom.heroPnl.textContent = formatCurrency(value);
         dom.heroPnl.dataset.value = String(value);
         dom.heroPnl.className = `pnl-value ${value > 0 ? "positive" : value < 0 ? "negative" : "neutral"}`;
         if (progress < 1) requestAnimationFrame(frame);
       }
 
       requestAnimationFrame(frame);
-      dom.heroMeta.textContent = `${summary.settledCount} settled bets, ${summary.pending} pending`;
+      dom.heroMeta.innerHTML = `${summary.settledCount} settled bets, ${summary.pending} pending <span class="unit-meta">(${(nextValue / UNIT_SIZE).toFixed(2)}u)</span>`;
     }
 
     function renderFilters() {
@@ -1437,15 +1561,15 @@
       `).join("");
     }
 
-    function payoutLabel(bet) {
-      if (bet.result) return formatUnits(settledProfit(bet));
-      return `To win ${formatUnits(pendingToWin(bet), false)}`;
+    function payoutLabel(item) {
+      if (item.result) return formatCurrencyWithUnits(settledProfit(item), item.units);
+      return `To win ${formatCurrency(pendingToWin(item), { signed: false })} <span class="unit-meta">(${(pendingToWin(item) / UNIT_SIZE).toFixed(2)}u)</span>`;
     }
 
     function renderBetsTable() {
       const rows = getFilteredSortedBets();
       if (!rows.length) {
-        dom.betsBody.innerHTML = `<tr><td colspan="10" class="empty">No bets match the current filter.</td></tr>`;
+        dom.betsBody.innerHTML = `<tr><td colspan="9" class="empty">No bets match the current filter.</td></tr>`;
         return;
       }
 
@@ -1463,8 +1587,7 @@
             </td>
             <td>${bet.pick}</td>
             <td>${bet.line > 0 ? `+${bet.line}` : bet.line}</td>
-            <td>${bet.units.toFixed(2).replace(/\.00$/, "")}u</td>
-            <td>${bet.book}</td>
+            <td>${formatStake(bet.units)}</td>
             <td><span class="status-chip ${statusClass(bet.result)}">${statusLabel(bet.result)}</span></td>
             <td class="${settledProfit(bet) > 0 ? "positive" : settledProfit(bet) < 0 ? "negative" : ""}">${payoutLabel(bet)}</td>
             <td>
@@ -1478,7 +1601,7 @@
           </tr>
           ${expanded ? `
             <tr class="detail-row">
-              <td colspan="10" class="detail-cell">
+              <td colspan="9" class="detail-cell">
                 <div class="detail-panel">
                   <div class="detail-item">
                     <strong>Bet Type</strong>
@@ -1493,8 +1616,12 @@
                     <span>${bet.kenpomGap == null ? "N/A" : bet.kenpomGap.toFixed(1)}</span>
                   </div>
                   <div class="detail-item">
+                    <strong>Book</strong>
+                    <span>${BET_BOOK}</span>
+                  </div>
+                  <div class="detail-item">
                     <strong>Sharp Signal</strong>
-                    <span>${bet.sharpSignal ? '<span class="signal">Active</span>' : 'None'}</span>
+                    <span>${bet.sharpSignal ? '<span class="signal">Active</span>' : "None"}</span>
                   </div>
                   <div class="detail-item">
                     <strong>Score</strong>
@@ -1502,7 +1629,7 @@
                   </div>
                   <div class="detail-item">
                     <strong>Stake</strong>
-                    <span>${bet.units.toFixed(2).replace(/\.00$/, "")}u</span>
+                    <span>${formatStake(bet.units)}</span>
                   </div>
                   <div class="detail-item" style="grid-column: span 2;">
                     <strong>Notes</strong>
@@ -1536,16 +1663,17 @@
             </div>
             <div class="mini-cell">
               <strong>Stake</strong>
-              <span>${parlay.units}u</span>
+              <span>${formatStake(parlay.units)}</span>
             </div>
             <div class="mini-cell">
-              <strong>Payout</strong>
+              <strong>P&amp;L</strong>
               <span class="${settledProfit(parlay) > 0 ? "positive" : settledProfit(parlay) < 0 ? "negative" : ""}">
                 ${payoutLabel(parlay)}
               </span>
             </div>
           </div>
-          <p class="subtle" style="margin-bottom: 12px;">${parlay.notes}</p>
+          <p class="subtle" style="margin-bottom: 10px;">${parlay.notes}</p>
+          <div class="money-meta" style="margin-bottom: 12px;">Book: ${BET_BOOK}</div>
           <div class="result-group">
             <button type="button" class="result-button ${resultButtonClass(parlay.result, "win")}" data-ticket-type="parlay" data-id="${parlay.id}" data-result="win">W</button>
             <button type="button" class="result-button ${resultButtonClass(parlay.result, "loss")}" data-ticket-type="parlay" data-id="${parlay.id}" data-result="loss">L</button>
@@ -1563,7 +1691,7 @@
         grouped.get(ticket.date).push(ticket);
       });
 
-      const markup = [...grouped.entries()]
+      dom.dailyBreakdown.innerHTML = [...grouped.entries()]
         .sort((a, b) => a[0].localeCompare(b[0]))
         .map(([date, items]) => {
           const pnl = items.reduce((sum, item) => sum + settledProfit(item), 0);
@@ -1581,7 +1709,7 @@
                   <div class="subtle">${items.length} tickets tracked</div>
                 </div>
                 <div class="day-summary">
-                  <span class="${pnl > 0 ? "positive" : pnl < 0 ? "negative" : ""}">${formatUnits(pnl)}</span>
+                  <span class="${pnl > 0 ? "positive" : pnl < 0 ? "negative" : ""}">${formatCurrency(pnl)}</span>
                   <span class="subtle">${wins}W-${losses}L-${pushes}P, ${pending} pending</span>
                 </div>
               </button>
@@ -1589,16 +1717,16 @@
                 <div class="day-content">
                   <div class="day-bets">
                     ${items
-                      .sort((a, b) => parseTimeToMinutes(a.gameTime) - parseTimeToMinutes(b.gameTime))
-                      .map((bet) => `
+                      .sort((a, b) => parseTimeToMinutes(a.gameTime || "") - parseTimeToMinutes(b.gameTime || ""))
+                      .map((ticket) => `
                         <div class="day-bet">
                           <div>
-                            <strong>${bet.gameTime ? `${bet.gameTime} · ` : ""}${bet.pick || bet.name}</strong>
-                            <div class="subtle">${bet.game || bet.legs?.join(" / ") || "Parlay"} · ${bet.book}</div>
+                            <strong>${ticket.gameTime ? `${ticket.gameTime} · ` : ""}${ticket.pick || ticket.name}</strong>
+                            <div class="subtle">${ticket.game || ticket.legs?.join(" / ") || "Parlay"} · ${BET_BOOK}</div>
                           </div>
                           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-                            <span class="status-chip ${statusClass(bet.result)}">${statusLabel(bet.result)}</span>
-                            <strong class="${settledProfit(bet) > 0 ? "positive" : settledProfit(bet) < 0 ? "negative" : ""}">${payoutLabel(bet)}</strong>
+                            <span class="status-chip ${statusClass(ticket.result)}">${statusLabel(ticket.result)}</span>
+                            <strong class="${settledProfit(ticket) > 0 ? "positive" : settledProfit(ticket) < 0 ? "negative" : ""}">${payoutLabel(ticket)}</strong>
                           </div>
                         </div>
                       `).join("")}
@@ -1607,9 +1735,7 @@
               ` : ""}
             </section>
           `;
-        }).join("");
-
-      dom.dailyBreakdown.innerHTML = markup || `<div class="empty">No dates available.</div>`;
+        }).join("") || `<div class="empty">No dates available.</div>`;
     }
 
     function recordString(items) {
@@ -1626,12 +1752,14 @@
         const wins = graded.filter((item) => item.result === "win").length;
         const losses = graded.filter((item) => item.result === "loss").length;
         const hitRate = wins + losses ? (wins / (wins + losses)) * 100 : 0;
+        const profit = graded.reduce((sum, item) => sum + settledProfit(item), 0);
         return {
           key: value,
           label: TYPE_LABELS[value] || CONFIDENCE_LABELS[value] || value,
           record: recordString(graded),
           hitRate,
-          count: filtered.length
+          count: filtered.length,
+          profit
         };
       });
     }
@@ -1644,6 +1772,7 @@
       const sharpWins = sharpItems.filter((item) => item.result === "win").length;
       const sharpLosses = sharpItems.filter((item) => item.result === "loss").length;
       const sharpHitRate = sharpWins + sharpLosses ? (sharpWins / (sharpWins + sharpLosses)) * 100 : 0;
+      const sharpProfit = sharpItems.filter((item) => item.result).reduce((sum, item) => sum + settledProfit(item), 0);
 
       const blockMarkup = (title, stats) => `
         <section class="stat-block">
@@ -1653,7 +1782,7 @@
               <div class="stat-row">
                 <div>
                   <strong>${stat.label}</strong>
-                  <div class="subtle">${stat.record} · ${stat.count} tracked</div>
+                  <div class="subtle">${stat.record} · ${stat.count} tracked · ${formatCurrency(stat.profit)}</div>
                 </div>
                 <div class="bar"><span style="width:${Math.max(stat.hitRate, 4)}%;"></span></div>
                 <div>${formatPercent(stat.hitRate)}</div>
@@ -1672,7 +1801,7 @@
             <div class="stat-row">
               <div>
                 <strong>Sharp Plays</strong>
-                <div class="subtle">${recordString(sharpItems.filter((item) => item.result))} · ${sharpItems.length} tracked</div>
+                <div class="subtle">${recordString(sharpItems.filter((item) => item.result))} · ${sharpItems.length} tracked · ${formatCurrency(sharpProfit)}</div>
               </div>
               <div class="bar"><span style="width:${Math.max(sharpHitRate, 4)}%;"></span></div>
               <div>${formatPercent(sharpHitRate)}</div>
@@ -1695,7 +1824,7 @@
 
       const settled = allTickets()
         .filter((item) => item.result)
-        .sort((a, b) => (a.date + (a.gameTime || "")).localeCompare(b.date + (b.gameTime || "")));
+        .sort((a, b) => `${a.date}${a.gameTime || ""}`.localeCompare(`${b.date}${b.gameTime || ""}`));
 
       const series = [{ label: "Start", value: 0 }];
       let running = 0;
@@ -1704,7 +1833,7 @@
         series.push({ label: item.label || item.pick || item.name, value: running });
       });
 
-      const padding = { top: 22, right: 18, bottom: 28, left: 42 };
+      const padding = { top: 22, right: 18, bottom: 28, left: 58 };
       const chartWidth = width - padding.left - padding.right;
       const chartHeight = height - padding.top - padding.bottom;
       const values = series.map((point) => point.value);
@@ -1755,9 +1884,450 @@
       ctx.fillStyle = "rgba(255,255,255,0.65)";
       ctx.font = "12px Inter, sans-serif";
       ctx.textAlign = "right";
-      ctx.fillText(formatUnits(max), padding.left - 8, padding.top + 4);
-      ctx.fillText(formatUnits(0), padding.left - 8, zeroY + 4);
-      ctx.fillText(formatUnits(min), padding.left - 8, padding.top + chartHeight + 4);
+      ctx.fillText(formatCurrency(max), padding.left - 8, padding.top + 4);
+      ctx.fillText(formatCurrency(0), padding.left - 8, zeroY + 4);
+      ctx.fillText(formatCurrency(min), padding.left - 8, padding.top + chartHeight + 4);
+    }
+
+    function createGame({ id, date, round, region = null, slot = 1, channel = "TBD", displayTime = "TBD", source = "fallback", teams = [], status = "scheduled", completed = false, score = "", note = "", venue = "", winner = null }) {
+      const normalizedTeams = teams.map((team) => ({ seed: team.seed ?? null, name: team.name || "TBD", score: team.score ?? null, winner: Boolean(team.winner) }));
+      return {
+        id,
+        date,
+        round,
+        region,
+        slot,
+        channel,
+        displayTime,
+        source,
+        teams: normalizedTeams,
+        status,
+        completed,
+        score,
+        note,
+        venue,
+        winner,
+        hasBet: bets.some((bet) => betMatchesGame(bet, normalizedTeams.map((team) => team.name)))
+      };
+    }
+
+    function buildFallbackTournamentGames() {
+      const games = [];
+      const add = (config) => games.push(createGame(config));
+      const firstRoundThursday = [
+        { region: "South", slot: 1, time: "2:50 PM ET", channel: "CBS", teams: [{ seed: 1, name: "Duke" }, { seed: 16, name: "Siena" }] },
+        { region: "South", slot: 2, time: "12:15 PM ET", channel: "CBS", teams: [{ seed: 8, name: "Ohio State" }, { seed: 9, name: "TCU" }] },
+        { region: "South", slot: 3, time: "3:15 PM ET", channel: "truTV", teams: [{ seed: 5, name: "Vanderbilt" }, { seed: 12, name: "McNeese St" }] },
+        { region: "South", slot: 4, time: "12:40 PM ET", channel: "truTV", teams: [{ seed: 4, name: "Nebraska" }, { seed: 13, name: "Troy" }] },
+        { region: "South", slot: 5, time: "1:30 PM ET", channel: "TNT", teams: [{ seed: 6, name: "Louisville" }, { seed: 11, name: "South Florida" }] },
+        { region: "South", slot: 6, time: "4:05 PM ET", channel: "TNT", teams: [{ seed: 3, name: "Michigan St" }, { seed: 14, name: "NDSU" }] },
+        { region: "South", slot: 7, time: "7:35 PM ET", channel: "truTV", teams: [{ seed: 7, name: "Saint Marys" }, { seed: 10, name: "Texas A&M" }] },
+        { region: "South", slot: 8, time: "10:10 PM ET", channel: "truTV", teams: [{ seed: 2, name: "Houston" }, { seed: 15, name: "Idaho" }] },
+        { region: "East", slot: 1, time: "7:10 PM ET", channel: "CBS", teams: [{ seed: 1, name: "Michigan" }, { seed: 16, name: "Howard" }] },
+        { region: "East", slot: 2, time: "9:45 PM ET", channel: "CBS", teams: [{ seed: 8, name: "Georgia" }, { seed: 9, name: "Saint Louis" }] },
+        { region: "East", slot: 3, time: "1:50 PM ET", channel: "TBS", teams: [{ seed: 5, name: "Wisconsin" }, { seed: 12, name: "High Point" }] },
+        { region: "East", slot: 4, time: "4:25 PM ET", channel: "TBS", teams: [{ seed: 4, name: "Arkansas" }, { seed: 13, name: "Hawaii" }] },
+        { region: "East", slot: 5, time: "6:50 PM ET", channel: "TNT", teams: [{ seed: 6, name: "North Carolina" }, { seed: 11, name: "VCU" }] },
+        { region: "East", slot: 6, time: "9:25 PM ET", channel: "TNT", teams: [{ seed: 3, name: "Illinois" }, { seed: 14, name: "Penn" }] },
+        { region: "East", slot: 7, time: "TBD", channel: "TBD", teams: [{ seed: 7, name: "TBD" }, { seed: 10, name: "TBD" }] },
+        { region: "East", slot: 8, time: "TBD", channel: "TBD", teams: [{ seed: 2, name: "TBD" }, { seed: 15, name: "TBD" }] }
+      ];
+      firstRoundThursday.forEach((game) => add({ id: `fallback-first-round-${game.region}-${game.slot}`, date: "2026-03-19", round: "first-round", region: game.region, slot: game.slot, displayTime: game.time, channel: game.channel, teams: game.teams }));
+
+      ["West", "Midwest"].forEach((region) => {
+        for (let slot = 1; slot <= 8; slot += 1) {
+          add({ id: `fallback-first-round-${region}-${slot}`, date: "2026-03-20", round: "first-round", region, slot, displayTime: "TBD", channel: "TBD", teams: [{ seed: null, name: "TBD" }, { seed: null, name: "TBD" }] });
+        }
+      });
+
+      for (let slot = 1; slot <= 4; slot += 1) add({ id: `fallback-first-four-${slot}`, date: slot <= 2 ? "2026-03-17" : "2026-03-18", round: "first-four", slot, displayTime: "TBD", channel: "truTV", teams: [{ seed: null, name: "TBD" }, { seed: null, name: "TBD" }] });
+      REGION_ORDER.forEach((region) => {
+        for (let slot = 1; slot <= 4; slot += 1) add({ id: `fallback-second-round-${region}-${slot}`, date: slot <= 2 ? "2026-03-21" : "2026-03-22", round: "second-round", region, slot, displayTime: "TBD", channel: "TBD", teams: [{ seed: null, name: "TBD" }, { seed: null, name: "TBD" }] });
+        for (let slot = 1; slot <= 2; slot += 1) add({ id: `fallback-sweet-16-${region}-${slot}`, date: ["South", "West"].includes(region) ? "2026-03-26" : "2026-03-27", round: "sweet-16", region, slot, displayTime: "TBD", channel: "CBS/TBS", teams: [{ seed: null, name: "TBD" }, { seed: null, name: "TBD" }] });
+        add({ id: `fallback-elite-8-${region}-1`, date: ["South", "West"].includes(region) ? "2026-03-28" : "2026-03-29", round: "elite-8", region, slot: 1, displayTime: "TBD", channel: "CBS/TBS", teams: [{ seed: null, name: "TBD" }, { seed: null, name: "TBD" }] });
+      });
+      for (let slot = 1; slot <= 2; slot += 1) add({ id: `fallback-final-four-${slot}`, date: "2026-04-04", round: "final-four", slot, displayTime: "TBD", channel: "CBS", teams: [{ seed: null, name: "TBD" }, { seed: null, name: "TBD" }] });
+      add({ id: "fallback-championship-1", date: "2026-04-06", round: "championship", slot: 1, displayTime: "TBD", channel: "CBS", teams: [{ seed: null, name: "TBD" }, { seed: null, name: "TBD" }] });
+      return games;
+    }
+
+    function roundFromHeadline(headline) {
+      if (/First Four/i.test(headline)) return "first-four";
+      if (/1st Round/i.test(headline)) return "first-round";
+      if (/2nd Round/i.test(headline)) return "second-round";
+      if (/Sweet 16/i.test(headline)) return "sweet-16";
+      if (/Elite 8/i.test(headline)) return "elite-8";
+      if (/Final Four/i.test(headline)) return "final-four";
+      if (/National Championship/i.test(headline)) return "championship";
+      return null;
+    }
+
+    function regionFromHeadline(headline) {
+      return REGION_ORDER.find((region) => headline.includes(`${region} Region`)) || null;
+    }
+
+    function slotForGame(round, region, teams, sequence) {
+      if (round === "first-round" && region) {
+        const seeds = teams.map((team) => team.seed).filter((seed) => seed != null).sort((a, b) => a - b);
+        const key = `${seeds[0]}-${seeds[1]}`;
+        return REGION_SLOT_BY_SEEDS[key] || sequence;
+      }
+      return sequence;
+    }
+
+    function parseEspnEvent(event) {
+      const comp = event.competitions?.[0];
+      if (!comp) return null;
+      const headline = comp.notes?.[0]?.headline || event.notes?.[0]?.headline || "";
+      const round = roundFromHeadline(headline);
+      if (!round) return null;
+      const region = regionFromHeadline(headline);
+      const competitors = [...(comp.competitors || [])];
+      const away = competitors.find((entry) => entry.homeAway === "away") || competitors[1] || {};
+      const home = competitors.find((entry) => entry.homeAway === "home") || competitors[0] || {};
+      const teams = [away, home].map((entry) => ({
+        seed: entry.curatedRank?.current ?? null,
+        name: entry.team?.shortDisplayName || entry.team?.displayName || "TBD",
+        score: Number(entry.score ?? 0),
+        winner: entry.winner === true
+      }));
+      const completed = Boolean(comp.status?.type?.completed);
+      const status = comp.status?.type?.state || "scheduled";
+      const channel = comp.broadcasts?.[0]?.names?.[0] || event.broadcast || comp.geoBroadcasts?.[0]?.media?.shortName || "TBD";
+      const score = completed ? `${teams[0].name} ${teams[0].score} - ${teams[1].name} ${teams[1].score}` : "";
+      const winner = completed ? teams.find((team) => team.winner || team.score === Math.max(...teams.map((entry) => entry.score)))?.name || null : null;
+      return {
+        id: event.id,
+        date: event.date ? event.date.slice(0, 10) : "",
+        eventDate: event.date,
+        round,
+        region,
+        headline,
+        channel,
+        displayTime: completed ? "Final" : formatGameTime(event.date),
+        teams,
+        status,
+        completed,
+        score,
+        venue: comp.venue?.fullName || "",
+        winner,
+        note: headline
+      };
+    }
+
+    async function fetchTournamentSchedule() {
+      try {
+        const responses = await Promise.all(
+          TOURNAMENT_FETCH_DATES.map((date) => fetch(`${ESPN_API_BASE}?dates=${date}&groups=100&limit=50`).then((res) => res.ok ? res.json() : null))
+        );
+        const fetched = [];
+        responses.forEach((payload) => {
+          (payload?.events || []).forEach((event) => {
+            const parsed = parseEspnEvent(event);
+            if (parsed) fetched.push(parsed);
+          });
+        });
+        tournamentGames = mergeTournamentGames(buildFallbackTournamentGames(), fetched);
+        tournamentStatus = { loaded: true, error: null, updatedAt: new Date() };
+      } catch (error) {
+        tournamentStatus = { loaded: false, error: error.message || "Unable to load ESPN bracket feed.", updatedAt: null };
+      }
+      renderTournamentViews();
+    }
+
+    function mergeTournamentGames(fallbackGames, fetchedGames) {
+      const sequenceByGroup = new Map();
+      const fetchedNormalized = fetchedGames
+        .sort((a, b) => `${a.round}${a.region || ""}${a.eventDate || ""}${a.id}`.localeCompare(`${b.round}${b.region || ""}${b.eventDate || ""}${b.id}`))
+        .map((game) => {
+          const groupKey = `${game.round}|${game.region || "finals"}`;
+          const sequence = (sequenceByGroup.get(groupKey) || 0) + 1;
+          sequenceByGroup.set(groupKey, sequence);
+          return createGame({
+            id: game.id,
+            date: game.date,
+            round: game.round,
+            region: game.region,
+            slot: slotForGame(game.round, game.region, game.teams, sequence),
+            channel: game.channel,
+            displayTime: game.displayTime,
+            source: "espn",
+            teams: game.teams,
+            status: game.status,
+            completed: game.completed,
+            score: game.score,
+            note: game.note,
+            venue: game.venue,
+            winner: game.winner
+          });
+        });
+
+      const merged = new Map();
+      fallbackGames.forEach((game) => merged.set(`${game.round}|${game.region || "finals"}|${game.slot}`, game));
+      fetchedNormalized.forEach((game) => merged.set(`${game.round}|${game.region || "finals"}|${game.slot}`, game));
+      return [...merged.values()].sort((a, b) => {
+        const roundDiff = ROUND_ORDER.indexOf(a.round) - ROUND_ORDER.indexOf(b.round);
+        if (roundDiff) return roundDiff;
+        const regionDiff = (REGION_ORDER.indexOf(a.region) + 1 || 99) - (REGION_ORDER.indexOf(b.region) + 1 || 99);
+        if (regionDiff) return regionDiff;
+        const dateDiff = a.date.localeCompare(b.date);
+        if (dateDiff) return dateDiff;
+        return a.slot - b.slot;
+      });
+    }
+
+    function scheduleGroups() {
+      return ROUND_ORDER.map((round) => ({
+        round,
+        label: ROUND_LABELS[round],
+        games: tournamentGames.filter((game) => game.round === round)
+      })).filter((entry) => entry.games.length);
+    }
+
+    function gameCardMarkup(game) {
+      const classes = ["game-card", "fade-in"];
+      if (game.hasBet) classes.push("bet-highlight");
+      if (game.completed) classes.push("completed");
+      if (game.teams.every((team) => team.name === "TBD")) classes.push("tbd");
+      return `
+        <article class="${classes.join(" ")}">
+          <div class="game-topline">
+            <strong>${prettyDate(game.date)}</strong>
+            <span class="money-meta">${game.displayTime} · ${game.channel}</span>
+          </div>
+          <div class="game-teams">
+            ${game.teams.map((team) => `
+              <div class="team-row ${team.winner ? "winner" : ""}">
+                <div class="team-label">
+                  <span class="seed">${team.seed ?? "?"}</span>
+                  <span class="team-name">${team.name}</span>
+                </div>
+                <div>
+                  ${team.score != null && game.completed ? `<strong>${team.score}</strong>` : ""}
+                  ${team.winner ? `<span class="winner-tag">W</span>` : ""}
+                </div>
+              </div>
+            `).join("")}
+          </div>
+          <div class="game-meta" style="margin-top:10px;">
+            <span class="money-meta">${game.region ? `${game.region} Region` : ROUND_LABELS[game.round]}</span>
+            <span class="money-meta">${game.hasBet ? "Bet tracked" : game.completed && game.score ? game.score : game.note || ""}</span>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderSchedule() {
+      const groups = scheduleGroups();
+      dom.scheduleStatus.textContent = tournamentStatus.error
+        ? "Fallback schedule active"
+        : tournamentStatus.loaded
+          ? `ESPN updated ${tournamentStatus.updatedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`
+          : "Loading schedule...";
+
+      dom.scheduleView.innerHTML = groups.map(({ round, label, games }) => {
+        if (round === "first-round") {
+          return `
+            <section class="round-card">
+              <h3>${label}</h3>
+              <div class="schedule-region-grid">
+                ${REGION_ORDER.map((region) => {
+                  const regionalGames = games.filter((game) => game.region === region).sort((a, b) => a.slot - b.slot);
+                  return `
+                    <div class="region-card">
+                      <h3>${region} Region</h3>
+                      <div class="game-list">
+                        ${regionalGames.map(gameCardMarkup).join("")}
+                      </div>
+                    </div>
+                  `;
+                }).join("")}
+              </div>
+            </section>
+          `;
+        }
+
+        const groupedByRegion = REGION_ORDER.some((region) => games.some((game) => game.region === region));
+        const body = groupedByRegion ? `
+          <div class="schedule-region-grid">
+            ${REGION_ORDER.filter((region) => games.some((game) => game.region === region)).map((region) => `
+              <div class="region-card">
+                <h3>${region} Region</h3>
+                <div class="game-list">
+                  ${games.filter((game) => game.region === region).sort((a, b) => a.slot - b.slot).map(gameCardMarkup).join("")}
+                </div>
+              </div>
+            `).join("")}
+          </div>
+        ` : `
+          <div class="game-list">
+            ${games.sort((a, b) => a.slot - b.slot).map(gameCardMarkup).join("")}
+          </div>
+        `;
+
+        return `
+          <section class="round-card">
+            <h3>${label}</h3>
+            ${body}
+          </section>
+        `;
+      }).join("");
+    }
+
+    function renderBracket() {
+      const regionBlock = (region) => {
+        const rounds = [
+          { key: "first-round", title: "1st Round" },
+          { key: "second-round", title: "2nd Round" },
+          { key: "sweet-16", title: "Sweet 16" },
+          { key: "elite-8", title: "Elite 8" }
+        ];
+        return `
+          <section class="region-card">
+            <h3>${region} Region</h3>
+            <div class="region-rounds">
+              ${rounds.map((round) => `
+                <div class="round-column">
+                  <h4>${round.title}</h4>
+                  <div class="game-list">
+                    ${tournamentGames
+                      .filter((game) => game.region === region && game.round === round.key)
+                      .sort((a, b) => a.slot - b.slot)
+                      .map(gameCardMarkup)
+                      .join("")}
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          </section>
+        `;
+      };
+
+      dom.bracketStatus.textContent = tournamentStatus.error
+        ? "Fallback bracket active"
+        : tournamentStatus.loaded
+          ? "Live bracket via ESPN"
+          : "Loading bracket...";
+
+      dom.bracketView.innerHTML = `
+        <div class="bracket-layout">
+          <div class="region-columns">
+            ${regionBlock("South")}
+            ${regionBlock("West")}
+          </div>
+          <div class="finals-column">
+            <section class="final-card">
+              <h3>Final Four</h3>
+              <div class="game-list">
+                ${tournamentGames.filter((game) => game.round === "final-four").sort((a, b) => a.slot - b.slot).map(gameCardMarkup).join("")}
+              </div>
+            </section>
+            <section class="final-card">
+              <h3>Championship</h3>
+              <div class="game-list">
+                ${tournamentGames.filter((game) => game.round === "championship").sort((a, b) => a.slot - b.slot).map(gameCardMarkup).join("")}
+              </div>
+            </section>
+          </div>
+          <div class="region-columns">
+            ${regionBlock("East")}
+            ${regionBlock("Midwest")}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTournamentViews() {
+      renderBracket();
+      renderSchedule();
+    }
+
+    function saveState() {
+      const payload = {
+        bets: bets.map(({ id, result, score }) => ({ id, result, score })),
+        parlays: parlays.map(({ id, result }) => ({ id, result }))
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    }
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if (!saved) return;
+        const betMap = new Map(saved.bets?.map((entry) => [entry.id, entry]) || []);
+        const parlayMap = new Map(saved.parlays?.map((entry) => [entry.id, entry]) || []);
+        bets = cloneData(BETS).map((bet) => ({ ...bet, ...(betMap.get(bet.id) || {}) }));
+        parlays = cloneData(PARLAYS).map((parlay) => ({ ...parlay, ...(parlayMap.get(parlay.id) || {}) }));
+      } catch (error) {
+        bets = cloneData(BETS);
+        parlays = cloneData(PARLAYS);
+      }
+    }
+
+    async function fetchLiveScores() {
+      try {
+        const res = await fetch(`${ODDS_API_BASE}/sports/${SPORT}/scores/?apiKey=${ODDS_API_KEY}&daysFrom=1`);
+        if (!res.ok) return;
+        const games = await res.json();
+        let updated = false;
+
+        for (const game of games) {
+          if (!game.completed) continue;
+          const scores = game.scores;
+          if (!scores || scores.length < 2) continue;
+          const home = game.home_team;
+          const away = game.away_team;
+          const homeScore = parseInt(scores.find((score) => score.name === home)?.score || 0, 10);
+          const awayScore = parseInt(scores.find((score) => score.name === away)?.score || 0, 10);
+          const totalPoints = homeScore + awayScore;
+          const scoreStr = `${away} ${awayScore} - ${home} ${homeScore}`;
+
+          for (const bet of bets) {
+            if (bet.result) continue;
+            const gameTeams = [away, home];
+            if (!betMatchesGame(bet, gameTeams)) continue;
+            bet.score = scoreStr;
+
+            if (bet.type === "spread") {
+              const pickParts = bet.pick.match(/(.+?)\s([+-][\d.]+)/);
+              if (pickParts) {
+                const pickTeam = pickParts[1].trim();
+                const spread = parseFloat(pickParts[2]);
+                const isHome = teamMatches(pickTeam, home);
+                const pickScore = isHome ? homeScore : awayScore;
+                const oppScore = isHome ? awayScore : homeScore;
+                const margin = pickScore - oppScore + spread;
+                bet.result = margin > 0 ? "win" : margin < 0 ? "loss" : "push";
+                updated = true;
+              }
+            }
+
+            if (bet.type === "total") {
+              const isUnder = /under|u/i.test(bet.pick);
+              const totalLine = parseFloat(bet.pick.match(/[\d.]+/)?.[0] || 0);
+              if (totalPoints < totalLine) bet.result = isUnder ? "win" : "loss";
+              else if (totalPoints > totalLine) bet.result = isUnder ? "loss" : "win";
+              else bet.result = "push";
+              updated = true;
+            }
+          }
+        }
+
+        for (const parlay of parlays) {
+          if (parlay.result) continue;
+          const legResults = parlay.legs.map((leg) => bets.find((bet) => bet.pick === leg)?.result ?? null);
+          if (legResults.some((result) => result === "loss")) { parlay.result = "loss"; updated = true; }
+          else if (legResults.length && legResults.every((result) => result === "win")) { parlay.result = "win"; updated = true; }
+          else if (legResults.length && legResults.every((result) => result && result !== "loss")) { parlay.result = "push"; updated = true; }
+        }
+
+        if (updated) {
+          saveState();
+          render();
+        }
+      } catch (error) {
+        console.log("Score fetch error:", error);
+      }
     }
 
     function updateTicketResult(ticketType, id, result) {
@@ -1770,13 +2340,13 @@
     }
 
     function exportCsv() {
-      const headers = ["id", "kind", "date", "gameTime", "game", "pickOrName", "line", "units", "book", "type", "confidence", "sharpSignal", "kenpomGap", "result", "payout"];
+      const headers = ["id", "kind", "date", "gameTime", "game", "pickOrName", "line", "stake_dollars", "units", "book", "type", "confidence", "sharpSignal", "kenpomGap", "result", "pnl_dollars"];
       const rows = [
         ...bets.map((bet) => [
-          bet.id, "bet", bet.date, bet.gameTime, bet.game, bet.pick, bet.line, bet.units, bet.book, bet.type, bet.confidence, bet.sharpSignal, bet.kenpomGap ?? "", bet.result || "pending", settledProfit(bet).toFixed(3)
+          bet.id, "bet", bet.date, bet.gameTime, bet.game, bet.pick, bet.line, unitToDollars(bet.units).toFixed(2), bet.units, BET_BOOK, bet.type, bet.confidence, bet.sharpSignal, bet.kenpomGap ?? "", bet.result || "pending", settledProfit(bet).toFixed(2)
         ]),
         ...parlays.map((parlay) => [
-          parlay.id, "parlay", parlay.date, "", "", parlay.name, parlay.line, parlay.units, parlay.book, parlay.type, parlay.confidence, parlay.sharpSignal, "", parlay.result || "pending", settledProfit(parlay).toFixed(3)
+          parlay.id, "parlay", parlay.date, "", "", parlay.name, parlay.line, unitToDollars(parlay.units).toFixed(2), parlay.units, BET_BOOK, parlay.type, parlay.confidence, parlay.sharpSignal, "", parlay.result || "pending", settledProfit(parlay).toFixed(2)
         ])
       ];
       const csv = [headers, ...rows]
@@ -1791,6 +2361,15 @@
       URL.revokeObjectURL(url);
     }
 
+    function renderTabs() {
+      dom.tabBar.querySelectorAll("[data-tab]").forEach((button) => {
+        button.classList.toggle("active", button.dataset.tab === state.activeTab);
+      });
+      dom.dashboardPanel.classList.toggle("hidden", state.activeTab !== "dashboard");
+      dom.bracketPanel.classList.toggle("hidden", state.activeTab !== "bracket");
+      dom.schedulePanel.classList.toggle("hidden", state.activeTab !== "schedule");
+    }
+
     function attachEvents() {
       dom.filterGroup.addEventListener("click", (event) => {
         const button = event.target.closest("[data-filter]");
@@ -1803,6 +2382,13 @@
       dom.sortSelect.addEventListener("change", (event) => {
         state.sort = event.target.value;
         renderBetsTable();
+      });
+
+      dom.tabBar.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-tab]");
+        if (!button) return;
+        state.activeTab = button.dataset.tab;
+        renderTabs();
       });
 
       document.addEventListener("click", (event) => {
@@ -1849,19 +2435,25 @@
       const summary = summarize();
       buildSummaryCards(summary);
       animateHeroPnl(summary.realized, summary);
+      renderFilters();
+      renderSortOptions();
       renderBetsTable();
       renderParlays();
       renderDailyBreakdown();
       renderStats();
+      renderTournamentViews();
+      renderTabs();
       drawChart();
     }
 
     function init() {
       loadState();
-      renderFilters();
-      renderSortOptions();
       attachEvents();
       render();
+      fetchTournamentSchedule();
+      fetchLiveScores();
+      setInterval(fetchLiveScores, 180000);
+      setInterval(fetchTournamentSchedule, 300000);
     }
 
     init();
