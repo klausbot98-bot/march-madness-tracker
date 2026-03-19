@@ -734,17 +734,16 @@
     }
 
     .schedule-days,
-    .schedule-day-list,
-    .bracket-regions,
-    .bracket-region-board,
-    .bracket-round-list {
+    .schedule-day-list {
       display: grid;
       gap: 16px;
     }
 
     .schedule-day-card,
-    .bracket-region-card,
     .schedule-list-card,
+    .bracket-stage,
+    .bracket-region-shell,
+    .bracket-finals-shell,
     .bracket-matchup {
       border-radius: var(--radius);
       border: 1px solid var(--border);
@@ -752,13 +751,11 @@
       box-shadow: var(--shadow);
     }
 
-    .schedule-day-card,
-    .bracket-region-card {
+    .schedule-day-card {
       padding: 18px;
     }
 
-    .schedule-day-card h3,
-    .bracket-region-card h3 {
+    .schedule-day-card h3 {
       margin-bottom: 12px;
       font-size: 1rem;
       letter-spacing: -0.02em;
@@ -778,8 +775,7 @@
       flex: 0 0 auto;
     }
 
-    .schedule-days,
-    .bracket-regions {
+    .schedule-days {
       grid-template-columns: 1fr;
     }
 
@@ -798,8 +794,7 @@
       flex-wrap: wrap;
     }
 
-    .schedule-day-list,
-    .bracket-round-list {
+    .schedule-day-list {
       gap: 12px;
     }
 
@@ -830,7 +825,8 @@
     .schedule-game-channel,
     .schedule-game-score,
     .round-slot-count,
-    .bracket-round-label {
+    .bracket-round-label,
+    .bracket-card-meta {
       color: var(--muted);
       font-size: 0.82rem;
     }
@@ -866,47 +862,193 @@
       font-weight: 700;
     }
 
-    .bracket-regions {
+    .bracket-shell {
+      display: grid;
       gap: 18px;
     }
 
-    .bracket-region-board {
-      grid-template-columns: repeat(4, minmax(180px, 1fr));
-      align-items: start;
+    .bracket-mobile-tabs {
+      display: none;
+      gap: 10px;
       overflow-x: auto;
       padding-bottom: 4px;
     }
 
-    .bracket-round {
-      min-width: 180px;
+    .bracket-mobile-tabs button {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--muted);
+      padding: 9px 14px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .bracket-mobile-tabs button.active {
+      color: var(--text);
+      border-color: rgba(227, 24, 55, 0.62);
+      box-shadow: 0 0 0 1px rgba(227, 24, 55, 0.18) inset;
+    }
+
+    .bracket-stage {
+      position: relative;
       display: grid;
-      gap: 10px;
+      grid-template-columns: minmax(0, 1fr) 300px minmax(0, 1fr);
+      gap: 20px;
+      padding: 18px;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top, rgba(227, 24, 55, 0.08), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.01));
+    }
+
+    .bracket-stage-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .bracket-side,
+    .bracket-finals-shell {
+      position: relative;
+      z-index: 1;
+    }
+
+    .bracket-side {
+      display: grid;
+      gap: 16px;
       align-content: start;
     }
 
-    .bracket-round-head {
+    .bracket-region-shell,
+    .bracket-finals-shell {
+      padding: 16px;
+      backdrop-filter: blur(14px);
+    }
+
+    .bracket-region-head,
+    .bracket-finals-head {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
-      gap: 8px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .bracket-region-head h3,
+    .bracket-finals-head h3 {
+      margin: 0;
+      font-size: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .bracket-round-heads {
+      display: grid;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .bracket-round-heads.region {
+      grid-template-columns: repeat(4, minmax(148px, 1fr));
+    }
+
+    .bracket-round-heads.center {
+      grid-template-columns: repeat(2, minmax(148px, 1fr));
+    }
+
+    .bracket-round-head {
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .bracket-round-head h4 {
-      margin: 0;
-      font-size: 0.84rem;
+      margin: 0 0 4px;
+      font-size: 0.8rem;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
+      color: rgba(255, 255, 255, 0.92);
+    }
+
+    .bracket-round-date {
       color: var(--muted);
+      font-size: 0.76rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .bracket-region-board,
+    .bracket-finals-board {
+      display: grid;
+      gap: 12px;
+      position: relative;
+      min-height: 1154px;
+    }
+
+    .bracket-region-board {
+      grid-template-columns: repeat(4, minmax(148px, 1fr));
+      grid-template-rows: repeat(15, 68px);
+    }
+
+    .bracket-finals-board {
+      grid-template-columns: repeat(2, minmax(132px, 1fr));
+      grid-template-rows: repeat(15, 68px);
+    }
+
+    .bracket-slot {
+      min-width: 0;
+      z-index: 1;
     }
 
     .bracket-matchup {
-      padding: 12px;
+      display: grid;
+      gap: 10px;
+      padding: 10px 12px;
+      min-height: 116px;
+      position: relative;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.018)),
+        rgba(10, 10, 10, 0.9);
+    }
+
+    .bracket-matchup::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+      pointer-events: none;
     }
 
     .bracket-matchup.tbd {
-      opacity: 0.76;
+      opacity: 0.78;
+    }
+
+    .bracket-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .bracket-card-meta {
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .bracket-card-tag {
+      color: #ff6d84;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
 
     .bracket-team-row + .bracket-team-row {
@@ -915,6 +1057,11 @@
 
     .bracket-team-row.winner {
       color: var(--text);
+      background: rgba(31, 214, 107, 0.14);
+      border-radius: 10px;
+      padding: 6px 8px;
+      margin-left: -8px;
+      margin-right: -8px;
     }
 
     .winner-tag {
@@ -926,7 +1073,7 @@
     }
 
     .bracket-footer {
-      margin-top: 10px;
+      margin-top: auto;
       display: flex;
       justify-content: space-between;
       gap: 10px;
@@ -983,14 +1130,57 @@
       .parlays-panel,
       .daily-panel,
       .schedule-panel,
-      .bracket-panel {
-        padding: 16px;
-      }
-
       td,
       thead th {
         padding-left: 12px;
         padding-right: 12px;
+      }
+    }
+
+    @media (max-width: 1180px) {
+      .bracket-stage {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .bracket-side {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .bracket-finals-shell {
+        order: 2;
+      }
+    }
+
+    @media (max-width: 767px) {
+      .bracket-mobile-tabs {
+        display: flex;
+      }
+
+      .bracket-side {
+        grid-template-columns: 1fr;
+      }
+
+      .bracket-region-shell {
+        display: none;
+      }
+
+      .bracket-region-shell.active {
+        display: block;
+      }
+
+      .bracket-region-shell,
+      .bracket-finals-shell {
+        overflow-x: auto;
+      }
+
+      .bracket-region-board,
+      .bracket-round-heads.region {
+        min-width: 668px;
+      }
+
+      .bracket-finals-board,
+      .bracket-round-heads.center {
+        min-width: 280px;
       }
     }
 
@@ -1005,12 +1195,8 @@
         padding: 12px 14px;
       }
 
-      .bracket-region-board {
-        grid-template-columns: repeat(4, minmax(160px, 1fr));
-      }
-
-      .bracket-round {
-        min-width: 160px;
+      .bracket-stage {
+        padding: 14px;
       }
 
       .day-bet,
@@ -1256,7 +1442,19 @@
       "final-four": "Final Four",
       "championship": "Championship"
     };
+    const BRACKET_ROUND_META = {
+      "first-round": { title: "First Round", dateLabel: "March 19-22", expected: 8 },
+      "second-round": { title: "Second Round", dateLabel: "March 23-24", expected: 4 },
+      "sweet-16": { title: "Sweet 16", dateLabel: "March 27-28", expected: 2 },
+      "elite-8": { title: "Elite 8", dateLabel: "March 29-30", expected: 1 },
+      "final-four": { title: "Final Four", dateLabel: "April 5", expected: 2 },
+      "championship": { title: "Championship", dateLabel: "April 7", expected: 1 }
+    };
     const REGION_ORDER = ["South", "West", "East", "Midwest"];
+    const BRACKET_SIDE_REGIONS = {
+      left: ["South", "East"],
+      right: ["West", "Midwest"]
+    };
     const REGION_SLOT_BY_SEEDS = {
       "1-16": 1,
       "8-9": 2,
@@ -1346,6 +1544,7 @@
       filter: "all",
       sort: "date-asc",
       activeTab: "dashboard",
+      activeBracketRegion: "South",
       expandedBets: new Set(),
       openDays: new Set(["2026-03-19"])
     };
@@ -1439,6 +1638,31 @@
       const date = new Date(dateValue);
       if (Number.isNaN(date.getTime())) return "TBD";
       return `${date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit", hour12: true, timeZone: "America/Toronto" })} ET`;
+    }
+
+    function formatBracketDate(dateStr) {
+      if (!dateStr) return "TBD";
+      const date = new Date(`${dateStr}T12:00:00`);
+      if (Number.isNaN(date.getTime())) return "TBD";
+      return date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
+    }
+
+    function bracketDateTimeLabel(game) {
+      const dateLabel = formatBracketDate(game.date);
+      const timeLabel = game.completed ? "Final" : game.displayTime || "TBD";
+      if (dateLabel === "TBD") return timeLabel;
+      if (!timeLabel || timeLabel === "TBD") return dateLabel;
+      return `${dateLabel} · ${timeLabel}`;
+    }
+
+    function bracketGridRow(round, slot) {
+      if (round === "first-round") return 1 + ((slot - 1) * 2);
+      if (round === "second-round") return 2 + ((slot - 1) * 4);
+      if (round === "sweet-16") return 4 + ((slot - 1) * 8);
+      if (round === "elite-8") return 8;
+      if (round === "final-four") return slot === 1 ? 4 : 12;
+      if (round === "championship") return 8;
+      return 1;
     }
 
     function normalizeName(value) {
@@ -1932,7 +2156,11 @@
     }
 
     function createGame({ id, date, round, region = null, slot = 1, channel = "TBD", displayTime = "TBD", source = "fallback", teams = [], status = "scheduled", completed = false, score = "", note = "", venue = "", winner = null }) {
-      const normalizedTeams = teams.map((team) => ({ seed: team.seed ?? null, name: team.name || "TBD", score: team.score ?? null, winner: Boolean(team.winner) }));
+      const normalizedTeams = teams.map((team) => {
+        const seed = Number.isFinite(Number(team.seed)) && Number(team.seed) < 90 ? Number(team.seed) : null;
+        const name = team.name && team.name !== "TBD" ? team.name : "TBD";
+        return { seed, name, score: team.score ?? null, winner: Boolean(team.winner) };
+      });
       return {
         id,
         date,
@@ -1960,30 +2188,57 @@
     function buildFallbackTournamentGames() {
       const games = [];
       const add = (config) => games.push(createGame(config));
-      const firstRoundThursday = [
-        { region: "South", slot: 1, time: "2:50 PM ET", channel: "CBS", teams: [{ seed: 1, name: "Duke" }, { seed: 16, name: "Siena" }] },
-        { region: "South", slot: 2, time: "12:15 PM ET", channel: "CBS", teams: [{ seed: 8, name: "Ohio State" }, { seed: 9, name: "TCU" }] },
-        { region: "South", slot: 3, time: "3:15 PM ET", channel: "truTV", teams: [{ seed: 5, name: "Vanderbilt" }, { seed: 12, name: "McNeese St" }] },
-        { region: "South", slot: 4, time: "12:40 PM ET", channel: "truTV", teams: [{ seed: 4, name: "Nebraska" }, { seed: 13, name: "Troy" }] },
-        { region: "South", slot: 5, time: "1:30 PM ET", channel: "TNT", teams: [{ seed: 6, name: "Louisville" }, { seed: 11, name: "South Florida" }] },
-        { region: "South", slot: 6, time: "4:05 PM ET", channel: "TNT", teams: [{ seed: 3, name: "Michigan St" }, { seed: 14, name: "NDSU" }] },
-        { region: "South", slot: 7, time: "7:35 PM ET", channel: "truTV", teams: [{ seed: 7, name: "Saint Marys" }, { seed: 10, name: "Texas A&M" }] },
-        { region: "South", slot: 8, time: "10:10 PM ET", channel: "truTV", teams: [{ seed: 2, name: "Houston" }, { seed: 15, name: "Idaho" }] },
-        { region: "East", slot: 1, time: "7:10 PM ET", channel: "CBS", teams: [{ seed: 1, name: "Michigan" }, { seed: 16, name: "Howard" }] },
-        { region: "East", slot: 2, time: "9:45 PM ET", channel: "CBS", teams: [{ seed: 8, name: "Georgia" }, { seed: 9, name: "Saint Louis" }] },
-        { region: "East", slot: 3, time: "1:50 PM ET", channel: "TBS", teams: [{ seed: 5, name: "Wisconsin" }, { seed: 12, name: "High Point" }] },
-        { region: "East", slot: 4, time: "4:25 PM ET", channel: "TBS", teams: [{ seed: 4, name: "Arkansas" }, { seed: 13, name: "Hawaii" }] },
-        { region: "East", slot: 5, time: "6:50 PM ET", channel: "TNT", teams: [{ seed: 6, name: "North Carolina" }, { seed: 11, name: "VCU" }] },
-        { region: "East", slot: 6, time: "9:25 PM ET", channel: "TNT", teams: [{ seed: 3, name: "Illinois" }, { seed: 14, name: "Penn" }] },
-        { region: "East", slot: 7, time: "TBD", channel: "TBD", teams: [{ seed: 7, name: "TBD" }, { seed: 10, name: "TBD" }] },
-        { region: "East", slot: 8, time: "TBD", channel: "TBD", teams: [{ seed: 2, name: "TBD" }, { seed: 15, name: "TBD" }] }
-      ];
-      firstRoundThursday.forEach((game) => add({ id: `fallback-first-round-${game.region}-${game.slot}`, date: "2026-03-19", round: "first-round", region: game.region, slot: game.slot, displayTime: game.time, channel: game.channel, teams: game.teams }));
+      const firstRoundGames = [
+        { date: "2026-03-21", region: "South", slot: 1, time: "9:25 PM ET", channel: "TNT", teams: [{ seed: 1, name: "Florida" }, { seed: 16, name: "Prairie View" }] },
+        { date: "2026-03-20", region: "South", slot: 2, time: "6:50 PM ET", channel: "TNT", teams: [{ seed: 8, name: "Clemson" }, { seed: 9, name: "Iowa" }] },
+        { date: "2026-03-19", region: "South", slot: 3, time: "3:15 PM ET", channel: "truTV", teams: [{ seed: 5, name: "Vanderbilt" }, { seed: 12, name: "McNeese St" }] },
+        { date: "2026-03-19", region: "South", slot: 4, time: "12:40 PM ET", channel: "truTV", teams: [{ seed: 4, name: "Nebraska" }, { seed: 13, name: "Troy" }] },
+        { date: "2026-03-19", region: "South", slot: 5, time: "6:50 PM ET", channel: "TNT", teams: [{ seed: 6, name: "North Carolina" }, { seed: 11, name: "VCU" }] },
+        { date: "2026-03-20", region: "South", slot: 6, time: "9:25 PM ET", channel: "TNT", teams: [{ seed: 3, name: "Illinois" }, { seed: 14, name: "Penn" }] },
+        { date: "2026-03-19", region: "South", slot: 7, time: "7:35 PM ET", channel: "truTV", teams: [{ seed: 7, name: "Saint Marys" }, { seed: 10, name: "Texas A&M" }] },
+        { date: "2026-03-20", region: "South", slot: 8, time: "10:10 PM ET", channel: "truTV", teams: [{ seed: 2, name: "Houston" }, { seed: 15, name: "Idaho" }] },
 
-      ["West", "Midwest"].forEach((region) => {
-        for (let slot = 1; slot <= 8; slot += 1) {
-          add({ id: `fallback-first-round-${region}-${slot}`, date: "2026-03-20", round: "first-round", region, slot, displayTime: "TBD", channel: "TBD", teams: [{ seed: null, name: "TBD" }, { seed: null, name: "TBD" }] });
-        }
+        { date: "2026-03-19", region: "East", slot: 1, time: "2:50 PM ET", channel: "CBS", teams: [{ seed: 1, name: "Duke" }, { seed: 16, name: "Siena" }] },
+        { date: "2026-03-19", region: "East", slot: 2, time: "12:15 PM ET", channel: "CBS", teams: [{ seed: 8, name: "Ohio State" }, { seed: 9, name: "TCU" }] },
+        { date: "2026-03-20", region: "East", slot: 3, time: "7:10 PM ET", channel: "CBS", teams: [{ seed: 5, name: "St John's" }, { seed: 12, name: "Northern Iowa" }] },
+        { date: "2026-03-21", region: "East", slot: 4, time: "9:45 PM ET", channel: "CBS", teams: [{ seed: 4, name: "Kansas" }, { seed: 13, name: "CA Baptist" }] },
+        { date: "2026-03-19", region: "East", slot: 5, time: "1:30 PM ET", channel: "TNT", teams: [{ seed: 6, name: "Louisville" }, { seed: 11, name: "South Florida" }] },
+        { date: "2026-03-19", region: "East", slot: 6, time: "4:05 PM ET", channel: "TNT", teams: [{ seed: 3, name: "Michigan St" }, { seed: 14, name: "NDSU" }] },
+        { date: "2026-03-20", region: "East", slot: 7, time: "7:25 PM ET", channel: "TBS", teams: [{ seed: 7, name: "UCLA" }, { seed: 10, name: "UCF" }] },
+        { date: "2026-03-21", region: "East", slot: 8, time: "10:00 PM ET", channel: "TBS", teams: [{ seed: 2, name: "UConn" }, { seed: 15, name: "Furman" }] }
+      ];
+
+      const remainingFirstRoundGames = [
+        { date: "2026-03-20", region: "West", slot: 1, time: "1:35 PM ET", channel: "TNT", teams: [{ seed: 1, name: "Arizona" }, { seed: 16, name: "Long Island" }] },
+        { date: "2026-03-20", region: "West", slot: 2, time: "4:10 PM ET", channel: "TNT", teams: [{ seed: 8, name: "Villanova" }, { seed: 9, name: "Utah State" }] },
+        { date: "2026-03-19", region: "West", slot: 3, time: "1:50 PM ET", channel: "TBS", teams: [{ seed: 5, name: "Wisconsin" }, { seed: 12, name: "High Point" }] },
+        { date: "2026-03-19", region: "West", slot: 4, time: "4:25 PM ET", channel: "TBS", teams: [{ seed: 4, name: "Arkansas" }, { seed: 13, name: "Hawaii" }] },
+        { date: "2026-03-19", region: "West", slot: 5, time: "7:25 PM ET", channel: "TBS", teams: [{ seed: 6, name: "BYU" }, { seed: 11, name: "Texas" }] },
+        { date: "2026-03-20", region: "West", slot: 6, time: "10:00 PM ET", channel: "TBS", teams: [{ seed: 3, name: "Gonzaga" }, { seed: 14, name: "Kennesaw St" }] },
+        { date: "2026-03-21", region: "West", slot: 7, time: "10:10 PM ET", channel: "truTV", teams: [{ seed: 7, name: "Miami" }, { seed: 10, name: "Missouri" }] },
+        { date: "2026-03-20", region: "West", slot: 8, time: "7:35 PM ET", channel: "truTV", teams: [{ seed: 2, name: "Purdue" }, { seed: 15, name: "Queens" }] },
+
+        { date: "2026-03-19", region: "Midwest", slot: 1, time: "7:10 PM ET", channel: "CBS", teams: [{ seed: 1, name: "Michigan" }, { seed: 16, name: "Howard" }] },
+        { date: "2026-03-20", region: "Midwest", slot: 2, time: "9:45 PM ET", channel: "CBS", teams: [{ seed: 8, name: "Georgia" }, { seed: 9, name: "Saint Louis" }] },
+        { date: "2026-03-20", region: "Midwest", slot: 3, time: "12:40 PM ET", channel: "truTV", teams: [{ seed: 5, name: "Texas Tech" }, { seed: 12, name: "Akron" }] },
+        { date: "2026-03-20", region: "Midwest", slot: 4, time: "3:15 PM ET", channel: "truTV", teams: [{ seed: 4, name: "Alabama" }, { seed: 13, name: "Hofstra" }] },
+        { date: "2026-03-20", region: "Midwest", slot: 5, time: "4:25 PM ET", channel: "TBS", teams: [{ seed: 6, name: "Tennessee" }, { seed: 11, name: "Miami OH" }] },
+        { date: "2026-03-20", region: "Midwest", slot: 6, time: "1:50 PM ET", channel: "TBS", teams: [{ seed: 3, name: "Virginia" }, { seed: 14, name: "Wright St" }] },
+        { date: "2026-03-20", region: "Midwest", slot: 7, time: "12:15 PM ET", channel: "CBS", teams: [{ seed: 7, name: "Kentucky" }, { seed: 10, name: "Santa Clara" }] },
+        { date: "2026-03-20", region: "Midwest", slot: 8, time: "2:50 PM ET", channel: "CBS", teams: [{ seed: 2, name: "Iowa State" }, { seed: 15, name: "Tennessee St" }] }
+      ];
+
+      [...firstRoundGames, ...remainingFirstRoundGames].forEach((game) => {
+        add({
+          id: `fallback-first-round-${game.region}-${game.slot}`,
+          date: game.date,
+          round: "first-round",
+          region: game.region,
+          slot: game.slot,
+          displayTime: game.time,
+          channel: game.channel,
+          teams: game.teams
+        });
       });
 
       REGION_ORDER.forEach((region) => {
@@ -2184,6 +2439,10 @@
       if (game.teams.every((team) => team.name === "TBD")) classes.push("tbd");
       return `
         <article class="${classes.join(" ")}">
+          <div class="bracket-card-head">
+            <span class="bracket-card-meta">${bracketDateTimeLabel(game)}</span>
+            <span class="bracket-card-tag">${game.hasBet ? "Bet tracked" : game.channel}</span>
+          </div>
           <div class="bracket-team-stack">
             ${game.teams.map((team) => `
               <div class="bracket-team-row ${team.winner ? "winner" : ""}">
@@ -2198,11 +2457,111 @@
             `).join("")}
           </div>
           <div class="bracket-footer">
-            <span class="bracket-round-label">${game.displayTime}</span>
-            <span class="bracket-round-label">${game.hasBet ? "Bet tracked" : game.completed && game.score ? game.score : ""}</span>
+            <span class="bracket-round-label">${game.region ? `${game.region} Region` : ROUND_LABELS[game.round]}</span>
+            <span class="bracket-round-label">${game.completed && game.score ? game.score : game.note || ""}</span>
           </div>
         </article>
       `;
+    }
+
+    function bracketSlotMarkup(game) {
+      return `
+        <div
+          class="bracket-slot"
+          data-region="${game.region || "finals"}"
+          data-round="${game.round}"
+          data-slot="${game.slot}"
+          style="grid-column:${game.round === "championship" ? 2 : game.round === "final-four" ? 1 : ["first-round", "second-round", "sweet-16", "elite-8"].indexOf(game.round) + 1};grid-row:${bracketGridRow(game.round, game.slot)};"
+        >
+          ${bracketMatchupMarkup(game)}
+        </div>
+      `;
+    }
+
+    function bracketRoundHeadsMarkup(rounds, variant) {
+      return `
+        <div class="bracket-round-heads ${variant}">
+          ${rounds.map((round) => `
+            <div class="bracket-round-head">
+              <h4>${BRACKET_ROUND_META[round].title}</h4>
+              <div class="bracket-round-date">${BRACKET_ROUND_META[round].dateLabel}</div>
+            </div>
+          `).join("")}
+        </div>
+      `;
+    }
+
+    function regionBoardMarkup(region, side) {
+      const rounds = ["first-round", "second-round", "sweet-16", "elite-8"];
+      const games = rounds.flatMap((round) => (
+        mainTournamentGames()
+          .filter((game) => game.region === region && game.round === round)
+          .sort((a, b) => a.slot - b.slot)
+      ));
+      return `
+        <section class="bracket-region-shell ${state.activeBracketRegion === region ? "active" : ""}" data-region-shell="${region}" data-side="${side}">
+          <div class="bracket-region-head">
+            <h3>${region} Region</h3>
+            <span class="round-slot-count">${games.filter((game) => game.round === "first-round").length}/8 first round</span>
+          </div>
+          ${bracketRoundHeadsMarkup(rounds, "region")}
+          <div class="bracket-region-board" data-board="${region}">
+            ${games.map(bracketSlotMarkup).join("")}
+          </div>
+        </section>
+      `;
+    }
+
+    function drawBracketConnectors() {
+      const stage = dom.bracketView.querySelector(".bracket-stage");
+      const svg = stage?.querySelector(".bracket-stage-canvas");
+      if (!stage || !svg) return;
+      const stageRect = stage.getBoundingClientRect();
+      if (!stageRect.width || !stageRect.height) return;
+
+      svg.innerHTML = "";
+      svg.setAttribute("viewBox", `0 0 ${stageRect.width} ${stageRect.height}`);
+
+      const line = (fromEl, toEl) => {
+        if (!fromEl || !toEl || fromEl.offsetParent === null || toEl.offsetParent === null) return;
+        const fromRect = fromEl.getBoundingClientRect();
+        const toRect = toEl.getBoundingClientRect();
+        const fromLeft = fromRect.left - stageRect.left;
+        const fromRight = fromRect.right - stageRect.left;
+        const fromY = fromRect.top - stageRect.top + (fromRect.height / 2);
+        const toLeft = toRect.left - stageRect.left;
+        const toRight = toRect.right - stageRect.left;
+        const toY = toRect.top - stageRect.top + (toRect.height / 2);
+        const x1 = fromLeft < toLeft ? fromRight : fromLeft;
+        const x2 = fromLeft < toLeft ? toLeft : toRight;
+        const mid = (x1 + x2) / 2;
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", `M ${x1} ${fromY} H ${mid} V ${toY} H ${x2}`);
+        path.setAttribute("fill", "none");
+        path.setAttribute("stroke", "rgba(255,255,255,0.32)");
+        path.setAttribute("stroke-width", "1");
+        path.setAttribute("stroke-linecap", "square");
+        path.setAttribute("stroke-linejoin", "miter");
+        svg.appendChild(path);
+      };
+
+      const findSlot = (region, round, slot) => stage.querySelector(`.bracket-slot[data-region="${region}"][data-round="${round}"][data-slot="${slot}"]`);
+
+      REGION_ORDER.forEach((region) => {
+        [["first-round", "second-round", 8], ["second-round", "sweet-16", 4], ["sweet-16", "elite-8", 2]].forEach(([sourceRound, targetRound, count]) => {
+          for (let slot = 1; slot <= count; slot += 1) {
+            const targetSlot = Math.ceil(slot / 2);
+            line(findSlot(region, sourceRound, slot), findSlot(region, targetRound, targetSlot));
+          }
+        });
+      });
+
+      line(findSlot("South", "elite-8", 1), findSlot("finals", "final-four", 1));
+      line(findSlot("East", "elite-8", 1), findSlot("finals", "final-four", 1));
+      line(findSlot("West", "elite-8", 1), findSlot("finals", "final-four", 2));
+      line(findSlot("Midwest", "elite-8", 1), findSlot("finals", "final-four", 2));
+      line(findSlot("finals", "final-four", 1), findSlot("finals", "championship", 1));
+      line(findSlot("finals", "final-four", 2), findSlot("finals", "championship", 1));
     }
 
     function renderSchedule() {
@@ -2231,48 +2590,46 @@
     }
 
     function renderBracket() {
-      const rounds = [
-        { key: "first-round", title: "First Round", expected: 8 },
-        { key: "second-round", title: "Second Round", expected: 4 },
-        { key: "sweet-16", title: "Sweet 16", expected: 2 },
-        { key: "elite-8", title: "Elite 8", expected: 1 }
-      ];
-
-      const regionBlock = (region) => `
-        <section class="bracket-region-card">
-          <h3>${region} Region</h3>
-          <div class="bracket-region-board">
-            ${rounds.map((round) => {
-              const games = mainTournamentGames()
-                .filter((game) => game.region === region && game.round === round.key)
-                .sort((a, b) => a.slot - b.slot);
-              return `
-                <div class="bracket-round">
-                  <div class="bracket-round-head">
-                    <h4>${round.title}</h4>
-                    <span class="round-slot-count">${games.length}/${round.expected}</span>
-                  </div>
-                  <div class="bracket-round-list">
-                    ${games.map(bracketMatchupMarkup).join("")}
-                  </div>
-                </div>
-              `;
-            }).join("")}
-          </div>
-        </section>
-      `;
-
       dom.bracketStatus.textContent = tournamentStatus.error
         ? "Fallback bracket active"
         : tournamentStatus.loaded
           ? "Live bracket via ESPN"
           : "Loading bracket...";
 
+      const finalGames = mainTournamentGames()
+        .filter((game) => ["final-four", "championship"].includes(game.round))
+        .sort((a, b) => ROUND_ORDER.indexOf(a.round) - ROUND_ORDER.indexOf(b.round) || a.slot - b.slot);
+
       dom.bracketView.innerHTML = `
-        <div class="bracket-regions">
-          ${REGION_ORDER.map(regionBlock).join("")}
+        <div class="bracket-shell">
+          <div class="bracket-mobile-tabs">
+            ${["South", "East", "Midwest", "West"].map((region) => `
+              <button type="button" class="${state.activeBracketRegion === region ? "active" : ""}" data-bracket-region="${region}">${region}</button>
+            `).join("")}
+          </div>
+          <div class="bracket-stage">
+            <svg class="bracket-stage-canvas" aria-hidden="true"></svg>
+            <div class="bracket-side">
+              ${BRACKET_SIDE_REGIONS.left.map((region) => regionBoardMarkup(region, "left")).join("")}
+            </div>
+            <section class="bracket-finals-shell">
+              <div class="bracket-finals-head">
+                <h3>Final Four / Championship</h3>
+                <span class="round-slot-count">Center court</span>
+              </div>
+              ${bracketRoundHeadsMarkup(["final-four", "championship"], "center")}
+              <div class="bracket-finals-board" data-board="finals">
+                ${finalGames.map((game) => bracketSlotMarkup({ ...game, region: "finals" })).join("")}
+              </div>
+            </section>
+            <div class="bracket-side">
+              ${BRACKET_SIDE_REGIONS.right.map((region) => regionBoardMarkup(region, "right")).join("")}
+            </div>
+          </div>
         </div>
       `;
+
+      requestAnimationFrame(drawBracketConnectors);
     }
 
     function renderTournamentViews() {
@@ -2427,6 +2784,7 @@
         if (!button) return;
         state.activeTab = button.dataset.tab;
         renderTabs();
+        if (state.activeTab === "bracket") requestAnimationFrame(drawBracketConnectors);
       });
 
       document.addEventListener("click", (event) => {
@@ -2451,6 +2809,13 @@
           if (state.openDays.has(date)) state.openDays.delete(date);
           else state.openDays.add(date);
           renderDailyBreakdown();
+          return;
+        }
+
+        const bracketRegion = event.target.closest("[data-bracket-region]");
+        if (bracketRegion) {
+          state.activeBracketRegion = bracketRegion.dataset.bracketRegion;
+          renderBracket();
         }
       });
 
@@ -2466,7 +2831,10 @@
 
       dom.exportCsv.addEventListener("click", exportCsv);
       dom.printView.addEventListener("click", () => window.print());
-      window.addEventListener("resize", drawChart);
+      window.addEventListener("resize", () => {
+        drawChart();
+        drawBracketConnectors();
+      });
     }
 
     function render() {
@@ -2482,6 +2850,7 @@
       renderTournamentViews();
       renderTabs();
       drawChart();
+      requestAnimationFrame(drawBracketConnectors);
     }
 
     function init() {
