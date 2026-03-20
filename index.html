@@ -1548,6 +1548,20 @@
       text-align: center;
     }
 
+    .empty-state strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .empty-state-actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
     .hidden {
       display: none !important;
     }
@@ -1837,7 +1851,10 @@
                 <p class="subtle">Tracks bankroll impact from placed tickets through final grading.</p>
               </div>
             </div>
-            <canvas id="pnlChart" class="chart-canvas" width="520" height="280"></canvas>
+            <div class="chart-shell">
+              <canvas id="pnlChart" class="chart-canvas" width="520" height="280"></canvas>
+              <div id="chartTooltip" class="chart-tooltip" role="status" aria-live="polite"></div>
+            </div>
             <div class="footer-note">Not placed tickets are excluded, placed tickets count as stake out, and settled tickets show final net.</div>
           </section>
 
@@ -1978,7 +1995,7 @@
       { value: "result-desc", label: "Result: Win to Not Placed" }
     ];
     const RESULT_ORDER = { "not-placed": 0, placed: 1, push: 2, loss: 3, win: 4 };
-    const FINAL_RESULTS = ["win", "loss", "push"];
+    const FINAL_RESULTS = ["win", "won", "loss", "lost", "push"];
     const TYPE_LABELS = { spread: "Spread", total: "Total", ml: "Moneyline", parlay: "Parlay" };
     const CONFIDENCE_LABELS = { high: "High", medium: "Medium", low: "Low" };
     const ROUND_ORDER = ["first-four", "first-round", "second-round", "sweet-16", "elite-8", "final-four", "championship"];
@@ -2080,6 +2097,7 @@
       liveScoresStatus: document.getElementById("liveScoresStatus"),
       dailyBreakdown: document.getElementById("dailyBreakdown"),
       pnlChart: document.getElementById("pnlChart"),
+      chartTooltip: document.getElementById("chartTooltip"),
       apiCostsCard: document.getElementById("apiCostsCard"),
       statsGrid: document.getElementById("statsGrid"),
       quickAddButton: document.getElementById("quickAddButton"),
@@ -2132,6 +2150,20 @@
       return stake * (100 / Math.abs(odds));
     }
 
+    function normalizeResult(result) {
+      if (result === "won") return "win";
+      if (result === "lost") return "loss";
+      return result || null;
+    }
+
+    function isWin(result) {
+      return normalizeResult(result) === "win";
+    }
+
+    function isLoss(result) {
+      return normalizeResult(result) === "loss";
+    }
+
     function isSettled(result) {
       return ["win", "won", "loss", "lost", "push"].includes(result);
     }
@@ -2142,11 +2174,21 @@
 
     function ticketProfit(item) {
       if (item.result === "placed") return -unitToDollars(item.units);
-      if (item.result === "win" || item.result === "won") {
+      if (isWin(item.result)) {
         if (item.payout) return item.payout - unitToDollars(item.units);
         return americanProfit(item.units, item.line);
       }
-      if (item.result === "loss" || item.result === "lost") return -unitToDollars(item.units);
+      if (isLoss(item.result)) return -unitToDollars(item.units);
+      return 0;
+    }
+
+    function ticketReturn(item) {
+      if (!item.result || item.result === "placed") return 0;
+      if (isWin(item.result)) {
+        if (item.payout != null) return item.payout;
+        return unitToDollars(item.units) + americanProfit(item.units, item.line);
+      }
+      if (normalizeResult(item.result) === "push") return unitToDollars(item.units);
       return 0;
     }
 
@@ -2315,24 +2357,26 @@
     }
 
     function statusClass(result) {
-      const key = result || "not-placed";
+      const key = normalizeResult(result) || "not-placed";
       return `status-${key}`;
     }
 
     function statusLabel(result) {
       if (!result) return "Not Placed";
       if (result === "placed") return "Placed";
-      if (result === "win") return "Won";
-      if (result === "loss") return "Lost";
-      return result.charAt(0).toUpperCase() + result.slice(1);
+      if (isWin(result)) return "Won";
+      if (isLoss(result)) return "Lost";
+      const key = normalizeResult(result);
+      return key ? key.charAt(0).toUpperCase() + key.slice(1) : "Not Placed";
     }
 
     function resultButtonClass(result, target) {
-      return result === target ? `active-${target}` : "";
+      return normalizeResult(result) === normalizeResult(target) ? `active-${target}` : "";
     }
 
     function sanitizeResult(result) {
-      return ["placed", ...FINAL_RESULTS].includes(result) ? result : null;
+      const normalized = normalizeResult(result);
+      return ["placed", "win", "loss", "push"].includes(normalized) ? normalized : null;
     }
 
     function nextResultForAction(currentResult, targetResult) {
@@ -2349,8 +2393,8 @@
     function overallRecord(items) {
       const settled = items.filter((item) => isSettled(item.result));
       return {
-        wins: settled.filter((item) => item.result === "win").length,
-        losses: settled.filter((item) => item.result === "loss").length,
+        wins: settled.filter((item) => isWin(item.result)).length,
+        losses: settled.filter((item) => isLoss(item.result)).length,
         pushes: settled.filter((item) => item.result === "push").length
       };
     }
@@ -2363,8 +2407,8 @@
     function parlayLegState(leg) {
       const match = bets.find((bet) => bet.pick === leg);
       if (!match || !match.result || match.result === "placed") return { icon: "⏳", label: "Pending" };
-      if (match.result === "win") return { icon: "✅", label: "Won" };
-      if (match.result === "loss") return { icon: "❌", label: "Lost" };
+      if (isWin(match.result)) return { icon: "✅", label: "Won" };
+      if (isLoss(match.result)) return { icon: "❌", label: "Lost" };
       return { icon: "⏳", label: "Push" };
     }
 
@@ -2381,8 +2425,8 @@
           if (state.filter === "all") return true;
           if (state.filter === "active") return !isSettled(bet.result);
           if (state.filter === "settled") return isSettled(bet.result);
-          if (state.filter === "wins") return bet.result === "win";
-          if (state.filter === "losses") return bet.result === "loss";
+          if (state.filter === "wins") return isWin(bet.result);
+          if (state.filter === "losses") return isLoss(bet.result);
           return true;
         })
         .sort((left, right) => {
@@ -2392,8 +2436,8 @@
           if (key === "gameTime") {
             return compareValues(parseTimeToMinutes(left.gameTime), parseTimeToMinutes(right.gameTime), direction) || compareValues(left.date, right.date, direction);
           }
-          const leftResult = RESULT_ORDER[left.result || "not-placed"];
-          const rightResult = RESULT_ORDER[right.result || "not-placed"];
+          const leftResult = RESULT_ORDER[normalizeResult(left.result) || "not-placed"];
+          const rightResult = RESULT_ORDER[normalizeResult(right.result) || "not-placed"];
           return compareValues(leftResult, rightResult, direction) || compareValues(parseTimeToMinutes(left.gameTime), parseTimeToMinutes(right.gameTime), "asc");
         });
     }
@@ -2411,10 +2455,11 @@
       const placedTickets = tickets.filter((item) => item.result === "placed");
       const activeTickets = tickets.filter((item) => isPlaced(item.result));
       const totalWagered = activeTickets.reduce((sum, item) => sum + unitToDollars(item.units), 0);
+      const totalReturned = settledTickets.reduce((sum, item) => sum + ticketReturn(item), 0);
       const realized = tickets.reduce((sum, item) => sum + ticketProfit(item), 0);
       const settledRisked = settledTickets.reduce((sum, item) => sum + unitToDollars(item.units), 0);
-      const wins = settledTickets.filter((item) => item.result === "win").length;
-      const losses = settledTickets.filter((item) => item.result === "loss").length;
+      const wins = settledTickets.filter((item) => isWin(item.result)).length;
+      const losses = settledTickets.filter((item) => isLoss(item.result)).length;
       const pushes = settledTickets.filter((item) => item.result === "push").length;
       const placedCount = placedTickets.length;
       const notPlaced = tickets.filter((item) => !item.result).length;
@@ -2422,22 +2467,22 @@
       const resolved = wins + losses;
       const roi = settledRisked ? (realized / settledRisked) * 100 : 0;
       const winRate = resolved ? (wins / resolved) * 100 : 0;
-      const bestBet = settledTickets.filter((item) => item.result === "win").sort((a, b) => ticketProfit(b) - ticketProfit(a))[0] || null;
-      const worstBet = settledTickets.filter((item) => item.result === "loss").sort((a, b) => ticketProfit(a) - ticketProfit(b))[0] || null;
-      const totalWon = settledTickets.filter((item) => item.result === "win").reduce((sum, item) => sum + ticketProfit(item), 0);
-      const totalLost = Math.abs(settledTickets.filter((item) => item.result === "loss").reduce((sum, item) => sum + ticketProfit(item), 0));
+      const bestBet = settledTickets.filter((item) => isWin(item.result)).sort((a, b) => ticketProfit(b) - ticketProfit(a))[0] || null;
+      const worstBet = settledTickets.filter((item) => isLoss(item.result)).sort((a, b) => ticketProfit(a) - ticketProfit(b))[0] || null;
+      const totalWon = settledTickets.filter((item) => isWin(item.result)).reduce((sum, item) => sum + ticketProfit(item), 0);
+      const totalLost = Math.abs(settledTickets.filter((item) => isLoss(item.result)).reduce((sum, item) => sum + ticketProfit(item), 0));
 
-      return { totalWagered, realized, roi, winRate, bestBet, worstBet, wins, losses, pushes, placedCount, atRisk, notPlaced, settledCount: settledTickets.length, totalWon, totalLost };
+      return { totalWagered, totalReturned, realized, roi, winRate, bestBet, worstBet, wins, losses, pushes, placedCount, atRisk, notPlaced, settledCount: settledTickets.length, totalWon, totalLost };
     }
 
     function buildSummaryCards(summary) {
       const cards = [
-        { key: "realized", label: "Running P&L", metric: formatCurrency(summary.realized), meta: `${summary.wins}W-${summary.losses}L-${summary.pushes}P settled`, raw: summary.realized },
-        { key: "placedCount", label: "Bets Placed", metric: `${summary.placedCount} tickets`, meta: `${formatCurrency(summary.atRisk, { signed: false })} at risk`, raw: summary.placedCount },
-        { key: "settledCount", label: "Settled Bets", metric: `${summary.settledCount} tickets`, meta: `${summary.wins}W-${summary.losses}L-${summary.pushes}P`, raw: summary.settledCount },
-        { key: "totalWon", label: "Gross Won", metric: formatCurrency(summary.totalWon, { signed: false }), meta: `${formatCurrency(summary.totalLost, { signed: false })} gross lost`, raw: summary.totalWon },
-        { key: "bestBet", label: "Best Bet", metric: summary.bestBet ? summary.bestBet.label || summary.bestBet.pick || summary.bestBet.name : "Pending", meta: summary.bestBet ? formatCurrencyWithUnits(ticketProfit(summary.bestBet), summary.bestBet.units) : "No winners yet", raw: summary.bestBet ? ticketProfit(summary.bestBet) : 0 },
-        { key: "worstBet", label: "Worst Bet", metric: summary.worstBet ? summary.worstBet.label || summary.worstBet.pick || summary.worstBet.name : "Pending", meta: summary.worstBet ? formatCurrencyWithUnits(ticketProfit(summary.worstBet), summary.worstBet.units) : `${summary.notPlaced} not placed`, raw: summary.worstBet ? ticketProfit(summary.worstBet) : 0 }
+        { key: "totalWagered", label: "Total Wagered", metric: formatCurrency(summary.totalWagered, { signed: false }), meta: `${formatCurrency(summary.atRisk, { signed: false })} at risk`, raw: summary.totalWagered },
+        { key: "totalReturned", label: "Total Returned", metric: formatCurrency(summary.totalReturned, { signed: false }), meta: "Uses payout data when available", raw: summary.totalReturned },
+        { key: "winRate", label: "Win Rate", metric: formatPercent(summary.winRate), meta: `${summary.wins}W-${summary.losses}L-${summary.pushes}P`, raw: summary.winRate },
+        { key: "roi", label: "ROI", metric: formatPercent(summary.roi), meta: `${formatCurrency(summary.totalWon, { signed: false })} gross won`, raw: summary.roi },
+        { key: "realized", label: "Running P&L", metric: formatCurrency(summary.realized), meta: summary.bestBet ? `Best: ${summary.bestBet.label || summary.bestBet.pick || summary.bestBet.name}` : "No winners yet", raw: summary.realized },
+        { key: "settledCount", label: "Settled Bets", metric: `${summary.settledCount} tickets`, meta: summary.worstBet ? `Worst: ${summary.worstBet.label || summary.worstBet.pick || summary.worstBet.name}` : `${summary.notPlaced} not placed`, raw: summary.settledCount }
       ];
 
       dom.summaryGrid.innerHTML = cards.map((card) => {
@@ -2539,9 +2584,11 @@
       const today = currentEtDate();
       const games = scheduleGroups().find((group) => group.date === today)?.games
         || mainTournamentGames().filter((game) => game.date === today);
+      const hasLiveData = games.some((game) => game.completed || game.teams.some((team) => team.score != null));
 
       dom.liveScoresStatus.textContent = games.length ? `${games.length} games today` : "No games today";
-      dom.liveScoresGrid.innerHTML = games.length ? games.map((game) => `
+      dom.liveScoresGrid.innerHTML = games.length ? `
+        ${games.map((game) => `
         <article class="live-game-card fade-in">
           <div class="live-game-head">
             <strong>${game.teams.map((team) => team.name).join(" vs ")}</strong>
@@ -2551,13 +2598,14 @@
             ${game.teams.map((team) => `
               <div class="live-score-row">
                 <span>${team.seed != null ? `(${team.seed}) ` : ""}${team.name}</span>
-                <strong>${game.completed && team.score != null ? team.score : "—"}</strong>
+                <strong>${team.score != null ? team.score : "—"}</strong>
               </div>
             `).join("")}
           </div>
-          <div class="placeholder-copy">Connect live scores to track your bets in real-time.</div>
         </article>
-      `).join("") : `<div class="empty-state">Connect live scores to track your bets in real-time.</div>`;
+      `).join("")}
+        ${hasLiveData ? "" : `<div class="empty-state">Connect live scores to track your bets in real-time.</div>`}
+      ` : `<div class="empty-state"><strong>No games scheduled for today.</strong></div>`;
     }
 
     function renderFilters() {
