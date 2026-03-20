@@ -1981,7 +1981,7 @@
 
   <script>
     const UNIT_SIZE = 25;
-    const TRACKED_BANKROLL_BASE = 0;
+    const STARTING_BANKROLL = 212.5;
     const API_COSTS = {
       kenpomCadYear: 133.91,
       oddsCadMonth: 42.28,
@@ -2056,11 +2056,36 @@
 
     const TEAM_ALIASES = {
       TCU: ["TCU Horned Frogs", "TCU"],
+      Akron: ["Akron Zips", "Akron"],
+      Alabama: ["Alabama Crimson Tide", "Alabama"],
+      Arizona: ["Arizona Wildcats", "Arizona"],
+      BYU: ["BYU Cougars", "BYU", "Brigham Young"],
+      "Cal Baptist": ["California Baptist Lancers", "Cal Baptist", "California Baptist", "CBU"],
+      Clemson: ["Clemson Tigers", "Clemson"],
+      Florida: ["Florida Gators", "Florida"],
+      Hofstra: ["Hofstra Pride", "Hofstra"],
       "Ohio State": ["Ohio State Buckeyes", "Ohio State", "OSU"],
       Houston: ["Houston Cougars", "Houston"],
       Idaho: ["Idaho Vandals", "Idaho"],
       Illinois: ["Illinois Fighting Illini", "Illinois"],
+      Iowa: ["Iowa Hawkeyes", "Iowa"],
+      "Iowa State": ["Iowa State Cyclones", "Iowa State"],
+      Kansas: ["Kansas Jayhawks", "Kansas"],
+      Kentucky: ["Kentucky Wildcats", "Kentucky"],
+      "Long Island": ["LIU Sharks", "Long Island University", "LIU", "Long Island"],
+      "Miami OH": ["Miami (OH) RedHawks", "Miami OH", "Miami (OH)"],
       Penn: ["Penn Quakers", "Pennsylvania", "Penn"],
+      "Prairie View": ["Prairie View A&M Panthers", "Prairie View A&M", "Prairie View"],
+      Purdue: ["Purdue Boilermakers", "Purdue"],
+      Queens: ["Queens University Royals", "Queens"],
+      "Santa Clara": ["Santa Clara Broncos", "Santa Clara"],
+      "Texas A&M": ["Texas A&M Aggies", "Texas A&M", "TAMU"],
+      "Texas Tech": ["Texas Tech Red Raiders", "Texas Tech"],
+      Texas: ["Texas Longhorns", "Texas"],
+      Tennessee: ["Tennessee Volunteers", "Tennessee", "Vols"],
+      "Tennessee St": ["Tennessee State Tigers", "Tennessee State", "Tennessee St"],
+      UCLA: ["UCLA Bruins", "UCLA"],
+      UCF: ["UCF Knights", "UCF", "Central Florida"],
       VCU: ["VCU Rams", "VCU"],
       UNC: ["North Carolina Tar Heels", "North Carolina", "UNC"],
       "North Carolina": ["North Carolina Tar Heels", "North Carolina", "UNC"],
@@ -2070,6 +2095,7 @@
       "Saint Louis": ["Saint Louis Billikens", "Saint Louis"],
       Georgia: ["Georgia Bulldogs", "Georgia"],
       "High Point": ["High Point Panthers", "High Point"],
+      "Wright St": ["Wright State Raiders", "Wright State", "Wright St"],
       Wisconsin: ["Wisconsin Badgers", "Wisconsin"],
       Gonzaga: ["Gonzaga Bulldogs", "Gonzaga"],
       "Kennesaw St": ["Kennesaw State Owls", "Kennesaw State", "Kennesaw St"],
@@ -2085,7 +2111,9 @@
       Troy: ["Troy Trojans", "Troy"],
       "Michigan St": ["Michigan State Spartans", "Michigan State", "Michigan St"],
       Michigan: ["Michigan Wolverines", "Michigan"],
-      Howard: ["Howard Bison", "Howard"]
+      "Utah State": ["Utah State Aggies", "Utah State"],
+      Villanova: ["Villanova Wildcats", "Villanova"],
+      Virginia: ["Virginia Cavaliers", "Virginia", "UVA"]
     };
 
     const BETS = [
@@ -2139,7 +2167,7 @@
     };
 
     let state = {
-      filter: "active",
+      filter: "all",
       sort: "date-asc",
       activeTab: "dashboard",
       activeBracketRegion: "South",
@@ -2396,7 +2424,12 @@
     function teamMatches(left, right) {
       const leftAliases = getAliasVariants(left);
       const rightAliases = getAliasVariants(right);
-      return [...leftAliases].some((alias) => rightAliases.has(alias));
+      if ([...leftAliases].some((alias) => rightAliases.has(alias))) return true;
+      const leftNorm = normalizeName(left);
+      const rightNorm = normalizeName(right);
+      if (leftNorm && rightNorm && (leftNorm.startsWith(rightNorm) || rightNorm.startsWith(leftNorm))) return true;
+      if (leftNorm.length > 3 && rightNorm.length > 3 && (leftNorm.includes(rightNorm) || rightNorm.includes(leftNorm))) return true;
+      return false;
     }
 
     function formatAmericanOdds(odds) {
@@ -2646,13 +2679,13 @@
     function renderHeroKpis(summary) {
       const today = todayRecord();
       const overall = overallRecord(allTickets());
-      const bankroll = TRACKED_BANKROLL_BASE + summary.realized;
+      const bankroll = STARTING_BANKROLL + summary.realized;
       const dayNumber = tournamentDayNumber();
 
       dom.heroKpis.innerHTML = [
         {
           label: "Current Bankroll",
-          value: `<span class="${bankroll > 0 ? "positive" : bankroll < 0 ? "negative" : "neutral"}">${formatCurrency(bankroll, { signed: bankroll !== 0 })}</span>`,
+          value: `<span class="${bankroll > 0 ? "positive" : bankroll < 0 ? "negative" : "neutral"}">${formatCurrency(bankroll, { signed: false })}</span>`,
           meta: `${formatCurrency(summary.atRisk, { signed: false })} currently at risk`
         },
         {
