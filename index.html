@@ -6,28 +6,30 @@
   <title>March Madness 2026 Betting Tracker</title>
   <style>
     :root {
-      --bg: #0a0a0a;
-      --panel: #111214;
-      --panel-2: #17181b;
-      --panel-3: #1f2024;
-      --border: rgba(255, 255, 255, 0.08);
-      --text: #ffffff;
-      --muted: #a1a1aa;
-      --accent: #e31837;
-      --accent-soft: rgba(227, 24, 55, 0.14);
-      --green: #1fd66b;
-      --green-soft: rgba(31, 214, 107, 0.14);
-      --red: #ff5d73;
-      --red-soft: rgba(255, 93, 115, 0.14);
-      --yellow: #f6c453;
-      --yellow-soft: rgba(246, 196, 83, 0.14);
-      --gray: #8d94a2;
-      --gray-soft: rgba(141, 148, 162, 0.12);
-      --shadow: 0 18px 48px rgba(0, 0, 0, 0.38);
+      --bg: #0a0e17;
+      --panel: #141a26;
+      --panel-2: #182031;
+      --panel-3: #1f2937;
+      --border: rgba(148, 163, 184, 0.16);
+      --text: #f8fafc;
+      --muted: #aab4c5;
+      --accent: #f97316;
+      --accent-soft: rgba(249, 115, 22, 0.14);
+      --green: #22c55e;
+      --green-soft: rgba(34, 197, 94, 0.16);
+      --red: #ef4444;
+      --red-soft: rgba(239, 68, 68, 0.16);
+      --yellow: #fbbf24;
+      --yellow-soft: rgba(251, 191, 36, 0.16);
+      --gray: #94a3b8;
+      --gray-soft: rgba(148, 163, 184, 0.14);
+      --blue: #38bdf8;
+      --blue-soft: rgba(56, 189, 248, 0.14);
+      --shadow: 0 22px 56px rgba(2, 6, 23, 0.42);
       --radius: 18px;
       --radius-sm: 12px;
       --transition: 220ms ease;
-      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     * {
@@ -44,9 +46,9 @@
       min-height: 100vh;
       font-family: var(--font);
       background:
-        radial-gradient(circle at top left, rgba(227, 24, 55, 0.18), transparent 28%),
-        radial-gradient(circle at top right, rgba(255, 255, 255, 0.05), transparent 18%),
-        linear-gradient(180deg, #0a0a0a 0%, #0f1013 100%);
+        radial-gradient(circle at top left, rgba(34, 197, 94, 0.14), transparent 28%),
+        radial-gradient(circle at top right, rgba(249, 115, 22, 0.14), transparent 18%),
+        linear-gradient(180deg, #0a0e17 0%, #0f1724 100%);
       color: var(--text);
     }
 
@@ -93,7 +95,7 @@
       inset: auto -80px -80px auto;
       width: 220px;
       height: 220px;
-      background: radial-gradient(circle, rgba(227, 24, 55, 0.38), transparent 62%);
+      background: radial-gradient(circle, rgba(249, 115, 22, 0.26), transparent 62%);
       pointer-events: none;
     }
 
@@ -112,8 +114,8 @@
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 18px rgba(227, 24, 55, 0.8);
+      background: var(--green);
+      box-shadow: 0 0 18px rgba(34, 197, 94, 0.75);
     }
 
     h1,
@@ -132,6 +134,42 @@
     .subtle {
       color: var(--muted);
       line-height: 1.55;
+    }
+
+    .hero-kpis {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .hero-kpi {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(15, 23, 36, 0.72);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      min-height: 92px;
+    }
+
+    .hero-kpi strong {
+      display: block;
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .hero-kpi-value {
+      font-size: clamp(1.15rem, 2vw, 1.85rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .hero-kpi-meta {
+      margin-top: 8px;
+      font-size: 0.88rem;
+      color: var(--muted);
     }
 
     .pnl-hero {
@@ -155,10 +193,17 @@
       font-size: 0.84rem;
     }
 
+    .pill.live {
+      color: var(--green);
+      border-color: rgba(34, 197, 94, 0.24);
+      background: rgba(34, 197, 94, 0.09);
+    }
+
     .pnl-value {
       font-size: clamp(2.3rem, 4vw, 3.9rem);
       font-weight: 800;
       letter-spacing: -0.04em;
+      text-shadow: 0 0 26px rgba(248, 250, 252, 0.06);
     }
 
     .positive {
@@ -184,6 +229,12 @@
       padding: 18px;
       min-height: 128px;
       transition: transform var(--transition), border-color var(--transition), background-color var(--transition);
+    }
+
+    .summary-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(148, 163, 184, 0.24);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
     }
 
     .summary-card.flash-win {
@@ -217,6 +268,7 @@
       font-weight: 700;
       letter-spacing: -0.03em;
       margin-bottom: 8px;
+      color: #f8fafc;
     }
 
     .meta {
@@ -250,9 +302,13 @@
       padding: 8px;
       margin-bottom: 22px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(20, 26, 38, 0.88);
       border: 1px solid var(--border);
       box-shadow: var(--shadow);
+      position: sticky;
+      top: 10px;
+      z-index: 30;
+      backdrop-filter: blur(16px);
     }
 
     .tab-button {
@@ -260,7 +316,8 @@
       background: transparent;
       color: var(--muted);
       border-radius: 999px;
-      padding: 10px 18px;
+      padding: 12px 18px;
+      min-height: 44px;
       cursor: pointer;
       transition: background-color var(--transition), border-color var(--transition), color var(--transition), transform var(--transition);
     }
@@ -269,7 +326,7 @@
     .tab-button.active {
       color: var(--text);
       background: var(--accent-soft);
-      border-color: rgba(227, 24, 55, 0.35);
+      border-color: rgba(249, 115, 22, 0.35);
       transform: translateY(-1px);
     }
 
@@ -286,7 +343,10 @@
     .segmented button,
     .toolbar-button,
     .sort-select,
-    .result-button {
+    .result-button,
+    .ghost-button,
+    .modal-close,
+    .modal-submit {
       border: 1px solid rgba(255, 255, 255, 0.09);
       background: rgba(255, 255, 255, 0.03);
       color: var(--text);
@@ -296,8 +356,12 @@
 
     .segmented button,
     .toolbar-button,
-    .sort-select {
+    .sort-select,
+    .ghost-button,
+    .modal-close,
+    .modal-submit {
       padding: 10px 14px;
+      min-height: 44px;
       cursor: pointer;
     }
 
@@ -306,8 +370,20 @@
     .sort-select:focus,
     .segmented button:hover {
       background: var(--accent-soft);
-      border-color: rgba(227, 24, 55, 0.42);
+      border-color: rgba(249, 115, 22, 0.42);
       outline: none;
+    }
+
+    .toolbar-button.primary,
+    .modal-submit {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.22), rgba(34, 197, 94, 0.12));
+      border-color: rgba(34, 197, 94, 0.34);
+      color: #d4ffe2;
+    }
+
+    .toolbar-button.primary:hover,
+    .modal-submit:hover {
+      background: linear-gradient(135deg, rgba(34, 197, 94, 0.28), rgba(34, 197, 94, 0.16));
     }
 
     .layout {
@@ -329,6 +405,38 @@
     .table-scroll {
       overflow: auto;
       max-width: none;
+      position: relative;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(148, 163, 184, 0.45) transparent;
+    }
+
+    .table-scroll::after {
+      content: "";
+      position: sticky;
+      right: 0;
+      top: 0;
+      width: 36px;
+      height: 100%;
+      float: right;
+      pointer-events: none;
+      background: linear-gradient(90deg, rgba(10, 14, 23, 0), rgba(10, 14, 23, 0.92));
+    }
+
+    .scroll-hint {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 18px 14px;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .scroll-hint-bar {
+      flex: 1;
+      height: 4px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(56, 189, 248, 0.1), rgba(56, 189, 248, 0.8), rgba(56, 189, 248, 0.1));
     }
 
     table {
@@ -384,8 +492,8 @@
     }
 
     .expand-toggle {
-      width: 28px;
-      height: 28px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       border: 1px solid rgba(255, 255, 255, 0.08);
       background: rgba(255, 255, 255, 0.03);
@@ -397,7 +505,7 @@
 
     .expand-toggle[aria-expanded="true"] {
       transform: rotate(90deg);
-      border-color: rgba(227, 24, 55, 0.44);
+      border-color: rgba(249, 115, 22, 0.44);
       background: var(--accent-soft);
     }
 
@@ -407,7 +515,7 @@
       justify-content: center;
       min-width: 80px;
       border-radius: 999px;
-      padding: 7px 10px;
+      padding: 8px 12px;
       font-size: 0.79rem;
       font-weight: 700;
       text-transform: uppercase;
@@ -493,8 +601,8 @@
 
     .line-input:focus {
       outline: none;
-      border-color: rgba(227, 24, 55, 0.42);
-      box-shadow: 0 0 0 1px rgba(227, 24, 55, 0.18);
+      border-color: rgba(249, 115, 22, 0.42);
+      box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.18);
     }
 
     .result-group {
@@ -504,7 +612,8 @@
     }
 
     .result-button {
-      padding: 6px 10px;
+      padding: 10px 14px;
+      min-height: 44px;
       cursor: pointer;
       font-size: 0.78rem;
       font-weight: 700;
@@ -516,22 +625,41 @@
       transform: translateY(-1px);
     }
 
+    .result-button.result-win {
+      background: rgba(34, 197, 94, 0.18);
+      border-color: rgba(34, 197, 94, 0.34);
+      color: #d9ffe6;
+    }
+
+    .result-button.result-loss {
+      background: rgba(239, 68, 68, 0.18);
+      border-color: rgba(239, 68, 68, 0.34);
+      color: #ffdada;
+    }
+
+    .result-button.result-push,
+    .result-button.result-placed {
+      background: rgba(148, 163, 184, 0.16);
+      border-color: rgba(148, 163, 184, 0.26);
+      color: #d6deeb;
+    }
+
     .result-button.active-win {
-      background: var(--green-soft);
-      border-color: rgba(31, 214, 107, 0.28);
-      color: var(--green);
+      background: rgba(34, 197, 94, 0.3);
+      border-color: rgba(34, 197, 94, 0.56);
+      color: #effff4;
     }
 
     .result-button.active-loss {
-      background: var(--red-soft);
-      border-color: rgba(255, 93, 115, 0.28);
-      color: var(--red);
+      background: rgba(239, 68, 68, 0.32);
+      border-color: rgba(239, 68, 68, 0.56);
+      color: #fff1f1;
     }
 
     .result-button.active-push {
-      background: var(--gray-soft);
-      border-color: rgba(141, 148, 162, 0.22);
-      color: var(--gray);
+      background: rgba(148, 163, 184, 0.28);
+      border-color: rgba(148, 163, 184, 0.46);
+      color: #f8fafc;
     }
 
     .detail-row {
@@ -602,9 +730,41 @@
       display: block;
       border-radius: 14px;
       background:
-        linear-gradient(180deg, rgba(227, 24, 55, 0.05), transparent 75%),
+        linear-gradient(180deg, rgba(15, 23, 36, 0.65), rgba(15, 23, 36, 0.55)),
         rgba(255, 255, 255, 0.02);
       border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .chart-shell {
+      position: relative;
+    }
+
+    .chart-tooltip {
+      position: absolute;
+      pointer-events: none;
+      min-width: 160px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(15, 23, 36, 0.96);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      box-shadow: 0 18px 36px rgba(2, 6, 23, 0.4);
+      color: var(--text);
+      font-size: 0.82rem;
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 140ms ease, transform 140ms ease;
+      z-index: 2;
+    }
+
+    .chart-tooltip.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .chart-tooltip strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.9rem;
     }
 
     .parlay-grid {
@@ -632,9 +792,48 @@
 
     .parlay-legs {
       margin: 0;
-      padding-left: 18px;
+      padding-left: 0;
       color: var(--muted);
       line-height: 1.55;
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+
+    .parlay-leg {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .parlay-leg-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .parlay-leg-icon {
+      font-size: 0.95rem;
+    }
+
+    .parlay-leg-label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--text);
+    }
+
+    .parlay-leg-status {
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
     }
 
     .mini-grid {
@@ -729,8 +928,205 @@
     .stat-block {
       padding: 14px;
       border-radius: 16px;
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .investment-card {
+      padding: 18px;
+    }
+
+    .investment-lines {
+      display: grid;
+      gap: 12px;
+    }
+
+    .investment-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.95rem;
+    }
+
+    .investment-row strong {
+      color: var(--text);
+    }
+
+    .investment-row.total strong,
+    .investment-row.net strong {
+      font-size: 1.02rem;
+    }
+
+    .investment-row.net .positive,
+    .investment-row.net .negative,
+    .investment-row.net .neutral {
+      font-weight: 800;
+      font-size: 1.05rem;
+    }
+
+    .live-scores-panel {
+      padding: 18px;
+    }
+
+    .live-scores-grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .live-game-card {
+      padding: 14px 16px;
+      border-radius: 16px;
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .live-game-head,
+    .live-score-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .live-game-head {
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .live-score-stack {
+      display: grid;
+      gap: 8px;
+    }
+
+    .live-score-row strong {
+      font-size: 1.05rem;
+    }
+
+    .placeholder-copy {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(148, 163, 184, 0.16);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .bets-history {
+      display: grid;
+      gap: 14px;
+      padding: 0 18px 18px;
+    }
+
+    .history-card {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .history-card-head,
+    .history-card-meta,
+    .history-card-foot {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .history-card-meta,
+    .history-card-foot {
+      margin-top: 12px;
+    }
+
+    .history-profit {
+      font-size: 1.1rem;
+      font-weight: 800;
+    }
+
+    .history-notes {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.72);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      z-index: 60;
+    }
+
+    .modal-card {
+      width: min(560px, 100%);
+      padding: 22px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(20, 26, 38, 0.98), rgba(15, 23, 36, 0.98));
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      box-shadow: 0 28px 70px rgba(2, 6, 23, 0.48);
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .modal-form {
+      display: grid;
+      gap: 14px;
+    }
+
+    .modal-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      min-height: 46px;
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      padding: 11px 13px;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      outline: none;
+      border-color: rgba(249, 115, 22, 0.42);
+      box-shadow: 0 0 0 1px rgba(249, 115, 22, 0.18);
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 8px;
+      flex-wrap: wrap;
     }
 
     .stat-block h3 {
@@ -868,8 +1264,8 @@
 
     .schedule-list-card.bet-highlight,
     .bracket-matchup.bet-highlight {
-      border-color: rgba(227, 24, 55, 0.62);
-      box-shadow: 0 18px 48px rgba(227, 24, 55, 0.14);
+      border-color: rgba(249, 115, 22, 0.62);
+      box-shadow: 0 18px 48px rgba(249, 115, 22, 0.12);
     }
 
     .schedule-list-card.completed,
@@ -1173,8 +1569,9 @@
         padding-top: 18px;
       }
 
-      .summary-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+      .summary-grid,
+      .hero-kpis {
+        grid-template-columns: 1fr;
       }
 
       .detail-panel,
@@ -1185,6 +1582,17 @@
       .section-head {
         align-items: start;
         flex-direction: column;
+      }
+
+      .tab-bar {
+        display: flex;
+        width: 100%;
+        overflow-x: auto;
+        border-radius: 18px;
+      }
+
+      .tab-button {
+        flex: 1 0 auto;
       }
 
       .topbar .hero,
@@ -1255,7 +1663,8 @@
     @media (max-width: 560px) {
       .summary-grid,
       .detail-panel,
-      .mini-grid {
+      .mini-grid,
+      .modal-grid {
         grid-template-columns: 1fr;
       }
 
@@ -1269,13 +1678,22 @@
 
       .day-bet,
       .stat-row,
-      .parlay-header {
+      .parlay-header,
+      .history-card-head,
+      .history-card-meta,
+      .history-card-foot,
+      .live-score-row {
         grid-template-columns: 1fr;
         display: grid;
       }
 
       .pnl-value {
         font-size: 2.5rem;
+      }
+
+      .scroll-hint {
+        padding-left: 14px;
+        padding-right: 14px;
       }
     }
 
@@ -1342,9 +1760,10 @@
         <div class="eyebrow"><span class="dot"></span>Tournament dashboard</div>
         <h1>March Madness 2026<br>Betting Tracker</h1>
         <p class="subtle">Track sides, totals, parlays, bracket movement, and tournament scheduling in one place. Results persist locally, export cleanly to CSV, and print without extra tooling.</p>
+        <div id="heroKpis" class="hero-kpis"></div>
       </section>
       <aside class="card pnl-hero">
-        <div class="pill">Running P&amp;L</div>
+        <div class="pill live">Tracked bankroll</div>
         <div id="heroPnl" class="pnl-value neutral">$0.00</div>
         <div id="heroMeta" class="subtle">0 settled, 0 placed, 0 not placed</div>
       </aside>
@@ -1370,28 +1789,23 @@
               <div class="controls">
                 <div id="filterGroup" class="segmented" aria-label="Bet filters"></div>
                 <select id="sortSelect" class="sort-select" aria-label="Sort bets"></select>
+                <button id="quickAddButton" class="toolbar-button primary" type="button">Quick Add Bet</button>
                 <button id="exportCsv" class="toolbar-button" type="button">Export CSV</button>
                 <button id="printView" class="toolbar-button" type="button">Print</button>
               </div>
             </div>
-            <div class="table-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th class="sortable" data-sort-key="date">Date</th>
-                    <th class="sortable" data-sort-key="gameTime">Game Time</th>
-                    <th>Game</th>
-                    <th>Pick</th>
-                    <th>Line</th>
-                    <th>Stake</th>
-                    <th class="sortable" data-sort-key="result">Result</th>
-                    <th>P&amp;L</th>
-                    <th>Mark Result</th>
-                  </tr>
-                </thead>
-                <tbody id="betsBody"></tbody>
-              </table>
+            <div id="betsView"></div>
+          </section>
+
+          <section class="live-scores-panel card">
+            <div class="section-head">
+              <div>
+                <h2>Live Scores</h2>
+                <p class="subtle">Today’s tournament slate, ready for live score wiring.</p>
+              </div>
+              <div id="liveScoresStatus" class="pill">Today</div>
             </div>
+            <div id="liveScoresGrid" class="live-scores-grid"></div>
           </section>
 
           <section class="parlays-panel card">
@@ -1436,6 +1850,16 @@
             </div>
             <div id="statsGrid" class="stats-grid"></div>
           </section>
+
+          <section class="card investment-card">
+            <div class="section-head">
+              <div>
+                <h2>API Investment</h2>
+                <p class="subtle">Recurring tooling costs behind the dashboard.</p>
+              </div>
+            </div>
+            <div id="apiCostsCard" class="investment-lines"></div>
+          </section>
         </aside>
       </main>
     </section>
@@ -1467,8 +1891,64 @@
     </section>
   </div>
 
+  <div id="quickAddModal" class="modal-backdrop hidden" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="quickAddTitle">
+      <div class="modal-head">
+        <div>
+          <div class="label">Fast entry</div>
+          <h2 id="quickAddTitle">Quick Add Bet</h2>
+          <p class="subtle">Add a ticket without touching the source array.</p>
+        </div>
+        <button id="quickAddClose" type="button" class="modal-close">Close</button>
+      </div>
+      <form id="quickAddForm" class="modal-form">
+        <div class="field">
+          <label for="quickAddGame">Game</label>
+          <input id="quickAddGame" name="game" type="text" placeholder="Team A vs Team B" required>
+        </div>
+        <div class="field">
+          <label for="quickAddPick">Pick</label>
+          <input id="quickAddPick" name="pick" type="text" placeholder="Team A -2.5" required>
+        </div>
+        <div class="modal-grid">
+          <div class="field">
+            <label for="quickAddLine">Line (odds)</label>
+            <input id="quickAddLine" name="line" type="number" step="1" placeholder="-110" required>
+          </div>
+          <div class="field">
+            <label for="quickAddUnits">Units</label>
+            <input id="quickAddUnits" name="units" type="number" step="0.25" min="0.25" placeholder="1" required>
+          </div>
+          <div class="field">
+            <label for="quickAddConfidence">Confidence</label>
+            <select id="quickAddConfidence" name="confidence" required>
+              <option value="high">High</option>
+              <option value="medium" selected>Medium</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="quickAddTime">Game Time</label>
+            <input id="quickAddTime" name="gameTime" type="text" placeholder="7:25 PM ET">
+          </div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" id="quickAddCancel" class="ghost-button">Cancel</button>
+          <button type="submit" class="modal-submit">Add Bet</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     const UNIT_SIZE = 25;
+    const TRACKED_BANKROLL_BASE = 0;
+    const API_COSTS = {
+      kenpomCadYear: 133.91,
+      oddsCadMonth: 42.28,
+      totalCadFirstMonth: 176.19,
+      cadToUsd: 0.72
+    };
     const ODDS_API_KEY = "e67edf56e83961b61cade3d85be1280e";
     const ODDS_API_BASE = "https://api.the-odds-api.com/v4";
     const ESPN_API_BASE = "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard";
@@ -1590,14 +2070,23 @@
     const dom = {
       heroPnl: document.getElementById("heroPnl"),
       heroMeta: document.getElementById("heroMeta"),
+      heroKpis: document.getElementById("heroKpis"),
       summaryGrid: document.getElementById("summaryGrid"),
       filterGroup: document.getElementById("filterGroup"),
       sortSelect: document.getElementById("sortSelect"),
-      betsBody: document.getElementById("betsBody"),
+      betsView: document.getElementById("betsView"),
       parlayGrid: document.getElementById("parlayGrid"),
+      liveScoresGrid: document.getElementById("liveScoresGrid"),
+      liveScoresStatus: document.getElementById("liveScoresStatus"),
       dailyBreakdown: document.getElementById("dailyBreakdown"),
       pnlChart: document.getElementById("pnlChart"),
+      apiCostsCard: document.getElementById("apiCostsCard"),
       statsGrid: document.getElementById("statsGrid"),
+      quickAddButton: document.getElementById("quickAddButton"),
+      quickAddModal: document.getElementById("quickAddModal"),
+      quickAddClose: document.getElementById("quickAddClose"),
+      quickAddCancel: document.getElementById("quickAddCancel"),
+      quickAddForm: document.getElementById("quickAddForm"),
       exportCsv: document.getElementById("exportCsv"),
       printView: document.getElementById("printView"),
       tabBar: document.getElementById("tabBar"),
@@ -1617,7 +2106,10 @@
       activeBracketRegion: "South",
       editingLineId: null,
       expandedBets: new Set(),
-      openDays: new Set(["2026-03-19"])
+      openDays: new Set(["2026-03-19"]),
+      chartPoints: [],
+      chartHoverIndex: null,
+      quickAddOpen: false
     };
 
     let bets = cloneData(BETS);
@@ -1676,6 +2168,33 @@
       if (rounded > 0) return `+$${abs}`;
       if (rounded < 0) return `-$${abs}`;
       return "$0.00";
+    }
+
+    function formatUsdAfterCosts(summary) {
+      const totalCostsUsd = API_COSTS.totalCadFirstMonth * API_COSTS.cadToUsd;
+      return summary.realized - totalCostsUsd;
+    }
+
+    function currentEtDate() {
+      return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Toronto" }).format(new Date());
+    }
+
+    function tournamentDayNumber() {
+      const sortedDates = [...new Set(mainTournamentGames().map((game) => game.date).filter(Boolean))].sort();
+      const today = currentEtDate();
+      const index = sortedDates.indexOf(today);
+      return index >= 0 ? index + 1 : null;
+    }
+
+    function inferBetTypeFromPick(pick) {
+      const label = String(pick || "").toLowerCase();
+      if (/over|under/.test(label)) return "total";
+      if (/[+-]\d+(\.\d+)?/.test(label)) return "spread";
+      return "ml";
+    }
+
+    function nextCustomBetId() {
+      return bets.reduce((max, bet) => Math.max(max, Number(bet.id) || 0), 0) + 1;
     }
 
     function formatUnitsSecondary(units) {
@@ -1803,6 +2322,8 @@
     function statusLabel(result) {
       if (!result) return "Not Placed";
       if (result === "placed") return "Placed";
+      if (result === "win") return "Won";
+      if (result === "loss") return "Lost";
       return result.charAt(0).toUpperCase() + result.slice(1);
     }
 
@@ -1823,6 +2344,28 @@
       }
       if (current !== "placed" && current !== target) return current;
       return current === target ? "placed" : target;
+    }
+
+    function overallRecord(items) {
+      const settled = items.filter((item) => isSettled(item.result));
+      return {
+        wins: settled.filter((item) => item.result === "win").length,
+        losses: settled.filter((item) => item.result === "loss").length,
+        pushes: settled.filter((item) => item.result === "push").length
+      };
+    }
+
+    function todayRecord() {
+      const today = currentEtDate();
+      return overallRecord(allTickets().filter((item) => item.date === today));
+    }
+
+    function parlayLegState(leg) {
+      const match = bets.find((bet) => bet.pick === leg);
+      if (!match || !match.result || match.result === "placed") return { icon: "⏳", label: "Pending" };
+      if (match.result === "win") return { icon: "✅", label: "Won" };
+      if (match.result === "loss") return { icon: "❌", label: "Lost" };
+      return { icon: "⏳", label: "Push" };
     }
 
     function compareValues(a, b, direction) {
@@ -1913,6 +2456,42 @@
       }).join("");
     }
 
+    function renderHeroKpis(summary) {
+      const today = todayRecord();
+      const overall = overallRecord(allTickets());
+      const bankroll = TRACKED_BANKROLL_BASE + summary.realized;
+      const dayNumber = tournamentDayNumber();
+
+      dom.heroKpis.innerHTML = [
+        {
+          label: "Current Bankroll",
+          value: `<span class="${bankroll > 0 ? "positive" : bankroll < 0 ? "negative" : "neutral"}">${formatCurrency(bankroll, { signed: bankroll !== 0 })}</span>`,
+          meta: `${formatCurrency(summary.atRisk, { signed: false })} currently at risk`
+        },
+        {
+          label: "Day's Record",
+          value: `${today.wins}-${today.losses}`,
+          meta: `${today.pushes} pushes today`
+        },
+        {
+          label: "Overall Record",
+          value: `${overall.wins}-${overall.losses}`,
+          meta: `${overall.pushes} pushes overall`
+        },
+        {
+          label: "Tournament Day",
+          value: dayNumber ? `Day ${dayNumber}` : "Off slate",
+          meta: currentEtDate()
+        }
+      ].map((item) => `
+        <article class="hero-kpi">
+          <strong>${item.label}</strong>
+          <div class="hero-kpi-value">${item.value}</div>
+          <div class="hero-kpi-meta">${item.meta}</div>
+        </article>
+      `).join("");
+    }
+
     function animateHeroPnl(nextValue, summary) {
       const startValue = Number(dom.heroPnl.dataset.value || 0);
       const duration = 500;
@@ -1930,6 +2509,55 @@
 
       requestAnimationFrame(frame);
       dom.heroMeta.innerHTML = `${summary.settledCount} settled, ${summary.placedCount} placed, ${summary.notPlaced} not placed <span class="unit-meta">(${(nextValue / UNIT_SIZE).toFixed(2)}u)</span>`;
+    }
+
+    function renderApiInvestment(summary) {
+      const costsUsd = API_COSTS.totalCadFirstMonth * API_COSTS.cadToUsd;
+      const netAfterCosts = formatUsdAfterCosts(summary);
+      dom.apiCostsCard.innerHTML = `
+        <div class="investment-row">
+          <span>KenPom</span>
+          <strong>$133.91 CAD/year</strong>
+        </div>
+        <div class="investment-row">
+          <span>Odds API</span>
+          <strong>$42.28 CAD/month</strong>
+        </div>
+        <div class="investment-row total">
+          <span>Total invested so far</span>
+          <strong>$176.19 CAD (first month)</strong>
+        </div>
+        <div class="investment-row net">
+          <span>Net Profit After Costs</span>
+          <strong class="${netAfterCosts > 0 ? "positive" : netAfterCosts < 0 ? "negative" : "neutral"}">${formatCurrency(netAfterCosts)}</strong>
+        </div>
+        <div class="subtle">USD conversion uses 0.72 CAD→USD. Total costs: ${formatCurrency(costsUsd, { signed: false })} USD.</div>
+      `;
+    }
+
+    function renderLiveScoresSection() {
+      const today = currentEtDate();
+      const games = scheduleGroups().find((group) => group.date === today)?.games
+        || mainTournamentGames().filter((game) => game.date === today);
+
+      dom.liveScoresStatus.textContent = games.length ? `${games.length} games today` : "No games today";
+      dom.liveScoresGrid.innerHTML = games.length ? games.map((game) => `
+        <article class="live-game-card fade-in">
+          <div class="live-game-head">
+            <strong>${game.teams.map((team) => team.name).join(" vs ")}</strong>
+            <span class="status-chip ${game.completed ? "status-win" : "status-placed"}">${game.completed ? "Final" : game.displayTime || "Today"}</span>
+          </div>
+          <div class="live-score-stack">
+            ${game.teams.map((team) => `
+              <div class="live-score-row">
+                <span>${team.seed != null ? `(${team.seed}) ` : ""}${team.name}</span>
+                <strong>${game.completed && team.score != null ? team.score : "—"}</strong>
+              </div>
+            `).join("")}
+          </div>
+          <div class="placeholder-copy">Connect live scores to track your bets in real-time.</div>
+        </article>
+      `).join("") : `<div class="empty-state">Connect live scores to track your bets in real-time.</div>`;
     }
 
     function renderFilters() {
