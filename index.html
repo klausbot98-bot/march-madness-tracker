@@ -2803,11 +2803,7 @@
     }
 
     function lineMarkup(bet) {
-      if (bet.ticketType === "parlay") {
-        return `<div class="line-display"><span>${formatLineValue(bet.line)}</span></div>`;
-      }
-
-      if (state.editingLineId === Number(bet.id)) {
+      if (state.editingLineId === String(bet.id)) {
         return `
           <form class="line-edit" data-line-form="${bet.id}">
             <input class="line-input" type="number" inputmode="numeric" step="1" value="${bet.line}" data-line-input="${bet.id}" aria-label="Edit line for ${bet.pick}">
@@ -3752,7 +3748,8 @@
     }
 
     function updateBetLine(id, line) {
-      const bet = bets.find((entry) => String(entry.id) === String(id));
+      const bet = bets.find((entry) => String(entry.id) === String(id))
+        || parlays.find((entry) => String(entry.id) === String(id));
       if (!bet || !Number.isFinite(line) || line === 0) return;
       bet.line = line;
       state.editingLineId = null;
@@ -3822,7 +3819,7 @@
 
         const lineButton = event.target.closest("[data-line-edit]");
         if (lineButton) {
-          state.editingLineId = Number(lineButton.dataset.lineEdit);
+          state.editingLineId = String(lineButton.dataset.lineEdit);
           renderBetsTable();
           requestAnimationFrame(() => {
             const input = document.querySelector(`[data-line-input="${state.editingLineId}"]`);
