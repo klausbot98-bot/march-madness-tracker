@@ -1641,7 +1641,7 @@
     }
 
     function isSettled(result) {
-      return ["win", "loss", "push"].includes(result);
+      return ["win", "won", "loss", "lost", "push"].includes(result);
     }
 
     function isPlaced(result) {
@@ -1650,8 +1650,11 @@
 
     function ticketProfit(item) {
       if (item.result === "placed") return -unitToDollars(item.units);
-      if (item.result === "win") return americanProfit(item.units, item.line);
-      if (item.result === "loss") return -unitToDollars(item.units);
+      if (item.result === "win" || item.result === "won") {
+        if (item.payout) return item.payout - unitToDollars(item.units);
+        return americanProfit(item.units, item.line);
+      }
+      if (item.result === "loss" || item.result === "lost") return -unitToDollars(item.units);
       return 0;
     }
 
