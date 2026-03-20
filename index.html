@@ -2603,17 +2603,18 @@
 
     function renderLiveScoresSection() {
       const today = currentEtDate();
-      const games = scheduleGroups().find((group) => group.date === today)?.games
+      const allGames = scheduleGroups().find((group) => group.date === today)?.games
         || mainTournamentGames().filter((game) => game.date === today);
-      const hasLiveData = games.some((game) => game.completed || game.teams.some((team) => team.score != null));
+      // Only show games that are NOT completed — live or upcoming
+      const liveGames = allGames.filter((game) => !game.completed);
+      const count = liveGames.length;
 
-      dom.liveScoresStatus.textContent = games.length ? `${games.length} games today` : "No games today";
-      dom.liveScoresGrid.innerHTML = games.length ? `
-        ${games.map((game) => `
+      dom.liveScoresStatus.textContent = count ? `${count} live/upcoming` : "No live games";
+      dom.liveScoresGrid.innerHTML = count ? liveGames.map((game) => `
         <article class="live-game-card fade-in">
           <div class="live-game-head">
             <strong>${game.teams.map((team) => team.name).join(" vs ")}</strong>
-            <span class="status-chip ${game.completed ? "status-win" : "status-placed"}">${game.completed ? "Final" : game.displayTime || "Today"}</span>
+            <span class="status-chip status-placed">${game.displayTime || "Today"}</span>
           </div>
           <div class="live-score-stack">
             ${game.teams.map((team) => `
@@ -2624,9 +2625,7 @@
             `).join("")}
           </div>
         </article>
-      `).join("")}
-        ${hasLiveData ? "" : `<div class="empty-state">Connect live scores to track your bets in real-time.</div>`}
-      ` : `<div class="empty-state"><strong>No games scheduled for today.</strong></div>`;
+      `).join("") : `<div class="empty-state"><strong>No live games right now.</strong></div>`;
     }
 
     function renderFilters() {
@@ -3432,9 +3431,15 @@
           ? `ESPN updated ${tournamentStatus.updatedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`
           : "Loading schedule...";
 
-      dom.scheduleView.innerHTML = groups.length ? `
+      // Filter out completed games from the schedule
+      const filteredGroups = groups.map(({ date, games }) => ({
+        date,
+        games: games.filter((game) => !game.completed)
+      })).filter(({ games }) => games.length > 0);
+
+      dom.scheduleView.innerHTML = filteredGroups.length ? `
         <div class="schedule-days">
-          ${groups.map(({ date, games }) => `
+          ${filteredGroups.map(({ date, games }) => `
             <section class="schedule-day-card">
               <div class="schedule-day-head">
                 <h3>${scheduleDayLabel(date)}</h3>
@@ -3446,7 +3451,7 @@
             </section>
           `).join("")}
         </div>
-      ` : `<div class="empty-state">No main bracket games available.</div>`;
+      ` : `<div class="empty-state">No upcoming games scheduled.</div>`;
     }
 
     function renderBracket() {
