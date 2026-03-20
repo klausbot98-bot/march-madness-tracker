@@ -131,6 +131,29 @@
       margin-bottom: 10px;
     }
 
+    .hero-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .title-badge {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(251, 191, 36, 0.28);
+      background: rgba(251, 191, 36, 0.14);
+      color: #fde68a;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
     .subtle {
       color: var(--muted);
       line-height: 1.55;
@@ -1653,8 +1676,308 @@
     }
 
     @media (max-width: 767px) {
+      body {
+        padding-bottom: 24px;
+      }
+
+      .app {
+        width: min(100% - 16px, 100%);
+        padding-top: 12px;
+        padding-bottom: 24px;
+      }
+
+      .topbar {
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      .hero,
+      .pnl-hero,
+      .live-scores-panel,
+      .table-wrap,
+      .daily-panel,
+      .chart-panel,
+      .stats-panel,
+      .investment-card,
+      .schedule-panel,
+      .bracket-panel {
+        border-radius: 20px;
+      }
+
+      .hero {
+        padding: 16px;
+      }
+
+      .hero::after {
+        width: 160px;
+        height: 160px;
+        inset: auto -52px -52px auto;
+      }
+
+      .eyebrow {
+        margin-bottom: 8px;
+        font-size: 0.66rem;
+        letter-spacing: 0.16em;
+      }
+
+      .hero-title-row {
+        align-items: center;
+      }
+
+      h1 {
+        margin-bottom: 0;
+        font-size: 1.5rem;
+        line-height: 1.08;
+      }
+
+      .title-suffix,
+      .hero-description,
+      #summaryGrid,
+      #heroMeta,
+      .pnl-hero .pill,
+      .scroll-hint {
+        display: none !important;
+      }
+
+      .title-badge {
+        display: inline-flex;
+      }
+
+      .pnl-hero {
+        padding: 14px 16px;
+        gap: 6px;
+      }
+
+      .pnl-value {
+        font-size: 1.7rem;
+        line-height: 1;
+      }
+
+      .hero-kpis {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0;
+        margin-top: 14px;
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        border-radius: 16px;
+        overflow: hidden;
+        background: rgba(11, 18, 30, 0.76);
+      }
+
+      .hero-kpi {
+        min-height: 0;
+        padding: 10px 12px;
+        border-radius: 0;
+        border: 0;
+        border-right: 1px solid rgba(148, 163, 184, 0.12);
+        background: transparent;
+      }
+
+      .hero-kpi:last-child {
+        border-right: 0;
+      }
+
+      .hero-kpi:nth-child(4) {
+        display: none;
+      }
+
+      .hero-kpi strong {
+        margin-bottom: 5px;
+        font-size: 0.58rem;
+        letter-spacing: 0.11em;
+      }
+
+      .hero-kpi-value {
+        font-size: 1.02rem;
+        line-height: 1.1;
+      }
+
+      .hero-kpi-meta {
+        margin-top: 4px;
+        font-size: 0.68rem;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .tab-bar {
+        display: flex;
+        width: 100%;
+        gap: 6px;
+        padding: 6px;
+        margin-bottom: 14px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        border-radius: 999px;
+        top: 8px;
+        scrollbar-width: none;
+      }
+
+      .tab-bar::-webkit-scrollbar {
+        display: none;
+      }
+
+      .tab-button {
+        flex: 0 0 auto;
+        min-height: 38px;
+        padding: 8px 14px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
+
       .bracket-mobile-tabs {
         display: flex;
+      }
+
+      #dashboardPanel {
+        display: grid;
+        gap: 14px;
+      }
+
+      .layout {
+        gap: 14px;
+      }
+
+      .stack {
+        gap: 14px;
+      }
+
+      .live-scores-panel {
+        order: -2;
+        padding: 14px;
+      }
+
+      .table-wrap {
+        order: -1;
+        overflow: visible;
+      }
+
+      .table-wrap .section-head,
+      .live-scores-panel .section-head,
+      .daily-panel .section-head {
+        margin-bottom: 10px;
+      }
+
+      .table-wrap .section-head p,
+      .live-scores-panel .section-head p,
+      .daily-panel .section-head p {
+        display: none;
+      }
+
+      .controls {
+        width: 100%;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 2px;
+        scrollbar-width: none;
+      }
+
+      .controls::-webkit-scrollbar {
+        display: none;
+      }
+
+      .segmented {
+        flex-wrap: nowrap;
+      }
+
+      .segmented button,
+      .toolbar-button,
+      .sort-select,
+      .ghost-button,
+      .modal-close,
+      .modal-submit {
+        min-height: 36px;
+        padding: 8px 12px;
+        font-size: 0.76rem;
+      }
+
+      .live-scores-grid {
+        gap: 10px;
+        margin-top: 0;
+      }
+
+      .live-game-card {
+        position: relative;
+        padding: 12px 12px 10px;
+        border-radius: 14px;
+        background:
+          linear-gradient(135deg, rgba(34, 197, 94, 0.08), transparent 34%),
+          rgba(255, 255, 255, 0.035);
+        border-color: rgba(148, 163, 184, 0.12);
+      }
+
+      .live-game-card::before {
+        content: "";
+        position: absolute;
+        left: 12px;
+        top: 15px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
+        animation: pulse-live 1.2s ease infinite;
+      }
+
+      .live-game-head {
+        align-items: flex-start;
+        margin-bottom: 10px;
+        padding-left: 18px;
+      }
+
+      .live-game-head strong {
+        font-size: 0.92rem;
+        line-height: 1.25;
+      }
+
+      .live-score-stack {
+        gap: 6px;
+      }
+
+      .live-score-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: center;
+        padding: 8px 10px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.03);
+      }
+
+      .live-score-row span {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .live-score-row strong {
+        font-size: 1rem;
+      }
+
+      .schedule-odds {
+        gap: 6px 12px;
+        margin-top: 10px;
+        padding-top: 8px;
+        font-size: 0.74rem;
+      }
+
+      @keyframes pulse-live {
+        0% {
+          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
+          opacity: 1;
+        }
+
+        70% {
+          box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+          opacity: 1;
+        }
+
+        100% {
+          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+          opacity: 0.9;
+        }
       }
 
       .bracket-side {
@@ -1682,6 +2005,171 @@
       .bracket-finals-board,
       .bracket-round-heads.center {
         min-width: 280px;
+      }
+
+      .table-scroll {
+        overflow: visible;
+      }
+
+      table,
+      tbody {
+        min-width: 0;
+        display: block;
+      }
+
+      thead {
+        display: none;
+      }
+
+      tbody {
+        display: grid;
+        gap: 10px;
+        padding: 0;
+      }
+
+      tbody tr.bet-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        grid-template-areas:
+          "game status result"
+          "pick pick pick"
+          "time line stake";
+        gap: 6px 10px;
+        padding: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        border-left-width: 4px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.035);
+      }
+
+      tbody tr.bet-row:has(.status-win) {
+        border-left-color: var(--green);
+      }
+
+      tbody tr.bet-row:has(.status-loss) {
+        border-left-color: var(--red);
+      }
+
+      tbody tr.bet-row:has(.status-placed),
+      tbody tr.bet-row:has(.status-not-placed),
+      tbody tr.bet-row:has(.status-push) {
+        border-left-color: var(--yellow);
+      }
+
+      tbody tr.bet-row > td {
+        padding: 0;
+        border: 0;
+        min-width: 0;
+      }
+
+      tbody tr.bet-row > td:nth-child(1),
+      tbody tr.bet-row > td:nth-child(9) {
+        display: none;
+      }
+
+      tbody tr.bet-row > td:nth-child(2) {
+        grid-area: time;
+      }
+
+      tbody tr.bet-row > td:nth-child(3) {
+        grid-area: game;
+      }
+
+      tbody tr.bet-row > td:nth-child(4) {
+        grid-area: pick;
+        font-size: 0.96rem;
+        font-weight: 700;
+        color: var(--text);
+      }
+
+      tbody tr.bet-row > td:nth-child(5) {
+        grid-area: line;
+      }
+
+      tbody tr.bet-row > td:nth-child(6) {
+        grid-area: stake;
+      }
+
+      tbody tr.bet-row > td:nth-child(7) {
+        grid-area: status;
+        justify-self: end;
+      }
+
+      tbody tr.bet-row > td:nth-child(8) {
+        grid-area: result;
+        justify-self: end;
+        font-size: 0.92rem;
+        font-weight: 800;
+        text-align: right;
+      }
+
+      tbody tr.bet-row > td:nth-child(2),
+      tbody tr.bet-row > td:nth-child(5),
+      tbody tr.bet-row > td:nth-child(6) {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        width: fit-content;
+        padding: 5px 8px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+      }
+
+      tbody tr.bet-row > td:nth-child(2)::before {
+        content: "Time";
+      }
+
+      tbody tr.bet-row > td:nth-child(5)::before {
+        content: "Line";
+      }
+
+      tbody tr.bet-row > td:nth-child(6)::before {
+        content: "Units";
+      }
+
+      .row-main {
+        gap: 10px;
+        min-width: 0;
+      }
+
+      .row-main span {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .expand-toggle {
+        width: 30px;
+        height: 30px;
+      }
+
+      .status-chip {
+        min-width: 0;
+        padding: 6px 10px;
+        font-size: 0.7rem;
+      }
+
+      tbody tr.detail-row {
+        display: block;
+        margin-top: -4px;
+      }
+
+      .detail-cell {
+        display: block;
+        padding: 0 0 2px;
+      }
+
+      .detail-panel {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        padding: 12px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.03);
       }
     }
 
@@ -1783,8 +2271,11 @@
     <header class="topbar">
       <section class="card hero">
         <div class="eyebrow"><span class="dot"></span>Tournament dashboard</div>
-        <h1>March Madness 2026<br>Betting Tracker</h1>
-        <p class="subtle">Track sides, totals, parlays, bracket movement, and tournament scheduling in one place. Results persist locally, export cleanly to CSV, and print without extra tooling.</p>
+        <div class="hero-title-row">
+          <h1>March Madness 2026<span class="title-suffix"><br>Betting Tracker</span></h1>
+          <span class="title-badge">Day 2</span>
+        </div>
+        <p class="subtle hero-description">Track sides, totals, parlays, bracket movement, and tournament scheduling in one place. Results persist locally, export cleanly to CSV, and print without extra tooling.</p>
         <div id="heroKpis" class="hero-kpis"></div>
       </section>
       <aside class="card pnl-hero">
