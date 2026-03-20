@@ -1808,7 +1808,28 @@
                 <button id="printView" class="toolbar-button" type="button">Print</button>
               </div>
             </div>
-            <div id="betsView"></div>
+            <div class="table-scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th class="sortable" data-sort-key="date">Date</th>
+                    <th class="sortable" data-sort-key="gameTime">Game Time</th>
+                    <th>Game</th>
+                    <th>Pick</th>
+                    <th>Line</th>
+                    <th>Stake</th>
+                    <th class="sortable" data-sort-key="result">Result</th>
+                    <th>P&amp;L</th>
+                    <th>Mark Result</th>
+                  </tr>
+                </thead>
+                <tbody id="betsBody"></tbody>
+              </table>
+            </div>
+            <div class="scroll-hint" id="scrollHint">
+              <span>Scroll right for more →</span>
+              <div class="scroll-hint-bar"></div>
+            </div>
           </section>
 
           <section class="live-scores-panel card">
@@ -2091,7 +2112,7 @@
       summaryGrid: document.getElementById("summaryGrid"),
       filterGroup: document.getElementById("filterGroup"),
       sortSelect: document.getElementById("sortSelect"),
-      betsView: document.getElementById("betsView"),
+      betsBody: document.getElementById("betsBody"),
       parlayGrid: document.getElementById("parlayGrid"),
       liveScoresGrid: document.getElementById("liveScoresGrid"),
       liveScoresStatus: document.getElementById("liveScoresStatus"),
@@ -3732,6 +3753,9 @@
       const summary = summarize();
       buildSummaryCards(summary);
       animateHeroPnl(summary.realized, summary);
+      renderHeroKpis(summary);
+      renderApiInvestment(summary);
+      renderLiveScoresSection();
       renderFilters();
       renderSortOptions();
       renderBetsTable();
