@@ -1004,6 +1004,17 @@
       font-size: 1.05rem;
     }
 
+    .schedule-odds {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(148, 163, 184, 0.14);
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
     .placeholder-copy {
       margin-top: 10px;
       padding-top: 10px;
@@ -1977,7 +1988,7 @@
       totalCadFirstMonth: 176.19,
       cadToUsd: 0.72
     };
-    const ODDS_API_KEY = "e67edf56e83961b61cade3d85be1280e";
+    const ODDS_API_KEY = "b0209c1a2ae85c22e05e0fdfe5ef010c";
     const ODDS_API_BASE = "https://api.the-odds-api.com/v4";
     const ESPN_API_BASE = "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard";
     const SPORT = "basketball_ncaab";
@@ -2145,6 +2156,7 @@
     let previousSummarySnapshot = {};
     let tournamentGames = buildFallbackTournamentGames();
     let tournamentStatus = { loaded: false, error: null, updatedAt: null };
+    let oddsData = [];
 
     function cloneData(items) {
       return items.map((item) => ({ ...item }));
@@ -2385,6 +2397,71 @@
       const leftAliases = getAliasVariants(left);
       const rightAliases = getAliasVariants(right);
       return [...leftAliases].some((alias) => rightAliases.has(alias));
+    }
+
+    function formatAmericanOdds(odds) {
+      if (!Number.isFinite(odds)) return "";
+      return odds > 0 ? `+${odds}` : `${odds}`;
+    }
+
+    function formatSpreadLabel(outcome) {
+      if (!outcome?.name || !Number.isFinite(outcome.point)) return "";
+      return `${outcome.name} ${formatLineValue(outcome.point)}${Number.isFinite(outcome.price) ? ` (${formatAmericanOdds(outcome.price)})` : ""}`;
+    }
+
+    function getOddsMarket(event, marketKey) {
+      return event?.bookmakers?.find((bookmaker) => bookmaker.key === BET_BOOK)?.markets?.find((market) => market.key === marketKey) || null;
+    }
+
+    function findOddsOutcome(outcomes, teamName) {
+      return (outcomes || []).find((outcome) => teamMatches(outcome.name, teamName)) || null;
+    }
+
+    function getGameOdds(game) {
+      if (!Array.isArray(game?.teams) || game.teams.length < 2 || !oddsData.length) return null;
+      const [awayTeam, homeTeam] = game.teams;
+      const event = oddsData.find((entry) => (
+        teamMatches(entry.home_team, homeTeam.name)
+        && teamMatches(entry.away_team, awayTeam.name)
+      ) || (
+        teamMatches(entry.home_team, awayTeam.name)
+        && teamMatches(entry.away_team, homeTeam.name)
+      ));
+      if (!event) return null;
+
+      const spreadMarket = getOddsMarket(event, "spreads");
+      const totalMarket = getOddsMarket(event, "totals");
+      const moneylineMarket = getOddsMarket(event, "h2h");
+
+      const spreadOutcomes = [
+        findOddsOutcome(spreadMarket?.outcomes, awayTeam.name),
+        findOddsOutcome(spreadMarket?.outcomes, homeTeam.name)
+      ].filter(Boolean);
+      const spreadOutcome = spreadOutcomes.find((outcome) => Number(outcome.point) < 0) || spreadOutcomes[0] || null;
+      const overOutcome = (totalMarket?.outcomes || []).find((outcome) => /^over$/i.test(outcome.name));
+      const awayMoneyline = findOddsOutcome(moneylineMarket?.outcomes, awayTeam.name);
+      const homeMoneyline = findOddsOutcome(moneylineMarket?.outcomes, homeTeam.name);
+
+      const spread = formatSpreadLabel(spreadOutcome);
+      const total = Number.isFinite(overOutcome?.point) ? `O/U ${overOutcome.point}` : "";
+      const moneyline = awayMoneyline && homeMoneyline
+        ? `${formatAmericanOdds(awayMoneyline.price)} / ${formatAmericanOdds(homeMoneyline.price)}`
+        : "";
+
+      if (!spread && !total && !moneyline) return null;
+      return { spread, total, moneyline };
+    }
+
+    function scheduleOddsMarkup(game) {
+      const odds = getGameOdds(game);
+      if (!odds) return "";
+      return `
+        <div class="schedule-odds">
+          ${odds.spread ? `<span>Spread: ${odds.spread}</span>` : ""}
+          ${odds.total ? `<span>Total: ${odds.total}</span>` : ""}
+          ${odds.moneyline ? `<span>ML: ${odds.moneyline}</span>` : ""}
+        </div>
+      `;
     }
 
     function extractBetTeams(gameLabel) {
@@ -2649,16 +2726,6 @@
       const today = currentEtDate();
       const allGames = scheduleGroups().find((group) => group.date === today)?.games
         || mainTournamentGames().filter((game) => game.date === today);
-      console.log("Live scores game debug:", allGames.map((game) => ({
-        id: game.id,
-        date: game.date,
-        eventDate: game.eventDate,
-        displayTime: game.displayTime,
-        status: game.status,
-        completed: game.completed,
-        inferredCompleted: isGameCompleted(game),
-        source: game.source
-      })));
       const liveGames = allGames.filter((game) => !isGameCompleted(game));
       const count = liveGames.length;
 
@@ -2677,6 +2744,7 @@
               </div>
             `).join("")}
           </div>
+          ${scheduleOddsMarkup(game)}
         </article>
       `).join("") : `<div class="empty-state"><strong>No live games right now.</strong></div>`;
     }
@@ -3314,6 +3382,7 @@
               </div>
             `).join("")}
           </div>
+          ${scheduleOddsMarkup(game)}
           <div class="bracket-footer">
             <span class="schedule-game-channel">${game.region ? `${game.region} Region` : ROUND_LABELS[game.round]}</span>
             <span class="schedule-game-channel">${game.hasBet ? "Bet tracked" : (game.completed && game.score ? game.score : "")}</span>
@@ -3628,6 +3697,18 @@
       }
     }
 
+    async function fetchOddsData() {
+      try {
+        const res = await fetch(`${ODDS_API_BASE}/sports/${SPORT}/odds/?apiKey=${ODDS_API_KEY}&regions=us&markets=spreads,totals,h2h&oddsFormat=american&bookmakers=${BET_BOOK}`);
+        if (!res.ok) return;
+        oddsData = await res.json();
+        renderLiveScoresSection();
+        renderSchedule();
+      } catch (error) {
+        console.log("Odds fetch error:", error);
+      }
+    }
+
     function updateTicketResult(ticketType, id, result) {
       const collection = ticketType === "parlay" ? parlays : bets;
       const item = collection.find((entry) => String(entry.id) === String(id));
@@ -3808,8 +3889,10 @@
       attachEvents();
       render();
       fetchTournamentSchedule();
+      fetchOddsData();
       fetchLiveScores();
       setInterval(fetchLiveScores, 180000);
+      setInterval(fetchOddsData, 300000);
       setInterval(fetchTournamentSchedule, 300000);
     }
 
