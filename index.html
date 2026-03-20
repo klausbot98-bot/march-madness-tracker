@@ -1843,16 +1843,6 @@
             <div id="liveScoresGrid" class="live-scores-grid"></div>
           </section>
 
-          <section class="parlays-panel card">
-            <div class="section-head">
-              <div>
-                <h2>Parlays</h2>
-                <p class="subtle">Multi-leg tickets tracked separately from straight bets.</p>
-              </div>
-            </div>
-            <div id="parlayGrid" class="parlay-grid"></div>
-          </section>
-
           <section class="daily-panel card">
             <div class="section-head">
               <div>
@@ -2113,7 +2103,6 @@
       filterGroup: document.getElementById("filterGroup"),
       sortSelect: document.getElementById("sortSelect"),
       betsBody: document.getElementById("betsBody"),
-      parlayGrid: document.getElementById("parlayGrid"),
       liveScoresGrid: document.getElementById("liveScoresGrid"),
       liveScoresStatus: document.getElementById("liveScoresStatus"),
       dailyBreakdown: document.getElementById("dailyBreakdown"),
@@ -2242,6 +2231,10 @@
       return new Intl.DateTimeFormat("en-CA", { timeZone: "America/Toronto" }).format(new Date());
     }
 
+    function currentEtNow() {
+      return new Date(new Date().toLocaleString("en-US", { timeZone: "America/Toronto" }));
+    }
+
     function tournamentDayNumber() {
       const sortedDates = [...new Set(mainTournamentGames().map((game) => game.date).filter(Boolean))].sort();
       const today = currentEtDate();
@@ -2303,6 +2296,35 @@
       let hour = rawHour % 12;
       if (meridiem === "PM") hour += 12;
       return hour * 60 + rawMinute;
+    }
+
+    function parseGameStartDate(game) {
+      if (game.eventDate) {
+        const eventDate = new Date(game.eventDate);
+        if (!Number.isNaN(eventDate.getTime())) return eventDate;
+      }
+
+      if (!game.date || !game.displayTime || game.displayTime === "TBD" || game.displayTime === "Final") return null;
+
+      const cleaned = String(game.displayTime).replace(" ET", "").trim();
+      const match = cleaned.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+      if (!match) return null;
+
+      let hour = Number(match[1]) % 12;
+      if (match[3].toUpperCase() === "PM") hour += 12;
+      const minute = Number(match[2]);
+      return new Date(`${game.date}T${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}:00`);
+    }
+
+    function isGameCompleted(game) {
+      if (!game) return false;
+      if (game.completed === true) return true;
+      if (String(game.status || "").toLowerCase() === "post") return true;
+      if (String(game.displayTime || "").toLowerCase() === "final") return true;
+
+      const start = parseGameStartDate(game);
+      if (!start) return false;
+      return currentEtNow().getTime() >= start.getTime() + (3 * 60 * 60 * 1000);
     }
 
     function formatGameTime(dateValue) {
@@ -2439,9 +2461,31 @@
       return 0;
     }
 
+    function firstParlayLegTime(parlay) {
+      return bets.find((bet) => parlay.legs.includes(bet.pick))?.gameTime || "";
+    }
+
+    function tableTicket(item) {
+      if (item.ticketType === "parlay") {
+        return {
+          ...item,
+          id: String(item.id),
+          gameTime: firstParlayLegTime(item),
+          game: item.name,
+          pick: item.legs.join(" / ")
+        };
+      }
+
+      return {
+        ...item,
+        id: String(item.id)
+      };
+    }
+
     function getFilteredSortedBets() {
       const [key, direction] = state.sort.split("-");
-      return [...bets]
+      return allTickets()
+        .map(tableTicket)
         .filter((bet) => {
           if (state.filter === "all") return true;
           if (state.filter === "active") return !isSettled(bet.result);
@@ -2605,8 +2649,17 @@
       const today = currentEtDate();
       const allGames = scheduleGroups().find((group) => group.date === today)?.games
         || mainTournamentGames().filter((game) => game.date === today);
-      // Only show games that are NOT completed — live or upcoming
-      const liveGames = allGames.filter((game) => !game.completed);
+      console.log("Live scores game debug:", allGames.map((game) => ({
+        id: game.id,
+        date: game.date,
+        eventDate: game.eventDate,
+        displayTime: game.displayTime,
+        status: game.status,
+        completed: game.completed,
+        inferredCompleted: isGameCompleted(game),
+        source: game.source
+      })));
+      const liveGames = allGames.filter((game) => !isGameCompleted(game));
       const count = liveGames.length;
 
       dom.liveScoresStatus.textContent = count ? `${count} live/upcoming` : "No live games";
@@ -2649,7 +2702,11 @@
     }
 
     function lineMarkup(bet) {
-      if (state.editingLineId === bet.id) {
+      if (bet.ticketType === "parlay") {
+        return `<div class="line-display"><span>${formatLineValue(bet.line)}</span></div>`;
+      }
+
+      if (state.editingLineId === Number(bet.id)) {
         return `
           <form class="line-edit" data-line-form="${bet.id}">
             <input class="line-input" type="number" inputmode="numeric" step="1" value="${bet.line}" data-line-input="${bet.id}" aria-label="Edit line for ${bet.pick}">
@@ -2722,7 +2779,7 @@
             <td>${formatStake(bet.units)}</td>
             <td><span class="status-chip ${statusClass(bet.result)}">${statusLabel(bet.result)}</span></td>
             <td class="${ticketProfit(bet) > 0 ? "positive" : ticketProfit(bet) < 0 ? "negative" : ""}">${payoutLabel(bet)}</td>
-            <td>${resultButtonsMarkup("bet", bet)}</td>
+            <td>${resultButtonsMarkup(bet.ticketType, bet)}</td>
           </tr>
           ${expanded ? `
             <tr class="detail-row">
@@ -2736,10 +2793,20 @@
                     <strong>Confidence</strong>
                     <span>${CONFIDENCE_LABELS[bet.confidence]}</span>
                   </div>
-                  <div class="detail-item">
-                    <strong>KenPom Gap</strong>
-                    <span>${bet.kenpomGap == null ? "N/A" : bet.kenpomGap.toFixed(1)}</span>
-                  </div>
+                  ${bet.ticketType === "parlay" ? `
+                    <div class="detail-item" style="grid-column: span 2;">
+                      <strong>Legs</strong>
+                      <span>${bet.legs.map((leg) => {
+                        const state = parlayLegState(leg);
+                        return `${state.icon} ${leg}`;
+                      }).join("<br>")}</span>
+                    </div>
+                  ` : `
+                    <div class="detail-item">
+                      <strong>KenPom Gap</strong>
+                      <span>${bet.kenpomGap == null ? "N/A" : bet.kenpomGap.toFixed(1)}</span>
+                    </div>
+                  `}
                   <div class="detail-item">
                     <strong>Book</strong>
                     <span>${BET_BOOK}</span>
@@ -2750,7 +2817,7 @@
                   </div>
                   <div class="detail-item">
                     <strong>Score</strong>
-                    <span>${bet.score || "Pending"}</span>
+                    <span>${bet.ticketType === "parlay" ? "See leg status" : (bet.score || "Pending")}</span>
                   </div>
                   <div class="detail-item">
                     <strong>Stake</strong>
@@ -2766,42 +2833,6 @@
           ` : ""}
         `;
       }).join("");
-    }
-
-    function renderParlays() {
-      dom.parlayGrid.innerHTML = parlays.map((parlay) => `
-        <article class="parlay-card fade-in">
-          <div class="parlay-header">
-            <div>
-              <div class="label">${prettyDate(parlay.date)}</div>
-              <h3>${parlay.name}</h3>
-            </div>
-            <span class="status-chip ${statusClass(parlay.result)}">${statusLabel(parlay.result)}</span>
-          </div>
-          <ol class="parlay-legs">
-            ${parlay.legs.map((leg) => `<li>${leg}</li>`).join("")}
-          </ol>
-          <div class="mini-grid">
-            <div class="mini-cell">
-              <strong>Odds</strong>
-              <span>${parlay.line > 0 ? `+${parlay.line}` : parlay.line}</span>
-            </div>
-            <div class="mini-cell">
-              <strong>Stake</strong>
-              <span>${formatStake(parlay.units)}</span>
-            </div>
-            <div class="mini-cell">
-              <strong>P&amp;L</strong>
-              <span class="${ticketProfit(parlay) > 0 ? "positive" : ticketProfit(parlay) < 0 ? "negative" : ""}">
-                ${payoutLabel(parlay)}
-              </span>
-            </div>
-          </div>
-          <p class="subtle" style="margin-bottom: 10px;">${parlay.notes}</p>
-          <div class="money-meta" style="margin-bottom: 12px;">Book: ${BET_BOOK}</div>
-          ${resultButtonsMarkup("parlay", parlay)}
-        </article>
-      `).join("");
     }
 
     function renderDailyBreakdown() {
@@ -3434,7 +3465,7 @@
       // Filter out completed games from the schedule
       const filteredGroups = groups.map(({ date, games }) => ({
         date,
-        games: games.filter((game) => !game.completed)
+        games: games.filter((game) => !isGameCompleted(game))
       })).filter(({ games }) => games.length > 0);
 
       dom.scheduleView.innerHTML = filteredGroups.length ? `
@@ -3696,7 +3727,7 @@
 
         const toggle = event.target.closest("[data-expand-id]");
         if (toggle) {
-          const id = Number(toggle.dataset.expandId);
+          const id = String(toggle.dataset.expandId);
           if (state.expandedBets.has(id)) state.expandedBets.delete(id);
           else state.expandedBets.add(id);
           renderBetsTable();
@@ -3764,7 +3795,6 @@
       renderFilters();
       renderSortOptions();
       renderBetsTable();
-      renderParlays();
       renderDailyBreakdown();
       renderStats();
       renderTournamentViews();
