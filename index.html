@@ -4320,6 +4320,12 @@
           const hasLive = legs.some((leg) => leg.evaluation.state === "covering" || leg.evaluation.state === "not-covering");
           const allWon = legs.every((leg) => leg.evaluation.state === "win");
           const anyResolved = legs.some((leg) => ["win", "loss", "push"].includes(leg.evaluation.state));
+
+          // For player prop parlays: check if the linked game is live even if legs can't be evaluated
+          const linkedGame = parlay.linkedTeam ? findTodayLiveGameForTeams(parsePickTeams(parlay.linkedTeam)) : null;
+          const linkedGameIsLive = linkedGame && linkedGame.gameState === "in_progress";
+          const allUpcoming = legs.every((leg) => leg.evaluation.state === "upcoming");
+
           const scoreSource = legs.find((leg) => leg.evaluation.state !== "upcoming") || legs[0];
           const evaluation = allWon
             ? { state: "win", label: "Won" }
@@ -4327,9 +4333,16 @@
               ? { state: hasLive ? "not-covering" : "loss", label: hasLive ? "Legs Live" : "Lost" }
               : hasLive
                 ? { state: "covering", label: "Legs Live" }
+                : (allUpcoming && linkedGameIsLive)
+                  ? { state: "covering", label: "Game Live", isLive: true, hasScores: true, gameState: "in_progress" }
                 : anyResolved
                   ? { state: "upcoming", label: "Pending" }
                   : { state: "upcoming", label: "Upcoming" };
+
+          const parlayGame = linkedGameIsLive ? linkedGame : legs[0].game;
+          const parlayScoreLabel = linkedGameIsLive
+            ? (linkedGame.scores ? Object.entries(linkedGame.scores).map(([t, s]) => `${t} ${s}`).join(" - ") : linkedGame.displayTime || "Live")
+            : scoreSource?.evaluation.scoreLabel || legs[0].game.displayTime || "Today";
 
           return {
             sortTime: Math.min(...legs.map((leg) => parseTimeToMinutes(leg.game.displayTime))),
@@ -4337,10 +4350,10 @@
             title: `${parlay.id} · ${parlay.name}`,
             pick: `${parlay.legs.length}-leg parlay`,
             units: parlay.units,
-            game: legs[0].game,
+            game: parlayGame,
             evaluation: {
               ...evaluation,
-              scoreLabel: scoreSource?.evaluation.scoreLabel || legs[0].game.displayTime || "Today"
+              scoreLabel: parlayScoreLabel
             },
             legs,
             isParlay: true
