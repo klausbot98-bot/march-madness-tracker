@@ -3212,9 +3212,9 @@
           }
         }
         espnClockData = clockMap;
-        // Re-render mobile live view when clock data arrives
+        // Re-render live bet cards with updated clock data
         if (Object.keys(clockMap).length > 0) {
-          try { syncMobileVisibility(); } catch (e) { /* silent */ }
+          try { renderLiveBetsSection(); } catch (e) { /* silent */ }
         }
       } catch (e) { /* silent */ }
     }
