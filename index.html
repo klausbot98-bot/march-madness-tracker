@@ -3101,7 +3101,7 @@
       { id: "P6", date: "2026-03-20", name: "KenPom Overs", gameTime: "3:07 PM ET", legs: ["Iowa St/Tenn St O145.5", "UCF/UCLA O152.5", "Queens/Purdue O159.5"], units: 0.5, line: 627, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: true, result: "loss", payout: 0, legStates: { "Iowa St/Tenn St O145.5": { result: "win", score: "182 total" }, "UCF/UCLA O152.5": { result: "loss", score: "146 total" }, "Queens/Purdue O159.5": { result: "win", score: "175 total" } }, notes: "3-leg over parlay. All KenPom-backed: +4.5, +3.5, +4.5 pt edges. 5% parlay boost ($3.73). $90.83 return on $12.50." },
       { id: "P7", date: "2026-03-21", name: "SGP: Texas @ Gonzaga", gameTime: "9:40 PM ET", legs: ["Texas +6.5", "Texas/Gonzaga Over 147.5"], units: 0.5, line: 265, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: true, result: "placed", payout: 0, legStates: { "Texas +6.5": { result: "placed" }, "Texas/Gonzaga Over 147.5": { result: "placed" } }, notes: "🚀 SGP MOONSHOT. Correlated: high-scoring game = Texas stays closer. KP projects 153 total and Gonzaga by 5. $12.50 → $45.62." },
       { id: "P8", date: "2026-03-21", name: "SGP: VCU @ Illinois", gameTime: "7:10 PM ET", legs: ["VCU +11.5", "VCU/Illinois Over 151.5"], units: 0.5, line: 257, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: true, result: "placed", payout: 0, legStates: { "VCU +11.5": { result: "placed" }, "VCU/Illinois Over 151.5": { result: "placed" } }, notes: "🚀 SGP MOONSHOT. Correlated: high-scoring game = closer margin. KP projects 157 total and Illinois by 9. $12.50 → $44.62." },
-      { id: "P9", date: "2026-03-21", name: "Duke Player Props", gameTime: "7:10 PM ET", legs: ["Cameron Boozer 20+ pts", "Cayden Boozer 10+ pts", "Isaiah Evans 2+ threes"], units: 1, line: 125, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: false, result: "placed", payout: 0, legStates: { "Cameron Boozer 20+ pts": { result: "placed" }, "Cayden Boozer 10+ pts": { result: "placed" }, "Isaiah Evans 2+ threes": { result: "placed" } }, notes: "Correlated Duke blowout parlay. +125 with 32% boost → $66.25 on $25. KP projects Duke 76-63." }
+      { id: "P9", date: "2026-03-21", name: "Duke Player Props", gameTime: "7:10 PM ET", linkedTeam: "Duke", legs: ["Cameron Boozer 20+ pts", "Cayden Boozer 10+ pts", "Isaiah Evans 2+ threes"], units: 1, line: 125, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: false, result: "placed", payout: 0, legStates: { "Cameron Boozer 20+ pts": { result: "placed" }, "Cayden Boozer 10+ pts": { result: "placed" }, "Isaiah Evans 2+ threes": { result: "placed" } }, notes: "Correlated Duke blowout parlay. +125 with 32% boost → $66.25 on $25. KP projects Duke 76-63." }
     ];
 
     const AI_PICKS = [];
@@ -4294,7 +4294,8 @@
               const legState = parlay.legStates?.[leg]?.result ?? bets.find((bet) => bet.pick === leg)?.result ?? null;
               const teams = parsePickTeams(leg);
               const linkedBet = bets.find((bet) => bet.pick === leg);
-              const game = findTodayLiveGameForTeams(teams) || fallbackGameForBet(linkedBet?.date || parlay.date, linkedBet?.gameTime || parlay.gameTime);
+              const linkedTeamNames = parlay.linkedTeam ? parsePickTeams(parlay.linkedTeam) : [];
+              const game = findTodayLiveGameForTeams(teams) || (linkedTeamNames.length ? findTodayLiveGameForTeams(linkedTeamNames) : null) || fallbackGameForBet(linkedBet?.date || parlay.date, linkedBet?.gameTime || parlay.gameTime);
               const liveEvaluation = evaluateLivePick(leg, inferBetTypeFromPick(leg), game);
               const resolvedState = legState === "win" || legState === "loss" || legState === "push"
                 ? {
