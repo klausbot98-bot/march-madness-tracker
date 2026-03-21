@@ -2930,9 +2930,9 @@
     const PARLAYS = [
       { id: "P1", date: "2026-03-19", name: "Early Sharp", legs: ["TCU +2.5", "USF +4.5", "HP/Wis Under 162.5"], units: 0.5, line: 550, book: BET_BOOK, type: "parlay", confidence: "medium", sharpSignal: true, result: "lost", payout: 0, notes: "HP/Wis over killed the parlay." },
       { id: "P2", date: "2026-03-19", name: "Chaos Parlay", legs: ["VCU +2.5", "Texas A&M +2.5", "Saint Louis +2.5"], units: 0.5, line: 584, book: BET_BOOK, type: "parlay", confidence: "medium", sharpSignal: false, result: "won", payout: 85.49, notes: "All three dogs won outright. +584 actual odds." },
-      { id: "P3", date: "2026-03-20", name: "Day 2 Competitive", gameTime: "12:15 PM ET", legs: ["Santa Clara +2.5", "Iowa -1.5", "UCF +5.5"], units: 0.5, line: 550, book: BET_BOOK, type: "parlay", confidence: "medium", sharpSignal: true, result: "loss", legStates: { "Santa Clara +2.5": { result: "loss", score: "Santa Clara 84 - Kentucky 89" }, "Iowa -1.5": { result: "placed" }, "UCF +5.5": { result: "placed" } }, notes: "Three competitive games, all KenPom-backed. Multi-factor picks." },
+      { id: "P3", date: "2026-03-20", name: "Day 2 Competitive", gameTime: "12:15 PM ET", legs: ["Santa Clara +2.5", "Iowa -1.5", "UCF +5.5"], units: 0.5, line: 550, book: BET_BOOK, type: "parlay", confidence: "medium", sharpSignal: true, result: "placed", legStates: { "Santa Clara +2.5": { result: "loss", score: "Santa Clara 84 - Kentucky 89" }, "Iowa -1.5": { result: "placed" }, "UCF +5.5": { result: "placed" } }, notes: "Three competitive games, all KenPom-backed. Multi-factor picks." },
       { id: "P4", date: "2026-03-20", name: "SC Boosted SGP", gameTime: "12:15 PM ET", legs: ["Santa Clara ML", "Over 157.5", "Allan Graver 10+ pts"], units: 0.5, line: 607, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: true, result: "loss", legStates: { "Santa Clara ML": { result: "loss", score: "Santa Clara 84 - Kentucky 89" }, "Over 157.5": { result: "win", score: "173 total" }, "Allan Graver 10+ pts": { result: "pending" } }, notes: "SGP w/ +64% profit boost. All legs correlated — SC wins in a shootout, Graver scores. $88.35 return on $12.50." },
-      { id: "P5", date: "2026-03-20", name: "Afternoon Parlay", gameTime: "4:10 PM ET", legs: ["Tennessee -12.5", "Utah State -1.5"], units: 1, line: 257, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: false, result: "win", payout: 91.09, legStates: { "Tennessee -12.5": { result: "win", score: "Tennessee 78 - Miami OH 56" }, "Utah State -1.5": { result: "win", score: "Utah State 86 - Villanova 76" } }, notes: "Tennessee -12.5 + Utah State -1.5 @ +257 w/ 2.5% bet boost. $91.09 return on $25." },
+      { id: "P5", date: "2026-03-20", name: "Afternoon Parlay", gameTime: "4:10 PM ET", legs: ["Tennessee -12.5", "Utah State -1.5"], units: 1, line: 257, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: false, result: "win", payout: 91.11, legStates: { "Tennessee -12.5": { result: "win", score: "Tennessee 78 - Miami OH 56" }, "Utah State -1.5": { result: "win", score: "Utah State 86 - Villanova 76" } }, notes: "Tennessee -12.5 + Utah State -1.5 @ +257 w/ 2.5% bet boost. $91.11 return on $25." },
       { id: "P6", date: "2026-03-20", name: "KenPom Overs", gameTime: "3:07 PM ET", legs: ["Iowa St/Tenn St O145.5", "UCF/UCLA O152.5", "Queens/Purdue O159.5"], units: 0.5, line: 627, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: true, result: "placed", payout: 90.83, legStates: { "Iowa St/Tenn St O145.5": { result: "win", score: "182 total" }, "UCF/UCLA O152.5": { result: "placed" }, "Queens/Purdue O159.5": { result: "placed" } }, notes: "3-leg over parlay. All KenPom-backed: +4.5, +3.5, +4.5 pt edges. 5% parlay boost ($3.73). $90.83 return on $12.50." }
     ];
 
@@ -3713,7 +3713,7 @@
     function renderHeroKpis(summary) {
       const today = todayRecord();
       const overall = overallRecord(allTickets());
-      const bankroll = STARTING_BANKROLL + summary.realizedSettled;
+      const bankroll = STARTING_BANKROLL + summary.realized;
       const dayNumber = tournamentDayNumber();
 
       dom.heroKpis.innerHTML = [
@@ -4940,7 +4940,7 @@
     function render() {
       const summary = summarize();
       buildSummaryCards(summary);
-      animateHeroPnl(STARTING_BANKROLL + summary.realizedSettled, summary);
+      animateHeroPnl(STARTING_BANKROLL + summary.realized, summary);
       renderHeroKpis(summary);
       renderApiInvestment(summary);
       renderLiveBetsSection();
