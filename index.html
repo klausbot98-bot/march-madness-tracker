@@ -5208,6 +5208,18 @@
         bets = cloneData(BETS);
         parlays = cloneData(PARLAYS);
       }
+      // Auto-settle: if any parlay leg is "loss", the whole parlay is dead
+      parlays.forEach((parlay) => {
+        if (parlay.result === "placed" || parlay.result == null) {
+          const states = parlay.legStates || {};
+          const hasDeadLeg = Object.values(states).some((ls) => ls && (ls.result === "loss" || ls.result === "lost"));
+          if (hasDeadLeg) {
+            parlay.result = "loss";
+            parlay.payout = 0;
+          }
+        }
+      });
+      saveState();
     }
 
     async function fetchLiveScores() {
