@@ -1844,413 +1844,306 @@
       }
     }
 
+    #mobileApp {
+      display: none;
+    }
+
     @media (max-width: 767px) {
+      :root {
+        --ios-bg: #000;
+        --ios-card: #1c1c1e;
+        --ios-card-border: rgba(255,255,255,0.06);
+        --ios-text: #fff;
+        --ios-text-secondary: #8e8e93;
+        --ios-green: #30d158;
+        --ios-red: #ff453a;
+        --ios-blue: #0a84ff;
+        --ios-orange: #ff9f0a;
+      }
+
       html,
       body {
         max-width: 100%;
         overflow-x: hidden;
+        background: var(--ios-bg);
       }
 
       body {
         padding-bottom: 24px;
+        color: var(--ios-text);
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", system-ui, sans-serif;
       }
 
       .app {
-        width: min(100% - 16px, 100%);
-        max-width: 100% !important;
-        overflow-x: hidden;
-        padding-top: 12px;
-        padding-bottom: 24px;
-      }
-
-      .app,
-      .topbar,
-      .layout,
-      .stack,
-      .card,
-      section,
-      .live-bets-panel,
-      .live-scores-panel,
-      .table-wrap,
-      .table-scroll,
-      .live-bet-card {
         width: 100%;
-        max-width: 100% !important;
-        min-width: 0;
-        overflow-x: hidden;
+        max-width: 100%;
+        margin: 0;
+        padding: 0;
       }
 
-      .topbar > *,
-      .layout > *,
-      .stack > *,
-      section > *,
-      .section-head > *,
-      .live-bet-head > *,
-      .live-bet-meta > * {
-        min-width: 0;
-      }
-
-      .topbar {
-        gap: 10px;
-        margin-bottom: 14px;
-      }
-
-      .hero,
+      .topbar,
       .pnl-hero,
-      .live-bets-panel,
+      .hero,
+      .hero-description,
+      .hero-kpi-grid,
       .live-scores-panel,
-      .table-wrap,
       .daily-panel,
       .chart-panel,
       .stats-panel,
       .investment-card,
       .schedule-panel,
-      .bracket-panel {
-        border-radius: 20px;
-      }
-
-      .hero {
-        padding: 16px;
-      }
-
-      .hero::after {
-        width: 160px;
-        height: 160px;
-        inset: auto -52px -52px auto;
-      }
-
-      .eyebrow {
-        margin-bottom: 8px;
-        font-size: 0.66rem;
-        letter-spacing: 0.16em;
-      }
-
-      .hero-title-row {
-        align-items: center;
-      }
-
-      h1 {
-        margin-bottom: 0;
-        font-size: 1.5rem;
-        line-height: 1.08;
-      }
-
-      .title-suffix,
-      .hero-description,
-      #summaryGrid,
-      #heroMeta,
-      .pnl-hero,
-      .scroll-hint {
+      .bracket-panel,
+      .tab-bar,
+      #dashboardPanel,
+      #bracketPanel,
+      #schedulePanel {
         display: none !important;
       }
 
-      .title-badge {
-        display: inline-flex;
+      #mobileApp {
+        display: block;
+        min-height: 100vh;
+        background: var(--ios-bg);
       }
 
-      .pnl-value {
-        font-size: 1.7rem;
-        line-height: 1;
+      .mobile-app-shell {
+        padding-bottom: 24px;
       }
 
-      .hero-kpis {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 6px;
-        margin-top: 12px;
-        border: 1px solid rgba(148, 163, 184, 0.14);
-        border-radius: 16px;
-        overflow: hidden;
-        background: rgba(11, 18, 30, 0.76);
-      }
-
-      .hero-kpi {
-        min-height: 52px;
-        padding: 6px 8px;
-        border-radius: 0;
-        border: 0;
-        border-right: 1px solid rgba(148, 163, 184, 0.12);
-        background: transparent;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        gap: 2px;
-      }
-
-      .hero-kpi:last-child {
-        border-right: 0;
-      }
-
-      .hero-kpi:nth-child(4) {
-        display: none;
-      }
-
-      .hero-kpi strong {
-        margin-bottom: 0;
-        font-size: 0.54rem;
-        letter-spacing: 0.11em;
-        line-height: 1;
-      }
-
-      .hero-kpi-value {
-        font-size: 0.94rem;
-        line-height: 1;
-      }
-
-      .hero-kpi-meta {
-        display: none !important;
-      }
-
-      .tab-bar {
-        display: flex;
-        width: 100%;
-        gap: 6px;
-        padding: 4px;
-        margin-bottom: 12px;
-        overflow-x: auto;
-        overflow-y: hidden;
-        border-radius: 999px;
+      .mobile-header {
         position: sticky;
         top: 0;
-        z-index: 40;
-        scrollbar-width: none;
+        z-index: 100;
+        min-height: 90px;
+        padding: 12px 16px;
+        background: rgba(0,0,0,0.72);
+        backdrop-filter: blur(20px) saturate(180%);
+        border-bottom: 1px solid var(--ios-card-border);
       }
 
-      .tab-bar::-webkit-scrollbar {
-        display: none;
-      }
-
-      .tab-button {
-        flex: 0 0 auto;
-        min-height: 28px;
-        padding: 6px 12px;
-        font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.02em;
-      }
-
-      .bracket-mobile-tabs {
+      .mobile-header-top,
+      .mobile-pick-head,
+      .mobile-all-bet-meta,
+      .mobile-all-bet-topline,
+      .live-bet-row {
         display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
       }
 
-      #dashboardPanel {
+      .mobile-header-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .mobile-day-badge,
+      .mobile-edge-badge,
+      .mobile-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        white-space: nowrap;
+      }
+
+      .mobile-day-badge {
+        padding: 4px 10px;
+        font-size: 0.72rem;
+        color: var(--ios-text);
+        background: rgba(255,255,255,0.09);
+        border: 1px solid var(--ios-card-border);
+      }
+
+      .mobile-header-bankroll {
+        margin-top: 6px;
+        font-size: 1.8rem;
+        line-height: 1.1;
+        font-weight: 800;
+        letter-spacing: -0.04em;
+      }
+
+      .mobile-header-meta {
+        margin-top: 4px;
+        font-size: 0.75rem;
+        color: var(--ios-text-secondary);
+      }
+
+      .mobile-segmented-wrap {
+        position: sticky;
+        top: 90px;
+        z-index: 99;
+        padding: 8px 16px 0;
+        background: linear-gradient(180deg, rgba(0,0,0,0.92), rgba(0,0,0,0.76) 78%, transparent);
+      }
+
+      .mobile-segmented {
         display: grid;
-        gap: 14px;
-      }
-
-      .layout {
-        gap: 14px;
-      }
-
-      .stack {
-        gap: 14px;
-      }
-
-      .live-bets-panel {
-        display: block;
-        order: -3;
-        padding: 10px 12px;
-      }
-
-      .live-scores-panel {
-        display: none !important;
-      }
-
-      .table-wrap {
-        order: -1;
-        overflow: visible;
-      }
-
-      .table-wrap .section-head,
-      .live-scores-panel .section-head,
-      .daily-panel .section-head {
-        margin-bottom: 10px;
-      }
-
-      .table-wrap .section-head p,
-      .live-scores-panel .section-head p,
-      .daily-panel .section-head p {
-        display: none;
-      }
-
-      .controls {
-        width: 100%;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        padding-bottom: 2px;
-        scrollbar-width: none;
-      }
-
-      .controls::-webkit-scrollbar {
-        display: none;
-      }
-
-      .segmented {
-        flex-wrap: nowrap;
-      }
-
-      .segmented button,
-      .toolbar-button,
-      .sort-select,
-      .ghost-button,
-      .modal-close,
-      .modal-submit {
-        min-height: 36px;
-        padding: 8px 12px;
-        font-size: 0.76rem;
-      }
-
-      .live-scores-grid {
-        gap: 10px;
-        margin-top: 0;
-      }
-
-      .live-bets-grid {
-        gap: 10px;
-        margin-top: 0;
-      }
-
-      .live-bet-card {
-        min-height: 0;
-        padding: 8px 10px;
-        border-radius: 12px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 4px;
+        height: 32px;
+        padding: 2px;
+        border-radius: 999px;
+        background: var(--ios-card);
+        border: 1px solid var(--ios-card-border);
       }
 
-      .live-bets-panel .section-head p {
-        display: none !important;
+      .mobile-segmented button,
+      .mobile-chip,
+      .mobile-pick-button,
+      .mobile-live-card,
+      .mobile-all-bet-card {
+        transition: all 0.2s ease;
       }
 
-      .live-bets-panel .section-head > div:last-child {
+      .mobile-segmented button {
+        border: 0;
+        background: transparent;
+        color: var(--ios-text-secondary);
+        border-radius: 999px;
+        font-size: 0.74rem;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+      }
+
+      .mobile-segmented button.active {
+        background: #fff;
+        color: #000;
+      }
+
+      .mobile-view {
         display: none;
+        padding: 12px 16px 0;
       }
 
-      .live-bet-desktop {
-        display: none;
+      .mobile-view.active {
+        display: block;
+      }
+
+      .mobile-view-stack,
+      .mobile-picks-grid,
+      .mobile-all-bets-list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .mobile-live-card,
+      .mobile-pick-card,
+      .mobile-all-bet-card,
+      .mobile-empty {
+        background: var(--ios-card);
+        border: 1px solid var(--ios-card-border);
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      }
+
+      .mobile-live-card,
+      .mobile-pick-card,
+      .mobile-all-bet-card {
+        padding: 14px 16px;
+      }
+
+      .mobile-live-card {
+        border-left: 3px solid var(--ios-orange);
+      }
+
+      .mobile-live-card.covering,
+      .mobile-live-card.win {
+        border-left-color: var(--ios-green);
+      }
+
+      .mobile-live-card.not-covering,
+      .mobile-live-card.loss {
+        border-left-color: var(--ios-red);
       }
 
       .live-bet-mobile {
         display: grid;
-        gap: 2px;
-        min-width: 0;
-      }
-
-      .live-bet-card {
-        min-height: 0;
-        padding: 8px 12px;
-        border-radius: 12px;
-        border-left-width: 3px;
-        background: #1a2233;
-        gap: 2px;
-      }
-
-      .live-bet-card.covering,
-      .live-bet-card.win {
-        border-left-color: #22c55e;
-      }
-
-      .live-bet-card.not-covering,
-      .live-bet-card.loss {
-        border-left-color: #ef4444;
-      }
-
-      .live-bet-card.upcoming,
-      .live-bet-card.push {
-        border-left-color: #f59e0b;
-      }
-
-      .live-bet-card.parlay-bet {
-        min-height: 55px;
-      }
-
-      .live-bet-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
         gap: 8px;
-        min-height: 22px;
-        min-width: 0;
       }
 
       .live-bet-row-pick,
       .live-bet-row-meta,
       .live-bet-row-units,
       .live-bet-row-status,
-      .live-bet-progress-text {
+      .live-bet-progress-text,
+      .mobile-all-bet-title {
         min-width: 0;
       }
 
-      .live-bet-row-pick {
-        flex: 1 1 auto;
+      .live-bet-row-pick,
+      .mobile-all-bet-title,
+      .mobile-pick-head strong {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--ios-text);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        font-size: 0.9rem;
-        line-height: 1.1;
       }
 
-      .live-bet-row-meta {
-        flex: 0 0 auto;
-        color: var(--muted);
-        font-size: 0.78rem;
-        white-space: nowrap;
-      }
-
-      .live-bet-row-units {
-        flex: 0 0 auto;
-        font-size: 0.72rem;
-        color: var(--muted);
-        white-space: nowrap;
+      .live-bet-row-meta,
+      .live-bet-row-units,
+      .live-bet-progress-text,
+      .mobile-section-subtitle,
+      .mobile-pick-meta,
+      .mobile-all-bet-meta,
+      .mobile-empty,
+      .mobile-detail-grid {
+        color: var(--ios-text-secondary);
+        font-size: 0.8rem;
       }
 
       .live-bet-row-status {
-        flex: 0 1 auto;
-        font-size: 0.72rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        font-size: 0.8rem;
+        font-weight: 600;
         text-align: right;
       }
 
       .live-bet-row-status.covering,
       .live-bet-row-status.win,
-      .live-bet-parlay-leg.covering,
-      .live-bet-parlay-leg.win {
-        color: #22c55e;
+      .mobile-all-bet-pnl.positive {
+        color: var(--ios-green);
       }
 
       .live-bet-row-status.not-covering,
       .live-bet-row-status.loss,
-      .live-bet-parlay-leg.not-covering,
-      .live-bet-parlay-leg.loss {
-        color: #ef4444;
+      .mobile-all-bet-pnl.negative {
+        color: var(--ios-red);
       }
 
       .live-bet-row-status.upcoming,
-      .live-bet-row-status.push,
-      .live-bet-parlay-leg.upcoming,
-      .live-bet-parlay-leg.push {
-        color: var(--muted);
+      .live-bet-row-status.push {
+        color: var(--ios-orange);
       }
 
-      .live-bet-total-status,
-      .live-bet-parlay-legs {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        white-space: nowrap;
+      .live-bet-progress-fill.covering,
+      .live-bet-progress-fill.win {
+        background: var(--ios-green);
+      }
+
+      .live-bet-progress-fill.not-covering,
+      .live-bet-progress-fill.loss {
+        background: var(--ios-red);
+      }
+
+      .live-bet-progress-fill.upcoming,
+      .live-bet-progress-fill.push {
+        background: var(--ios-orange);
       }
 
       .live-bet-total-status {
-        flex: 1 1 auto;
-        justify-content: flex-end;
-        min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
       }
 
       .live-bet-progress {
-        width: 60px;
+        width: 50px;
         height: 4px;
-        border-radius: 2px;
-        background: #1e293b;
+        border-radius: 999px;
+        background: #2c2c2e;
         overflow: hidden;
         flex: 0 0 auto;
       }
@@ -2258,336 +2151,150 @@
       .live-bet-progress-fill {
         display: block;
         height: 100%;
-        border-radius: 2px;
-        background: #94a3b8;
-      }
-
-      .live-bet-progress-fill.covering,
-      .live-bet-progress-fill.win {
-        background: #22c55e;
-      }
-
-      .live-bet-progress-fill.not-covering,
-      .live-bet-progress-fill.loss {
-        background: #ef4444;
-      }
-
-      .live-bet-progress-text {
-        flex: 0 0 auto;
-        font-size: 0.72rem;
-        color: var(--muted);
-        white-space: nowrap;
+        border-radius: inherit;
       }
 
       .live-bet-row-legs {
         overflow-x: auto;
-        scrollbar-width: none;
-      }
-
-      .live-bet-row-legs::-webkit-scrollbar {
-        display: none;
       }
 
       .live-bet-parlay-legs {
-        gap: 12px;
+        display: inline-flex;
+        gap: 8px;
+        min-width: max-content;
       }
 
       .live-bet-parlay-leg {
-        flex: 0 0 auto;
-        font-size: 0.72rem;
-        line-height: 1;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        font-size: 0.78rem;
+        color: var(--ios-text-secondary);
       }
 
-      .live-bet-head,
-      .live-bet-meta,
-      .live-bet-title,
-      .live-bet-head-status,
-      .live-bet-inline-status,
-      .live-bet-tag,
-      .live-bet-dot,
-      .live-bet-legs,
-      .live-bet-leg,
-      .live-bet-leg-dot,
-      .live-bet-leg-label {
-        all: unset;
+      .mobile-section-head {
+        margin-bottom: 12px;
       }
 
-      .live-game-card {
-        position: relative;
-        padding: 12px 12px 10px;
-        border-radius: 14px;
-        background:
-          linear-gradient(135deg, rgba(34, 197, 94, 0.08), transparent 34%),
-          rgba(255, 255, 255, 0.035);
-        border-color: rgba(148, 163, 184, 0.12);
+      .mobile-section-head h2 {
+        font-size: 0.95rem;
+        line-height: 1.2;
+        letter-spacing: 0.04em;
       }
 
-      .live-game-card::before {
-        content: "";
-        position: absolute;
-        left: 12px;
-        top: 15px;
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: var(--green);
-        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
-        animation: pulse-live 1.2s ease infinite;
+      .mobile-pick-card {
+        border-left: 3px solid rgba(10,132,255,0.3);
       }
 
-      .live-game-head {
-        align-items: flex-start;
-        margin-bottom: 10px;
-        padding-left: 18px;
-      }
-
-      .live-game-head strong {
-        font-size: 0.92rem;
-        line-height: 1.25;
-      }
-
-      .live-score-stack {
-        gap: 6px;
-      }
-
-      .live-score-row {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        gap: 10px;
-        align-items: center;
-        padding: 8px 10px;
-        border-radius: 12px;
-        background: rgba(255, 255, 255, 0.03);
-      }
-
-      .live-score-row span {
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .live-score-row strong {
-        font-size: 1rem;
-      }
-
-      .schedule-odds {
-        gap: 6px 12px;
-        margin-top: 10px;
-        padding-top: 8px;
-        font-size: 0.74rem;
-      }
-
-      @keyframes pulse-live {
-        0% {
-          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
-          opacity: 1;
-        }
-
-        70% {
-          box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
-          opacity: 1;
-        }
-
-        100% {
-          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
-          opacity: 0.9;
-        }
-      }
-
-      .bracket-side {
-        grid-template-columns: 1fr;
-      }
-
-      .bracket-region-shell {
-        display: none;
-      }
-
-      .bracket-region-shell.active {
-        display: block;
-      }
-
-      .bracket-region-shell,
-      .bracket-finals-shell {
-        overflow-x: auto;
-      }
-
-      .bracket-region-board,
-      .bracket-round-heads.region {
-        min-width: 668px;
-      }
-
-      .bracket-finals-board,
-      .bracket-round-heads.center {
-        min-width: 280px;
-      }
-
-      .table-scroll {
-        overflow: visible;
-      }
-
-      table,
-      tbody {
-        min-width: 0;
-        display: block;
-      }
-
-      thead {
-        display: none;
-      }
-
-      tbody {
-        display: grid;
-        gap: 10px;
-        padding: 0;
-      }
-
-      tbody tr.bet-row {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto auto;
-        grid-template-areas:
-          "game status result"
-          "pick pick pick"
-          "time line stake";
-        gap: 6px 10px;
-        padding: 12px;
-        border: 1px solid rgba(148, 163, 184, 0.12);
-        border-left-width: 4px;
-        border-radius: 16px;
-        background: rgba(255, 255, 255, 0.035);
-      }
-
-      tbody tr.bet-row:has(.status-win) {
-        border-left-color: var(--green);
-      }
-
-      tbody tr.bet-row:has(.status-loss) {
-        border-left-color: var(--red);
-      }
-
-      tbody tr.bet-row:has(.status-placed),
-      tbody tr.bet-row:has(.status-not-placed),
-      tbody tr.bet-row:has(.status-push) {
-        border-left-color: var(--yellow);
-      }
-
-      tbody tr.bet-row > td {
-        padding: 0;
-        border: 0;
-        min-width: 0;
-      }
-
-      tbody tr.bet-row > td:nth-child(1),
-      tbody tr.bet-row > td:nth-child(9) {
-        display: none;
-      }
-
-      tbody tr.bet-row > td:nth-child(2) {
-        grid-area: time;
-      }
-
-      tbody tr.bet-row > td:nth-child(3) {
-        grid-area: game;
-      }
-
-      tbody tr.bet-row > td:nth-child(4) {
-        grid-area: pick;
-        font-size: 0.96rem;
-        font-weight: 700;
-        color: var(--text);
-      }
-
-      tbody tr.bet-row > td:nth-child(5) {
-        grid-area: line;
-      }
-
-      tbody tr.bet-row > td:nth-child(6) {
-        grid-area: stake;
-      }
-
-      tbody tr.bet-row > td:nth-child(7) {
-        grid-area: status;
-        justify-self: end;
-      }
-
-      tbody tr.bet-row > td:nth-child(8) {
-        grid-area: result;
-        justify-self: end;
-        font-size: 0.92rem;
-        font-weight: 800;
-        text-align: right;
-      }
-
-      tbody tr.bet-row > td:nth-child(2),
-      tbody tr.bet-row > td:nth-child(5),
-      tbody tr.bet-row > td:nth-child(6) {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        width: fit-content;
-        padding: 5px 8px;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.04);
-        color: var(--muted);
-        font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.03em;
-        text-transform: uppercase;
-      }
-
-      tbody tr.bet-row > td:nth-child(2)::before {
-        content: "Time";
-      }
-
-      tbody tr.bet-row > td:nth-child(5)::before {
-        content: "Line";
-      }
-
-      tbody tr.bet-row > td:nth-child(6)::before {
-        content: "Units";
-      }
-
-      .row-main {
-        gap: 10px;
-        min-width: 0;
-      }
-
-      .row-main span {
-        min-width: 0;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .expand-toggle {
-        width: 30px;
-        height: 30px;
-      }
-
-      .status-chip {
-        min-width: 0;
-        padding: 6px 10px;
+      .mobile-edge-badge {
+        padding: 4px 8px;
+        background: rgba(10,132,255,0.14);
+        color: #7ec3ff;
+        border: 1px solid rgba(10,132,255,0.24);
         font-size: 0.7rem;
+        font-weight: 700;
       }
 
-      tbody tr.detail-row {
-        display: block;
-        margin-top: -4px;
+      .mobile-pick-meta {
+        margin-top: 8px;
+        line-height: 1.45;
       }
 
-      .detail-cell {
-        display: block;
-        padding: 0 0 2px;
-      }
-
-      .detail-panel {
-        grid-template-columns: 1fr 1fr;
+      .mobile-pick-actions {
+        display: flex;
         gap: 10px;
-        padding: 12px;
-        border-radius: 14px;
-        background: rgba(255, 255, 255, 0.03);
+        margin-top: 12px;
+      }
+
+      .mobile-pick-button {
+        flex: 1;
+        min-height: 40px;
+        border-radius: 12px;
+        border: 1px solid transparent;
+        font-size: 0.86rem;
+        font-weight: 700;
+      }
+
+      .mobile-pick-button.place {
+        background: var(--ios-blue);
+        color: #fff;
+      }
+
+      .mobile-pick-button.pass {
+        background: #2c2c2e;
+        color: var(--ios-text-secondary);
+        border-color: var(--ios-card-border);
+      }
+
+      .mobile-empty {
+        padding: 18px 16px;
+      }
+
+      .mobile-filter-row {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        padding-bottom: 4px;
+        margin-bottom: 10px;
+        scrollbar-width: none;
+      }
+
+      .mobile-filter-row::-webkit-scrollbar {
+        display: none;
+      }
+
+      .mobile-chip {
+        border: 1px solid transparent;
+        background: #2c2c2e;
+        color: var(--ios-text-secondary);
+        padding: 8px 12px;
+        font-size: 0.76rem;
+        font-weight: 700;
+      }
+
+      .mobile-chip.active {
+        background: #fff;
+        color: #000;
+      }
+
+      .mobile-all-bet-card {
+        cursor: pointer;
+      }
+
+      .mobile-all-bet-card.expanded {
+        background: #202024;
+      }
+
+      .mobile-all-bet-pnl {
+        font-size: 0.92rem;
+        font-weight: 700;
+        background: transparent !important;
+      }
+
+      .mobile-all-bet-meta {
+        margin-top: 8px;
+      }
+
+      .mobile-all-bet-details {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.2s ease, opacity 0.2s ease, margin-top 0.2s ease;
+        opacity: 0;
+        margin-top: 0;
+      }
+
+      .mobile-all-bet-card.expanded .mobile-all-bet-details {
+        max-height: 280px;
+        opacity: 1;
+        margin-top: 12px;
+      }
+
+      .mobile-detail-grid {
+        display: grid;
+        gap: 8px;
+        line-height: 1.45;
+      }
+
+      .mobile-detail-grid strong {
+        color: var(--ios-text);
+        font-weight: 600;
       }
     }
 
@@ -2715,6 +2422,26 @@
       <button type="button" class="tab-button" data-tab="bracket">Bracket</button>
       <button type="button" class="tab-button" data-tab="schedule">Schedule</button>
     </nav>
+
+    <div id="mobileApp" class="mobile-app-shell">
+      <header id="mobileHeader" class="mobile-header"></header>
+      <div class="mobile-segmented-wrap">
+        <div class="mobile-segmented" role="tablist" aria-label="Mobile views">
+          <button type="button" data-mobile-view="live" class="active" aria-selected="true">LIVE</button>
+          <button type="button" data-mobile-view="picks" aria-selected="false">PICKS</button>
+          <button type="button" data-mobile-view="all-bets" aria-selected="false">ALL BETS</button>
+        </div>
+      </div>
+      <div id="mobileViewLive" class="mobile-view active">
+        <div id="mobileLiveContent" class="mobile-view-stack"></div>
+      </div>
+      <div id="mobileViewPicks" class="mobile-view">
+        <div id="mobilePicksContent"></div>
+      </div>
+      <div id="mobileViewAllBets" class="mobile-view">
+        <div id="mobileAllBetsContent"></div>
+      </div>
+    </div>
 
     <section id="dashboardPanel" class="tab-panel">
       <section id="summaryGrid" class="summary-grid"></section>
@@ -2943,7 +2670,7 @@
       { value: "result-asc", label: "Result: Not Placed to Win" },
       { value: "result-desc", label: "Result: Win to Not Placed" }
     ];
-    const RESULT_ORDER = { "not-placed": 0, placed: 1, push: 2, loss: 3, win: 4 };
+    const RESULT_ORDER = { declined: -1, "not-placed": 0, placed: 1, push: 2, loss: 3, win: 4 };
     const FINAL_RESULTS = ["win", "won", "loss", "lost", "push"];
     const TYPE_LABELS = { spread: "Spread", total: "Total", ml: "Moneyline", parlay: "Parlay" };
     const CONFIDENCE_LABELS = { high: "High", medium: "Medium", low: "Low" };
@@ -3107,7 +2834,15 @@
       bracketView: document.getElementById("bracketView"),
       scheduleView: document.getElementById("scheduleView"),
       bracketStatus: document.getElementById("bracketStatus"),
-      scheduleStatus: document.getElementById("scheduleStatus")
+      scheduleStatus: document.getElementById("scheduleStatus"),
+      mobileApp: document.getElementById("mobileApp"),
+      mobileHeader: document.getElementById("mobileHeader"),
+      mobileLiveView: document.getElementById("mobileViewLive"),
+      mobilePicksView: document.getElementById("mobileViewPicks"),
+      mobileAllBetsView: document.getElementById("mobileViewAllBets"),
+      mobileLiveContent: document.getElementById("mobileLiveContent"),
+      mobilePicksContent: document.getElementById("mobilePicksContent"),
+      mobileAllBetsContent: document.getElementById("mobileAllBetsContent")
     };
 
     let state = {
@@ -3117,10 +2852,14 @@
       activeBracketRegion: "South",
       editingLineId: null,
       expandedBets: new Set(),
+      mobileExpandedBets: new Set(),
       openDays: new Set(["2026-03-19"]),
       chartPoints: [],
       chartHoverIndex: null,
-      quickAddOpen: false
+      quickAddOpen: false,
+      mobileView: "live",
+      mobileAllBetsFilter: "all",
+      mobileViewport: window.innerWidth < 768
     };
 
     let bets = cloneData(BETS);
@@ -3164,6 +2903,10 @@
 
     function isPlaced(result) {
       return result === "placed" || isSettled(result);
+    }
+
+    function isMobileViewport() {
+      return window.innerWidth < 768;
     }
 
     function ticketProfit(item) {
@@ -3670,7 +3413,7 @@
     function liveBetEntries() {
       const today = currentEtDate();
       const singleEntries = bets
-        .filter((bet) => (bet.result === "placed" || bet.result == null) && bet.date === today)
+        .filter((bet) => isPlaced(bet.result) && bet.date === today)
         .map((bet) => {
           const teams = extractBetTeams(bet.game);
           const game = findTodayLiveGameForTeams(teams) || fallbackGameForBet(bet.date, bet.gameTime);
@@ -3690,7 +3433,7 @@
         .filter(Boolean);
 
       const parlayEntries = parlays
-        .filter((parlay) => parlay.result === "placed" || parlay.result == null)
+        .filter((parlay) => isPlaced(parlay.result))
         .map((parlay) => {
           const legs = (parlay.legs || [])
             .map((leg) => {
@@ -3814,6 +3557,17 @@
       `;
     }
 
+    function mobileLiveMarkup(entries) {
+      if (!entries.length) {
+        return `<div class="mobile-empty">No active bets tied to today’s card.</div>`;
+      }
+      return entries.map((entry) => `
+        <article class="mobile-live-card ${entry.evaluation.state}">
+          ${liveBetMobileMarkup(entry)}
+        </article>
+      `).join("");
+    }
+
     function renderLiveBetsSection() {
       const entries = liveBetEntries();
       const liveCount = entries.filter((entry) => entry.evaluation.state !== "upcoming").length;
@@ -3849,14 +3603,17 @@
           ${liveBetMobileMarkup(entry)}
         </article>
       `).join("") : `<div class="empty-state"><strong>No active bets tied to today’s live games.</strong></div>`;
+      if (dom.mobileLiveContent) dom.mobileLiveContent.innerHTML = mobileLiveMarkup(entries);
     }
 
     function statusClass(result) {
+      if (result === "declined") return "status-not-placed";
       const key = normalizeResult(result) || "not-placed";
       return `status-${key}`;
     }
 
     function statusLabel(result) {
+      if (result === "declined") return "Declined";
       if (!result) return "Not Placed";
       if (result === "placed") return "Placed";
       if (isWin(result)) return "Won";
@@ -3871,6 +3628,7 @@
 
     function sanitizeResult(result) {
       const normalized = normalizeResult(result);
+      if (result === "declined") return "declined";
       return ["placed", "win", "loss", "push"].includes(normalized) ? normalized : null;
     }
 
@@ -3883,6 +3641,92 @@
       }
       if (current !== "placed" && current !== target) return current;
       return current === target ? "placed" : target;
+    }
+
+    function mobileResultEmoji(result) {
+      if (isWin(result)) return "✅";
+      if (isLoss(result)) return "❌";
+      if (result === "declined") return "🚫";
+      if (result === "push") return "➖";
+      return "⏳";
+    }
+
+    function mobileStatusClassForResult(result) {
+      if (isWin(result)) return "positive";
+      if (isLoss(result)) return "negative";
+      return "";
+    }
+
+    function capitalize(value) {
+      return value ? value.charAt(0).toUpperCase() + value.slice(1) : "";
+    }
+
+    function todayMetrics() {
+      const today = currentEtDate();
+      const items = allTickets().filter((item) => item.date === today);
+      const settled = items.filter((item) => isSettled(item.result));
+      const record = overallRecord(items);
+      const pnl = items.reduce((sum, item) => sum + ticketProfit(item), 0);
+      const risked = settled.reduce((sum, item) => sum + unitToDollars(item.units), 0);
+      const roi = risked ? (settled.reduce((sum, item) => sum + ticketProfit(item), 0) / risked) * 100 : 0;
+      return { pnl, record, roi };
+    }
+
+    function switchMobileView(view) {
+      state.mobileView = view;
+      [
+        { name: "live", node: dom.mobileLiveView },
+        { name: "picks", node: dom.mobilePicksView },
+        { name: "all-bets", node: dom.mobileAllBetsView }
+      ].forEach(({ name, node }) => node.classList.toggle("active", name === view));
+      document.querySelectorAll("[data-mobile-view]").forEach((button) => {
+        const active = button.dataset.mobileView === view;
+        button.classList.toggle("active", active);
+        button.setAttribute("aria-selected", String(active));
+      });
+    }
+
+    function renderMobileHeader(summary) {
+      if (!dom.mobileHeader) return;
+      const dayNumber = tournamentDayNumber();
+      const bankroll = formatCurrency(STARTING_BANKROLL + summary.realized, { signed: false });
+      const today = todayMetrics();
+      dom.mobileHeader.innerHTML = `
+        <div class="mobile-header-top">
+          <div class="mobile-header-title">March Madness 2026</div>
+          <span class="mobile-day-badge">${dayNumber ? `Day ${dayNumber}` : "Off Slate"}</span>
+        </div>
+        <div class="mobile-header-bankroll">${bankroll}</div>
+        <div class="mobile-header-meta">${formatCurrency(today.pnl)} today · ${today.record.wins}-${today.record.losses} · ${formatPercent(today.roi)} ROI</div>
+      `;
+    }
+
+    function pickInsightText(bet) {
+      const note = String(bet.notes || "");
+      const totalMatch = note.match(/KP total\s+([\d.]+)\s+vs\s+DK\s+([\d.]+)/i);
+      if (totalMatch) return `KenPom: ${totalMatch[1]} vs DK ${totalMatch[2]} · ${formatUnitsSecondary(bet.units)} · ${capitalize(bet.confidence)}`;
+      const spreadMatch = note.match(/KP:\s*([^.,]+?)(?:\.|,|$)/i);
+      if (spreadMatch) return `${spreadMatch[1].trim()} · ${formatUnitsSecondary(bet.units)} · ${capitalize(bet.confidence)}`;
+      return `${bet.kenpomGap == null ? "Model edge available" : `KenPom edge ${bet.kenpomGap.toFixed(1)} pts`} · ${formatUnitsSecondary(bet.units)} · ${capitalize(bet.confidence)}`;
+    }
+
+    function mobileAllBetsFilterOptions() {
+      return [
+        { key: "all", label: "All" },
+        { key: "wins", label: "Wins" },
+        { key: "losses", label: "Losses" },
+        { key: "placed", label: "Placed" },
+        { key: "parlays", label: "Parlays" }
+      ];
+    }
+
+    function syncMobileVisibility() {
+      const mobile = isMobileViewport();
+      if (state.mobileViewport !== mobile) {
+        state.mobileViewport = mobile;
+        if (!mobile) state.mobileExpandedBets.clear();
+      }
+      if (mobile) switchMobileView(state.mobileView);
     }
 
     function overallRecord(items) {
@@ -4141,6 +3985,7 @@
     }
 
     function payoutLabel(item) {
+      if (item.result === "declined") return "Declined";
       if (!item.result) return `No action <span class="unit-meta">(${formatUnitsSecondary(item.units)})</span>`;
       if (item.result === "placed") return `${formatCurrency(-unitToDollars(item.units))} <span class="unit-meta">(risk ${formatUnitsSecondary(item.units)})</span>`;
       return formatCurrencyWithUnits(ticketProfit(item), item.units);
@@ -4274,6 +4119,102 @@
           ` : ""}
         `;
       }).join("");
+    }
+
+    function renderMobilePicksView() {
+      const today = currentEtDate();
+      const picks = bets.filter((bet) => bet.date === today && bet.result == null);
+      dom.mobilePicksContent.innerHTML = `
+        <div class="mobile-section-head">
+          <h2>AI PICKS</h2>
+          <div class="mobile-section-subtitle">Agent recommendations for today</div>
+        </div>
+        ${picks.length ? `<div class="mobile-picks-grid">
+          ${picks.map((bet) => `
+            <article class="mobile-pick-card">
+              <div class="mobile-pick-head">
+                <strong>${bet.pick}</strong>
+                <span class="mobile-edge-badge">${bet.kenpomGap == null ? "Model" : `${bet.kenpomGap.toFixed(1)}pt edge`} ⚡</span>
+              </div>
+              <div class="mobile-pick-meta">${pickInsightText(bet)}</div>
+              <div class="mobile-pick-actions">
+                <button type="button" class="mobile-pick-button place" data-mobile-place="${bet.id}">✅ Place</button>
+                <button type="button" class="mobile-pick-button pass" data-mobile-decline="${bet.id}">❌ Pass</button>
+              </div>
+            </article>
+          `).join("")}
+        </div>` : `<div class="mobile-empty">No new picks · Next card at 6 AM</div>`}
+      `;
+    }
+
+    function mobileAllBetsItems() {
+      return allTickets()
+        .map(tableTicket)
+        .sort((left, right) => right.date.localeCompare(left.date) || String(right.id).localeCompare(String(left.id), undefined, { numeric: true }));
+    }
+
+    function mobileAllBetsFiltered() {
+      return mobileAllBetsItems().filter((item) => {
+        if (state.mobileAllBetsFilter === "all") return true;
+        if (state.mobileAllBetsFilter === "wins") return isWin(item.result);
+        if (state.mobileAllBetsFilter === "losses") return isLoss(item.result);
+        if (state.mobileAllBetsFilter === "placed") return item.result === "placed";
+        if (state.mobileAllBetsFilter === "parlays") return item.ticketType === "parlay";
+        return true;
+      });
+    }
+
+    function renderMobileAllBets() {
+      const items = mobileAllBetsFiltered();
+      dom.mobileAllBetsContent.innerHTML = `
+        <div class="mobile-filter-row">
+          ${mobileAllBetsFilterOptions().map((filter) => `
+            <button type="button" class="mobile-chip ${state.mobileAllBetsFilter === filter.key ? "active" : ""}" data-mobile-filter="${filter.key}">${filter.label}</button>
+          `).join("")}
+        </div>
+        ${items.length ? `<div class="mobile-all-bets-list">
+          ${items.map((bet) => {
+            const expanded = state.mobileExpandedBets.has(String(bet.id));
+            const profit = ticketProfit(bet);
+            return `
+              <article class="mobile-all-bet-card ${expanded ? "expanded" : ""}" data-mobile-expand="${bet.id}">
+                <div class="mobile-all-bet-topline">
+                  <div class="mobile-all-bet-title">${mobileResultEmoji(bet.result)} ${bet.ticketType === "parlay" ? bet.label : bet.pick}</div>
+                  <div class="mobile-all-bet-pnl ${mobileStatusClassForResult(bet.result)}">${bet.result === "declined" ? "Declined" : formatCurrency(profit)}</div>
+                </div>
+                <div class="mobile-all-bet-meta">
+                  <span>${new Date(`${bet.date}T12:00:00`).toLocaleDateString(undefined, { month: "short", day: "numeric" })} · ${formatUnitsSecondary(bet.units)} · ${formatLineValue(bet.line)}</span>
+                  <span>${bet.result === "declined" ? "Declined" : statusLabel(bet.result)}</span>
+                </div>
+                <div class="mobile-all-bet-details">
+                  <div class="mobile-detail-grid">
+                    <div><strong>Notes</strong> ${bet.notes || "None"}</div>
+                    <div><strong>KenPom Gap</strong> ${bet.kenpomGap == null ? "N/A" : bet.kenpomGap.toFixed(1)}</div>
+                    <div><strong>Confidence</strong> ${capitalize(bet.confidence)}</div>
+                    <div><strong>Score</strong> ${bet.ticketType === "parlay" ? bet.legs.map((leg) => `${parlayLegState(bet, leg).icon} ${leg}`).join(" · ") : (bet.score || "Pending")}</div>
+                  </div>
+                </div>
+              </article>
+            `;
+          }).join("")}
+        </div>` : `<div class="mobile-empty">No bets match this filter.</div>`}
+      `;
+    }
+
+    function handlePlaceBet(id) {
+      const bet = bets.find((entry) => String(entry.id) === String(id));
+      if (!bet) return;
+      bet.result = "placed";
+      saveState();
+      render();
+    }
+
+    function handleDeclineBet(id) {
+      const bet = bets.find((entry) => String(entry.id) === String(id));
+      if (!bet) return;
+      bet.result = "declined";
+      saveState();
+      render();
     }
 
     function renderDailyBreakdown() {
@@ -5162,6 +5103,40 @@
       });
 
       document.addEventListener("click", (event) => {
+        const mobileViewButton = event.target.closest("[data-mobile-view]");
+        if (mobileViewButton) {
+          switchMobileView(mobileViewButton.dataset.mobileView);
+          return;
+        }
+
+        const mobileFilterButton = event.target.closest("[data-mobile-filter]");
+        if (mobileFilterButton) {
+          state.mobileAllBetsFilter = mobileFilterButton.dataset.mobileFilter;
+          renderMobileAllBets();
+          return;
+        }
+
+        const placeButton = event.target.closest("[data-mobile-place]");
+        if (placeButton) {
+          handlePlaceBet(placeButton.dataset.mobilePlace);
+          return;
+        }
+
+        const declineButton = event.target.closest("[data-mobile-decline]");
+        if (declineButton) {
+          handleDeclineBet(declineButton.dataset.mobileDecline);
+          return;
+        }
+
+        const mobileExpand = event.target.closest("[data-mobile-expand]");
+        if (mobileExpand) {
+          const id = String(mobileExpand.dataset.mobileExpand);
+          if (state.mobileExpandedBets.has(id)) state.mobileExpandedBets.delete(id);
+          else state.mobileExpandedBets.add(id);
+          renderMobileAllBets();
+          return;
+        }
+
         const resultButton = event.target.closest("[data-result][data-id]");
         if (resultButton) {
           updateTicketResult(resultButton.dataset.ticketType, resultButton.dataset.id, resultButton.dataset.result);
@@ -5242,8 +5217,14 @@
       dom.exportCsv.addEventListener("click", exportCsv);
       dom.printView.addEventListener("click", () => window.print());
       window.addEventListener("resize", () => {
+        syncMobileVisibility();
         drawChart();
         drawBracketConnectors();
+        if (state.mobileViewport) {
+          renderMobileHeader(summarize());
+          renderMobilePicksView();
+          renderMobileAllBets();
+        }
       });
     }
 
@@ -5252,16 +5233,20 @@
       buildSummaryCards(summary);
       animateHeroPnl(STARTING_BANKROLL + summary.realized, summary);
       renderHeroKpis(summary);
+      renderMobileHeader(summary);
       renderApiInvestment(summary);
       renderLiveBetsSection();
       renderLiveScoresSection();
       renderFilters();
       renderSortOptions();
       renderBetsTable();
+      renderMobilePicksView();
+      renderMobileAllBets();
       renderDailyBreakdown();
       renderStats();
       renderTournamentViews();
       renderTabs();
+      syncMobileVisibility();
       drawChart();
       requestAnimationFrame(drawBracketConnectors);
     }
