@@ -992,6 +992,11 @@
       padding: 18px;
     }
 
+    .live-bets-panel {
+      display: none;
+      padding: 18px;
+    }
+
     .live-scores-grid {
       display: grid;
       gap: 12px;
@@ -1036,6 +1041,136 @@
       border-top: 1px solid rgba(148, 163, 184, 0.14);
       color: var(--muted);
       font-size: 0.8rem;
+    }
+
+    .live-bets-grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .live-bet-card {
+      min-height: 80px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-left: 4px solid var(--yellow);
+      background: #141a26;
+      display: grid;
+      gap: 8px;
+    }
+
+    .live-bet-card.covering {
+      border-left-color: var(--green);
+    }
+
+    .live-bet-card.not-covering {
+      border-left-color: var(--red);
+    }
+
+    .live-bet-card.upcoming {
+      border-left-color: var(--yellow);
+    }
+
+    .live-bet-head,
+    .live-bet-meta,
+    .live-bet-leg {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .live-bet-head {
+      min-width: 0;
+    }
+
+    .live-bet-title {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .live-bet-title strong,
+    .live-bet-pick {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .live-bet-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: transparent;
+      flex: 0 0 auto;
+    }
+
+    .live-bet-dot.live {
+      background: var(--green);
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5);
+      animation: pulse-live 1.2s ease infinite;
+    }
+
+    .live-bet-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      border: 1px solid transparent;
+    }
+
+    .live-bet-tag.covering {
+      color: var(--green);
+      background: var(--green-soft);
+      border-color: rgba(34, 197, 94, 0.22);
+    }
+
+    .live-bet-tag.not-covering {
+      color: var(--red);
+      background: var(--red-soft);
+      border-color: rgba(239, 68, 68, 0.22);
+    }
+
+    .live-bet-tag.upcoming {
+      color: var(--yellow);
+      background: var(--yellow-soft);
+      border-color: rgba(251, 191, 36, 0.22);
+    }
+
+    .live-bet-meta {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .live-bet-meta strong {
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .live-bet-legs {
+      display: grid;
+      gap: 6px;
+    }
+
+    .live-bet-leg {
+      padding-top: 6px;
+      border-top: 1px solid rgba(148, 163, 184, 0.12);
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .live-bet-leg strong {
+      color: var(--text);
+      font-size: 0.82rem;
     }
 
     .placeholder-copy {
@@ -1693,6 +1828,7 @@
 
       .hero,
       .pnl-hero,
+      .live-bets-panel,
       .live-scores-panel,
       .table-wrap,
       .daily-panel,
@@ -1843,6 +1979,12 @@
         gap: 14px;
       }
 
+      .live-bets-panel {
+        display: block;
+        order: -3;
+        padding: 14px;
+      }
+
       .live-scores-panel {
         order: -2;
         padding: 14px;
@@ -1895,6 +2037,39 @@
       .live-scores-grid {
         gap: 10px;
         margin-top: 0;
+      }
+
+      .live-bets-grid {
+        gap: 10px;
+        margin-top: 0;
+      }
+
+      .live-bet-card {
+        min-height: 80px;
+        padding: 10px 12px;
+        border-radius: 14px;
+      }
+
+      .live-bet-title strong {
+        font-size: 0.9rem;
+      }
+
+      .live-bet-pick {
+        font-size: 0.86rem;
+        font-weight: 700;
+        color: var(--text);
+      }
+
+      .live-bet-meta {
+        font-size: 0.74rem;
+      }
+
+      .live-bet-meta strong {
+        font-size: 0.92rem;
+      }
+
+      .live-bet-leg {
+        font-size: 0.74rem;
       }
 
       .live-game-card {
@@ -2185,6 +2360,13 @@
         padding: 12px 14px;
       }
 
+      .live-bet-head,
+      .live-bet-meta,
+      .live-bet-leg {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
       .bracket-stage {
         padding: 14px;
       }
@@ -2332,6 +2514,17 @@
               <span>Scroll right for more →</span>
               <div class="scroll-hint-bar"></div>
             </div>
+          </section>
+
+          <section class="live-bets-panel card">
+            <div class="section-head">
+              <div>
+                <h2>MY LIVE BETS</h2>
+                <p class="subtle">Only Kevin’s active bets and parlay legs in today’s live slate.</p>
+              </div>
+              <div id="liveBetsStatus" class="pill">Today</div>
+            </div>
+            <div id="liveBetsGrid" class="live-bets-grid"></div>
           </section>
 
           <section class="live-scores-panel card">
@@ -2560,6 +2753,7 @@
       Idaho: ["Idaho Vandals", "Idaho"],
       Illinois: ["Illinois Fighting Illini", "Illinois"],
       Iowa: ["Iowa Hawkeyes", "Iowa"],
+      "Iowa St": ["Iowa State Cyclones", "Iowa State", "Iowa St"],
       "Iowa State": ["Iowa State Cyclones", "Iowa State"],
       Kansas: ["Kansas Jayhawks", "Kansas"],
       Kentucky: ["Kentucky Wildcats", "Kentucky"],
@@ -2574,6 +2768,7 @@
       "Texas Tech": ["Texas Tech Red Raiders", "Texas Tech"],
       Texas: ["Texas Longhorns", "Texas"],
       Tennessee: ["Tennessee Volunteers", "Tennessee", "Vols"],
+      "Tenn St": ["Tennessee State Tigers", "Tennessee State", "Tenn St"],
       "Tennessee St": ["Tennessee State Tigers", "Tennessee State", "Tennessee St"],
       UCLA: ["UCLA Bruins", "UCLA"],
       UCF: ["UCF Knights", "UCF", "Central Florida"],
@@ -2643,6 +2838,8 @@
       filterGroup: document.getElementById("filterGroup"),
       sortSelect: document.getElementById("sortSelect"),
       betsBody: document.getElementById("betsBody"),
+      liveBetsGrid: document.getElementById("liveBetsGrid"),
+      liveBetsStatus: document.getElementById("liveBetsStatus"),
       liveScoresGrid: document.getElementById("liveScoresGrid"),
       liveScoresStatus: document.getElementById("liveScoresStatus"),
       dailyBreakdown: document.getElementById("dailyBreakdown"),
@@ -3008,6 +3205,232 @@
     function betMatchesGame(bet, gameTeams) {
       const betTeams = extractBetTeams(bet.game);
       return betTeams.length === 2 && betTeams.every((team) => gameTeams.some((candidate) => teamMatches(team, candidate)));
+    }
+
+    function parsePickTeams(pick) {
+      const label = String(pick || "").trim();
+      if (!label) return [];
+
+      const totalTeams = label.match(/^(.+?)\s+(?:O|U|Over|Under)\s*\d/i);
+      if (totalTeams) {
+        return totalTeams[1]
+          .split("/")
+          .map((team) => team.trim())
+          .filter(Boolean);
+      }
+
+      const spreadTeams = label.match(/^(.+?)\s[+-]\d/);
+      if (spreadTeams) return [spreadTeams[1].trim()];
+
+      const mlTeams = label.match(/^(.+?)\s+ML$/i);
+      if (mlTeams) return [mlTeams[1].trim()];
+
+      return [];
+    }
+
+    function pickMatchesGame(pick, gameTeams) {
+      const pickTeams = parsePickTeams(pick);
+      if (!pickTeams.length) return false;
+      return pickTeams.every((team) => gameTeams.some((candidate) => teamMatches(team, candidate)));
+    }
+
+    function liveGameState(game) {
+      if (!game || isGameCompleted(game)) return "completed";
+      const start = parseGameStartDate(game);
+      const now = currentEtNow();
+      const rawStatus = String(game.status || "").toLowerCase();
+      if (["in", "live", "halftime"].includes(rawStatus)) return "live";
+      if (start && now.getTime() >= start.getTime()) return "live";
+      return "upcoming";
+    }
+
+    function formatLiveScore(game) {
+      if (!Array.isArray(game?.teams) || game.teams.length < 2) return "—";
+      return `${game.teams[0].name} ${game.teams[0].score ?? "—"} - ${game.teams[1].name} ${game.teams[1].score ?? "—"}`;
+    }
+
+    function totalPaceProgress(game) {
+      const start = parseGameStartDate(game);
+      if (!start) return null;
+      const elapsedMinutes = Math.max(0, (currentEtNow().getTime() - start.getTime()) / 60000);
+      if (elapsedMinutes <= 0) return 0;
+      return Math.max(0.12, Math.min(elapsedMinutes / 40, 1));
+    }
+
+    function evaluateLivePick(pick, type, game) {
+      const teams = game?.teams || [];
+      if (teams.length < 2) {
+        return { state: "upcoming", label: "Upcoming", scoreLabel: game?.displayTime || "Today" };
+      }
+
+      const gameState = liveGameState(game);
+      const scoreLabel = gameState === "live" ? formatLiveScore(game) : (game.displayTime || "Today");
+      if (gameState !== "live") {
+        return { state: "upcoming", label: gameState === "completed" ? "Final" : "Upcoming", scoreLabel };
+      }
+
+      const scores = teams.map((team) => Number.isFinite(team.score) ? team.score : null);
+      if (scores.some((score) => score == null)) {
+        return { state: "upcoming", label: "Live", scoreLabel };
+      }
+
+      const inferredType = type || inferBetTypeFromPick(pick);
+      if (inferredType === "spread") {
+        const match = String(pick || "").match(/^(.+?)\s([+-]\d+(?:\.\d+)?)$/);
+        if (!match) return { state: "upcoming", label: "Live", scoreLabel };
+        const pickTeam = match[1].trim();
+        const spread = parseFloat(match[2]);
+        const pickTeamEntry = teams.find((team) => teamMatches(team.name, pickTeam));
+        const oppTeamEntry = teams.find((team) => !teamMatches(team.name, pickTeam));
+        if (!pickTeamEntry || !oppTeamEntry) return { state: "upcoming", label: "Live", scoreLabel };
+        const margin = pickTeamEntry.score - oppTeamEntry.score + spread;
+        return {
+          state: margin > 0 ? "covering" : "not-covering",
+          label: margin > 0 ? "Covering" : "Not Covering",
+          scoreLabel
+        };
+      }
+
+      if (inferredType === "total") {
+        const totalLine = parseFloat(String(pick || "").match(/(\d+(?:\.\d+)?)/)?.[1] || "");
+        if (!Number.isFinite(totalLine)) return { state: "upcoming", label: "Live", scoreLabel };
+        const totalPoints = scores.reduce((sum, score) => sum + score, 0);
+        const pace = totalPaceProgress(game);
+        const projectedLine = pace == null ? totalLine : totalLine * pace;
+        const isUnder = /\b(?:under|u)\b/i.test(String(pick || ""));
+        const covering = isUnder ? totalPoints < projectedLine : totalPoints > projectedLine;
+        return {
+          state: covering ? "covering" : "not-covering",
+          label: covering ? "Covering" : "Not Covering",
+          scoreLabel
+        };
+      }
+
+      const pickTeam = parsePickTeams(pick)[0];
+      const pickTeamEntry = teams.find((team) => teamMatches(team.name, pickTeam));
+      const oppTeamEntry = teams.find((team) => !teamMatches(team.name, pickTeam));
+      if (!pickTeamEntry || !oppTeamEntry) return { state: "upcoming", label: "Live", scoreLabel };
+      const covering = pickTeamEntry.score > oppTeamEntry.score;
+      return {
+        state: covering ? "covering" : "not-covering",
+        label: covering ? "Leading" : "Trailing",
+        scoreLabel
+      };
+    }
+
+    function findTodayLiveGameForTeams(teamNames) {
+      if (!teamNames.length) return null;
+      return mainTournamentGames().find((game) => (
+        game.date === currentEtDate()
+        && !isGameCompleted(game)
+        && teamNames.every((team) => game.teams.some((candidate) => teamMatches(team, candidate.name)))
+      )) || null;
+    }
+
+    function liveBetEntries() {
+      const today = currentEtDate();
+      const singleEntries = bets
+        .filter((bet) => (bet.result === "placed" || bet.result == null) && bet.date === today)
+        .map((bet) => {
+          const teams = extractBetTeams(bet.game);
+          const game = findTodayLiveGameForTeams(teams);
+          if (!game) return null;
+          const evaluation = evaluateLivePick(bet.pick, bet.type, game);
+          return {
+            sortTime: parseTimeToMinutes(game.displayTime),
+            label: bet.game,
+            pick: bet.pick,
+            units: bet.units,
+            game,
+            evaluation,
+            legs: []
+          };
+        })
+        .filter(Boolean);
+
+      const parlayEntries = parlays
+        .filter((parlay) => parlay.result === "placed" || parlay.result == null)
+        .map((parlay) => {
+          const legs = (parlay.legs || [])
+            .map((leg) => {
+              const legState = parlay.legStates?.[leg]?.result ?? bets.find((bet) => bet.pick === leg)?.result ?? null;
+              if (!(legState === "placed" || legState == null || legState === "pending")) return null;
+              const teams = parsePickTeams(leg);
+              const game = findTodayLiveGameForTeams(teams);
+              if (!game) return null;
+              return {
+                pick: leg,
+                game,
+                evaluation: evaluateLivePick(leg, inferBetTypeFromPick(leg), game)
+              };
+            })
+            .filter(Boolean);
+
+          if (!legs.length) return null;
+          const hasLiveLeg = legs.some((leg) => leg.evaluation.state !== "upcoming");
+          const evaluation = hasLiveLeg
+            ? (legs.some((leg) => leg.evaluation.state === "not-covering")
+              ? { state: "not-covering", label: "Legs Live" }
+              : { state: "covering", label: "Legs Live" })
+            : { state: "upcoming", label: "Upcoming" };
+
+          return {
+            sortTime: Math.min(...legs.map((leg) => parseTimeToMinutes(leg.game.displayTime))),
+            label: `${parlay.id} · ${parlay.name}`,
+            pick: `${parlay.legs.length}-leg parlay`,
+            units: parlay.units,
+            game: legs[0].game,
+            evaluation: {
+              ...evaluation,
+              scoreLabel: hasLiveLeg
+                ? legs.find((leg) => leg.evaluation.state !== "upcoming")?.evaluation.scoreLabel || legs[0].game.displayTime || "Today"
+                : legs[0].game.displayTime || "Today"
+            },
+            legs
+          };
+        })
+        .filter(Boolean);
+
+      return [...singleEntries, ...parlayEntries]
+        .sort((a, b) => a.sortTime - b.sortTime || a.label.localeCompare(b.label));
+    }
+
+    function liveBetTagMarkup(evaluation) {
+      return `<span class="live-bet-tag ${evaluation.state}">${evaluation.label}</span>`;
+    }
+
+    function renderLiveBetsSection() {
+      const entries = liveBetEntries();
+      const liveCount = entries.filter((entry) => entry.evaluation.state !== "upcoming").length;
+      dom.liveBetsStatus.textContent = entries.length
+        ? `${entries.length} tracked · ${liveCount} live`
+        : "No live bets";
+
+      dom.liveBetsGrid.innerHTML = entries.length ? entries.map((entry) => `
+        <article class="live-bet-card ${entry.evaluation.state} fade-in">
+          <div class="live-bet-head">
+            <div class="live-bet-title">
+              <span class="live-bet-dot ${entry.evaluation.state !== "upcoming" ? "live" : ""}"></span>
+              <strong>${entry.label}</strong>
+            </div>
+            ${liveBetTagMarkup(entry.evaluation)}
+          </div>
+          <div class="live-bet-meta">
+            <span class="live-bet-pick">${entry.pick}</span>
+            <span>${formatUnitsSecondary(entry.units)} · <strong>${entry.evaluation.scoreLabel}</strong></span>
+          </div>
+          ${entry.legs.length ? `
+            <div class="live-bet-legs">
+              ${entry.legs.map((leg) => `
+                <div class="live-bet-leg">
+                  <span>${leg.pick}</span>
+                  <strong>${leg.evaluation.state === "upcoming" ? (leg.game.displayTime || "Today") : `${leg.evaluation.label} · ${leg.evaluation.scoreLabel}`}</strong>
+                </div>
+              `).join("")}
+            </div>
+          ` : ""}
+        </article>
+      `).join("") : `<div class="empty-state"><strong>No active bets tied to today’s live games.</strong></div>`;
     }
 
     function statusClass(result) {
@@ -3825,6 +4248,8 @@
       } catch (error) {
         tournamentStatus = { loaded: false, error: error.message || "Unable to load ESPN bracket feed.", updatedAt: null };
       }
+      renderLiveBetsSection();
+      renderLiveScoresSection();
       renderTournamentViews();
     }
 
@@ -4238,6 +4663,7 @@
         const res = await fetch(`${ODDS_API_BASE}/sports/${SPORT}/odds/?apiKey=${ODDS_API_KEY}&regions=us&markets=spreads,totals,h2h&oddsFormat=american&bookmakers=${BET_BOOK}`);
         if (!res.ok) return;
         oddsData = await res.json();
+        renderLiveBetsSection();
         renderLiveScoresSection();
         renderSchedule();
       } catch (error) {
@@ -4409,6 +4835,7 @@
       animateHeroPnl(STARTING_BANKROLL + summary.realizedSettled, summary);
       renderHeroKpis(summary);
       renderApiInvestment(summary);
+      renderLiveBetsSection();
       renderLiveScoresSection();
       renderFilters();
       renderSortOptions();
