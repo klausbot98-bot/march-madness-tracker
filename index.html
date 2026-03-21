@@ -3373,7 +3373,7 @@
           if (!comp) continue;
           // Only process in-progress games
           const stateType = comp.status?.type?.name || "";
-          if (stateType !== "STATUS_IN_PROGRESS") continue;
+          if (stateType !== "STATUS_IN_PROGRESS" && stateType !== "STATUS_HALFTIME" && stateType !== "STATUS_END_PERIOD") continue;
           const gameId = event.id;
           if (!gameId) continue;
           try {
@@ -4468,7 +4468,7 @@
 
           // For player prop parlays: check if the linked game is live even if legs can't be evaluated
           const linkedGame = parlay.linkedTeam ? findTodayLiveGameForTeams(parsePickTeams(parlay.linkedTeam)) : null;
-          const linkedGameIsLive = linkedGame && linkedGame.gameState === "in_progress";
+          const linkedGameIsLive = linkedGame && (linkedGame.gameState === "in_progress" || linkedGame.gameState === "live");
           const allUpcoming = legs.every((leg) => leg.evaluation.state === "upcoming");
 
           const scoreSource = legs.find((leg) => leg.evaluation.state !== "upcoming") || legs[0];
