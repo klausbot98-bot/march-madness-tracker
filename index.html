@@ -5208,6 +5208,26 @@
         bets = cloneData(BETS);
         parlays = cloneData(PARLAYS);
       }
+      // Force-sync: if hardcoded PARLAYS has a result, override localStorage
+      const hardcodedParlayMap = new Map(PARLAYS.map((p) => [p.id, p]));
+      parlays.forEach((parlay) => {
+        const hc = hardcodedParlayMap.get(parlay.id);
+        if (hc && hc.result && hc.result !== "placed" && (parlay.result === "placed" || parlay.result == null)) {
+          parlay.result = hc.result;
+          parlay.payout = hc.payout ?? 0;
+          if (hc.legStates) parlay.legStates = { ...parlay.legStates, ...hc.legStates };
+        }
+      });
+      // Also force-sync hardcoded bet results
+      const hardcodedBetMap = new Map(BETS.map((b) => [b.id, b]));
+      bets.forEach((bet) => {
+        const hc = hardcodedBetMap.get(bet.id);
+        if (hc && hc.result && hc.result !== "placed" && (bet.result === "placed" || bet.result == null)) {
+          bet.result = hc.result;
+          bet.payout = hc.payout ?? 0;
+          bet.score = hc.score || bet.score;
+        }
+      });
       // Auto-settle: if any parlay leg is "loss", the whole parlay is dead
       parlays.forEach((parlay) => {
         if (parlay.result === "placed" || parlay.result == null) {
