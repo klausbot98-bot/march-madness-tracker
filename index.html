@@ -5505,15 +5505,20 @@
           if (hc.legStates) parlay.legStates = { ...parlay.legStates, ...hc.legStates };
         }
       });
-      // Also force-sync hardcoded bet results
+      // Also force-sync hardcoded bet results — always sync payout/line/units even if already settled
       const hardcodedBetMap = new Map(BETS.map((b) => [b.id, b]));
       bets.forEach((bet) => {
         const hc = hardcodedBetMap.get(bet.id);
-        if (hc && hc.result && hc.result !== "placed" && (bet.result === "placed" || bet.result == null)) {
+        if (!hc) return;
+        // Sync result if hardcoded is settled but localStorage is still placed
+        if (hc.result && hc.result !== "placed" && (bet.result === "placed" || bet.result == null)) {
           bet.result = hc.result;
-          bet.payout = hc.payout ?? 0;
           bet.score = hc.score || bet.score;
         }
+        // Always sync payout, line, and units from hardcoded (source of truth for actual bet365 data)
+        if (hc.payout != null) bet.payout = hc.payout;
+        if (hc.line != null) bet.line = hc.line;
+        if (hc.units != null) bet.units = hc.units;
       });
       // Auto-settle: if any parlay leg is "loss", the whole parlay is dead
       parlays.forEach((parlay) => {
