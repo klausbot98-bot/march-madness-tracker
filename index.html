@@ -3240,16 +3240,32 @@
         const key = name.toLowerCase();
         // Exact match
         if (espnClockData[key]) return espnClockData[key];
-        // teamMatches
-        for (const [espnName, data] of Object.entries(espnClockData)) {
-          if (teamMatches(name, espnName)) return data;
+
+        // Collect all alias variants for this team
+        const allNames = [name];
+        const aliasEntry = Object.entries(TEAM_ALIASES).find(([k, vals]) =>
+          normalizeName(k) === normalizeName(name) ||
+          vals.some(v => normalizeName(v) === normalizeName(name)) ||
+          teamMatches(name, k)
+        );
+        if (aliasEntry) allNames.push(aliasEntry[0], ...aliasEntry[1]);
+
+        // Try all alias variants against all ESPN names
+        for (const variant of allNames) {
+          const vKey = variant.toLowerCase();
+          if (espnClockData[vKey]) return espnClockData[vKey];
+          for (const [espnName, data] of Object.entries(espnClockData)) {
+            if (normalizeName(variant) === normalizeName(espnName)) return data;
+          }
         }
-        // School name match (strip mascot, compare school portion)
-        const school = schoolNameOnly(name);
-        for (const [espnName, data] of Object.entries(espnClockData)) {
-          const espnSchool = schoolNameOnly(espnName);
-          // "cal baptist" in "california baptist" or "prairie view" in "prairie view a&m"
-          if (school && espnSchool && (espnSchool.includes(school) || school.includes(espnSchool))) return data;
+
+        // School name match (strip mascot)
+        for (const variant of allNames) {
+          const school = schoolNameOnly(variant);
+          for (const [espnName, data] of Object.entries(espnClockData)) {
+            const espnSchool = schoolNameOnly(espnName);
+            if (school && espnSchool && (espnSchool.includes(school) || school.includes(espnSchool))) return data;
+          }
         }
       }
       return null;
