@@ -3178,6 +3178,7 @@
     let previousSummarySnapshot = {};
     let oddsData = [];
     let liveScoreData = [];
+    let livePlayerStats = {}; // playerName → { pts, reb, ast, threes, team }
     let espnClockData = {}; // lookupKey → [{ eventId, period, clock, statusDesc }]
     let espnClockEvents = []; // [{ eventId, period, clock, statusDesc, teams: [{ ...profile, keys: Set<string> }] }]
 
@@ -3315,6 +3316,65 @@
           try {
             renderLiveBetsSection();
           } catch (e) { /* silent */ }
+        }
+      } catch (e) { /* silent */ }
+    }
+
+    async function fetchEspnPlayerStats() {
+      try {
+        const today = currentEtDate().replace(/-/g, "");
+        const sbRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=${today}`);
+        if (!sbRes.ok) return;
+        const sbData = await sbRes.json();
+        const newStats = {};
+        for (const event of sbData.events || []) {
+          const comp = event.competitions?.[0];
+          if (!comp) continue;
+          // Only process in-progress games
+          const stateType = comp.status?.type?.name || "";
+          if (stateType !== "STATUS_IN_PROGRESS") continue;
+          const gameId = event.id;
+          if (!gameId) continue;
+          try {
+            const sumRes = await fetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/summary?event=${gameId}`);
+            if (!sumRes.ok) continue;
+            const sumData = await sumRes.json();
+            for (const teamBox of sumData.boxscore?.players || []) {
+              const teamName = teamBox.team?.displayName || "";
+              for (const statGroup of teamBox.statistics || []) {
+                const labels = statGroup.labels || [];
+                const ptsIdx = labels.indexOf("PTS");
+                const rebIdx = labels.indexOf("REB");
+                const astIdx = labels.indexOf("AST");
+                const threeIdx = labels.indexOf("3PT");
+                for (const athlete of statGroup.athletes || []) {
+                  const playerName = athlete.athlete?.displayName || "";
+                  if (!playerName) continue;
+                  const stats = athlete.stats || [];
+                  const parseThrees = (val) => {
+                    if (!val || val === "--") return 0;
+                    const made = String(val).split("-")[0];
+                    return parseInt(made, 10) || 0;
+                  };
+                  const parseStat = (idx) => {
+                    if (idx < 0 || !stats[idx] || stats[idx] === "--") return 0;
+                    return parseInt(stats[idx], 10) || 0;
+                  };
+                  newStats[playerName] = {
+                    pts: parseStat(ptsIdx),
+                    reb: parseStat(rebIdx),
+                    ast: parseStat(astIdx),
+                    threes: threeIdx >= 0 ? parseThrees(stats[threeIdx]) : 0,
+                    team: teamName
+                  };
+                }
+              }
+            }
+          } catch (e) { /* silent per game */ }
+        }
+        if (Object.keys(newStats).length > 0) {
+          livePlayerStats = newStats;
+          try { renderLiveBetsSection(); } catch (e) { /* silent */ }
         }
       } catch (e) { /* silent */ }
     }
@@ -4122,6 +4182,49 @@
     }
 
     function evaluateLivePick(pick, type, game) {
+      // Player prop detection: "{Player Name} {number}+ {stat}"
+      const propMatch = String(pick || "").match(/^(.+?)\s+(\d+(?:\.\d+)?)\+\s*(pts?|points?|reb(?:ounds?)?|ast|assists?|threes?|3pm?)$/i);
+      if (propMatch) {
+        const playerName = propMatch[1].trim();
+        const target = parseFloat(propMatch[2]);
+        const statKey = propMatch[3].toLowerCase();
+        const statField = /^(reb|rebound)/.test(statKey) ? "reb"
+          : /^(ast|assist)/.test(statKey) ? "ast"
+          : /^(three|3pm)/.test(statKey) ? "threes"
+          : "pts";
+        const statLabel = statField === "threes" ? "threes" : statField;
+        // Look up player in live stats
+        const playerStats = livePlayerStats[playerName];
+        const isLiveGame = Object.keys(livePlayerStats).length > 0;
+        if (playerStats) {
+          const current = playerStats[statField] || 0;
+          const covering = current >= target;
+          const icon = covering ? "✅" : "🏀";
+          return {
+            state: covering ? "covering" : "not-covering",
+            gameState: "live",
+            isLive: true,
+            hasScores: true,
+            label: covering ? "Covering" : "Not Covering",
+            scoreLabel: playerStats.team || playerName,
+            compactScoreLabel: playerStats.team || playerName,
+            statusText: `${icon} ${current}/${target} ${statLabel}`,
+            summaryText: `${covering ? "Covering" : "Behind"} · ${current}/${target} ${statLabel}`
+          };
+        }
+        // Player not yet found in live stats — return upcoming state
+        return {
+          state: "upcoming",
+          gameState: isLiveGame ? "live" : "upcoming",
+          isLive: false,
+          hasScores: false,
+          label: "Upcoming",
+          scoreLabel: game?.displayTime || "Today",
+          compactScoreLabel: game?.displayTime || "Today",
+          statusText: `⏳ ${playerName} — waiting for stats`
+        };
+      }
+
       const teams = game?.teams || [];
       if (teams.length < 2) {
         return {
@@ -5970,9 +6073,11 @@
       fetchOddsData();
       fetchLiveScores();
       fetchEspnClock();
+      fetchEspnPlayerStats();
       setInterval(fetchLiveScores, 180000);
       setInterval(fetchOddsData, 300000);
       setInterval(fetchEspnClock, 30000); // ESPN clock every 30s for real-time updates
+      setInterval(fetchEspnPlayerStats, 30000); // Player props every 30s
     }
 
     init();
