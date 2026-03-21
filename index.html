@@ -2402,6 +2402,10 @@
         background: #30d158;
       }
 
+      .under-fill.safe {
+        background: #30d158;
+      }
+
       .under-fill.warning {
         background: #ff9f0a;
       }
@@ -3439,6 +3443,14 @@
       return false;
     }
 
+    function shortMobileTeamName(name) {
+      if (!name) return "";
+      const matchedEntry = Object.entries(TEAM_ALIASES).find(([, values]) => values.some((value) => teamMatches(value, name)));
+      const canonicalName = matchedEntry?.[0] || String(name).trim();
+      if (canonicalName === "Prairie View") return "PV A&M";
+      return canonicalName;
+    }
+
     function formatAmericanOdds(odds) {
       if (!Number.isFinite(odds)) return "";
       return odds > 0 ? `+${odds}` : `${odds}`;
@@ -3565,7 +3577,7 @@
 
     function formatMobileLiveScore(game) {
       if (!Array.isArray(game?.teams) || game.teams.length < 2) return "—";
-      return `${game.teams[0].name} ${game.teams[0].score ?? "—"} · ${game.teams[1].name} ${game.teams[1].score ?? "—"}`;
+      return `${shortMobileTeamName(game.teams[0].name)} ${game.teams[0].score ?? "—"} · ${shortMobileTeamName(game.teams[1].name)} ${game.teams[1].score ?? "—"}`;
     }
 
     function formatSignedMargin(value) {
@@ -3587,7 +3599,7 @@
       if (!start) return null;
       const elapsedMinutes = Math.max(0, (currentEtNow().getTime() - start.getTime()) / 60000);
       if (elapsedMinutes <= 0) return 0;
-      return Math.max(0.12, Math.min(elapsedMinutes / 40, 1));
+      return Math.max(0.01, Math.min(elapsedMinutes / 120, 1));
     }
 
     function totalPickLine(pick) {
@@ -3631,14 +3643,14 @@
 
       const scoreDiff = pickTeamEntry.score - oppTeamEntry.score;
       const coverMargin = scoreDiff + parsed.spread;
-      const markerPos = ((clamp(coverMargin, -20, 30) + 20) / 50) * 100;
+      const markerPos = 50 + (clamp(coverMargin, -20, 20) / 20) * 50;
       return {
         spreadLine: parsed.spread > 0 ? `+${parsed.spread}` : `${parsed.spread}`,
         currentMargin: scoreDiff > 0 ? `Winning by ${formatAbsoluteNumber(scoreDiff)}` : scoreDiff < 0 ? `Losing by ${formatAbsoluteNumber(Math.abs(scoreDiff))}` : "Tied",
         scoreDiff,
         coverMargin,
         covering: coverMargin > 0,
-        thresholdPos: 40,
+        thresholdPos: 50,
         markerPos,
         statusText: coverMargin > 0
           ? `✅ Cover ${formatSignedMargin(coverMargin)}`
@@ -3695,29 +3707,18 @@
 
     function liveGameClockLabel(game) {
       if (!game) return "";
-      const rawPeriod = game.period ?? game.clockPeriod ?? game.currentPeriod ?? game.quarter ?? game.inning ?? game.rawPeriod ?? null;
-      const rawClock = game.clock ?? game.timer ?? game.timeRemaining ?? game.displayClock ?? game.rawClock ?? null;
-
-      const periodLabel = (() => {
-        if (typeof rawPeriod === "string" && rawPeriod.trim()) return rawPeriod.trim();
-        if (Number.isFinite(Number(rawPeriod))) {
-          const period = Number(rawPeriod);
-          if (period === 1) return "1st Half";
-          if (period === 2) return "2nd Half";
-          return `OT${period - 2}`;
-        }
-        return "";
-      })();
-      const clockLabel = typeof rawClock === "string" && rawClock.trim() ? rawClock.trim() : "";
-      if (periodLabel && clockLabel) return `${periodLabel} · ${clockLabel}`;
-      if (periodLabel) return periodLabel;
-      if (clockLabel) return clockLabel;
+      const rawStatus = String(game.status || "").toLowerCase();
+      if (rawStatus === "halftime") return "Halftime";
+      if (rawStatus === "final" || rawStatus === "post" || game.completed) return "Final";
 
       const start = parseGameStartDate(game);
       if (!start) return "";
-      const elapsed = Math.max(0, Math.round((currentEtNow().getTime() - start.getTime()) / 60000));
-      const halfLabel = elapsed < 20 ? "First Half" : elapsed < 25 ? "Halftime" : "Second Half";
-      return `${halfLabel} · ~${elapsed}min`;
+      const now = currentEtNow();
+      const elapsed = Math.max(0, Math.round((now.getTime() - start.getTime()) / 60000));
+      if (elapsed < 45) return "First Half";
+      if (elapsed < 60) return "Halftime";
+      if (elapsed < 120) return "Second Half";
+      return "Final";
     }
 
     function mobileLiveHeaderMeta(entry) {
@@ -4099,7 +4100,7 @@
               </div>
               <div class="mobile-under-viz">
                 <div class="under-track">
-                  <div class="under-fill ${totalData.state === "warning" ? "warning" : totalData.state === "danger" ? "danger" : ""}" style="width: ${totalData.remainingPct.toFixed(1)}%"></div>
+                  <div class="under-fill ${totalData.state}" style="width: ${totalData.remainingPct.toFixed(1)}%"></div>
                 </div>
                 <div class="under-labels">
                   <span>${totalData.currentTotal} scored</span>
