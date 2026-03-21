@@ -3211,17 +3211,30 @@
           }
         }
         espnClockData = clockMap;
+        // Re-render mobile live view when clock data arrives
+        if (Object.keys(clockMap).length > 0) {
+          try { syncMobileVisibility(); } catch (e) { /* silent */ }
+        }
       } catch (e) { /* silent */ }
     }
 
     function getEspnClockForGame(game) {
-      if (!game?.teams?.length) return null;
-      for (const t of game.teams) {
-        const key = (t.name || "").toLowerCase();
+      // Build list of team names to search for
+      const searchNames = [];
+      if (game?.teams?.length) {
+        for (const t of game.teams) { if (t.name) searchNames.push(t.name); }
+      }
+      if (game?.home_team) searchNames.push(game.home_team);
+      if (game?.away_team) searchNames.push(game.away_team);
+      if (!searchNames.length) return null;
+
+      for (const name of searchNames) {
+        const key = name.toLowerCase();
+        // Exact match
         if (espnClockData[key]) return espnClockData[key];
-        // Try partial match
+        // Use existing teamMatches() for robust matching
         for (const [espnName, data] of Object.entries(espnClockData)) {
-          if (key.includes(espnName.split(" ")[0]) || espnName.includes(key.split(" ")[0])) return data;
+          if (teamMatches(name, espnName)) return data;
         }
       }
       return null;
