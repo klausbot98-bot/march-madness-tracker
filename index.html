@@ -3188,15 +3188,110 @@
     let tournamentStatus = { loaded: false, error: null, updatedAt: null };
     let oddsData = [];
     let liveScoreData = [];
-    let espnClockData = {}; // teamName → { period, clock, statusDesc }
+    let espnClockData = {}; // lookupKey → [{ eventId, period, clock, statusDesc }]
+    let espnClockEvents = []; // [{ eventId, period, clock, statusDesc, teams: [{ ...profile, keys: Set<string> }] }]
+
+    function cleanTeamText(value) {
+      return String(value || "")
+        .toLowerCase()
+        .replace(/&/g, " and ")
+        .replace(/['’.]/g, "")
+        .replace(/[^a-z0-9]+/g, " ")
+        .trim()
+        .replace(/\s+/g, " ");
+    }
+
+    function teamNameWords(value) {
+      return cleanTeamText(value).split(/\s+/).filter(Boolean);
+    }
+
+    function firstSignificantSchoolWords(fullName) {
+      const school = schoolNameOnly(fullName);
+      const words = teamNameWords(school);
+      if (!words.length) return "";
+      return words.slice(0, Math.min(words.length, 2)).join(" ");
+    }
+
+    function findTeamAliasEntry(name) {
+      const normalized = normalizeName(name);
+      return Object.entries(TEAM_ALIASES).find(([canonical, variants]) =>
+        normalizeName(canonical) === normalized || variants.some((variant) => normalizeName(variant) === normalized)
+      ) || null;
+    }
+
+    function buildEspnLookupKeys(name, abbreviation = "") {
+      const keys = new Set();
+      const addKey = (value) => {
+        const cleaned = cleanTeamText(value);
+        const normalized = normalizeName(value);
+        if (cleaned) keys.add(cleaned);
+        if (normalized) keys.add(normalized);
+        const school = schoolNameOnly(value);
+        if (school) keys.add(school);
+        const firstWords = firstSignificantSchoolWords(value);
+        if (firstWords) keys.add(firstWords);
+      };
+
+      addKey(name);
+      if (abbreviation) addKey(abbreviation);
+
+      const aliasEntry = findTeamAliasEntry(name);
+      if (aliasEntry) {
+        addKey(aliasEntry[0]);
+        aliasEntry[1].forEach(addKey);
+      }
+
+      return keys;
+    }
+
+    function buildTeamProfile(name, abbreviation = "") {
+      const keys = buildEspnLookupKeys(name, abbreviation);
+      return {
+        name,
+        abbreviation,
+        exact: cleanTeamText(name),
+        normalized: normalizeName(name),
+        schoolName: schoolNameOnly(name),
+        firstWords: firstSignificantSchoolWords(name),
+        keys
+      };
+    }
+
+    function addEspnClockKey(clockMap, key, eventData) {
+      if (!key) return;
+      if (!clockMap[key]) clockMap[key] = [];
+      if (!clockMap[key].some((entry) => entry.eventId === eventData.eventId)) {
+        clockMap[key].push(eventData);
+      }
+    }
+
+    function stringsOverlap(left, right) {
+      return Boolean(left && right && (left.includes(right) || right.includes(left)));
+    }
+
+    function teamProfileMatchesEspnTeam(searchProfile, espnTeam) {
+      if (!searchProfile || !espnTeam) return false;
+      for (const key of searchProfile.keys) {
+        if (espnTeam.keys.has(key)) return true;
+      }
+      if (stringsOverlap(searchProfile.schoolName, espnTeam.schoolName)) return true;
+      if (stringsOverlap(searchProfile.firstWords, espnTeam.firstWords)) return true;
+      if (stringsOverlap(searchProfile.normalized, espnTeam.normalized)) return true;
+      return false;
+    }
+
+    function espnClockStatusKey(statusDesc) {
+      return cleanTeamText(statusDesc);
+    }
 
     async function fetchEspnClock() {
       try {
-        const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+        const today = currentEtDate().replace(/-/g, "");
         const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=${today}`);
         if (!res.ok) return;
         const data = await res.json();
         const clockMap = {};
+        const clockEvents = [];
         for (const event of data.events || []) {
           const comp = event.competitions?.[0];
           if (!comp) continue;
@@ -3204,17 +3299,32 @@
           const period = status.period || 0;
           const clock = status.displayClock || "";
           const desc = status.type?.description || "";
-          for (const team of comp.competitors || []) {
-            const name = team.team?.displayName || "";
-            if (name) {
-              clockMap[name.toLowerCase()] = { period, clock, statusDesc: desc };
+          const eventData = {
+            eventId: event.id || `${event.uid || ""}:${period}:${clock}:${desc}`,
+            period,
+            clock,
+            statusDesc: desc
+          };
+          const teams = [];
+          for (const competitor of comp.competitors || []) {
+            const name = competitor.team?.displayName || "";
+            const abbreviation = competitor.team?.abbreviation || "";
+            if (!name) continue;
+            const profile = buildTeamProfile(name, abbreviation);
+            teams.push(profile);
+            for (const key of profile.keys) {
+              addEspnClockKey(clockMap, key, eventData);
             }
           }
+          if (teams.length) clockEvents.push({ ...eventData, teams });
         }
         espnClockData = clockMap;
+        espnClockEvents = clockEvents;
         // Re-render live bet cards with updated clock data
         if (Object.keys(clockMap).length > 0) {
-          try { renderLiveBetsSection(); } catch (e) { /* silent */ }
+          try {
+            renderLiveBetsSection();
+          } catch (e) { /* silent */ }
         }
       } catch (e) { /* silent */ }
     }
@@ -3234,40 +3344,49 @@
       }
       if (game?.home_team) searchNames.push(game.home_team);
       if (game?.away_team) searchNames.push(game.away_team);
-      if (!searchNames.length) return null;
+      const uniqueSearchNames = [...new Set(searchNames.map((name) => String(name || "").trim()).filter(Boolean))];
+      if (!uniqueSearchNames.length) return null;
 
-      for (const name of searchNames) {
-        const key = name.toLowerCase();
-        // Exact match
-        if (espnClockData[key]) return espnClockData[key];
+      const searchProfiles = uniqueSearchNames.map((name) => buildTeamProfile(name));
+      let bestEvent = null;
+      let bestScore = -1;
+      const requiredMatches = Math.min(searchProfiles.length, 2);
 
-        // Collect all alias variants for this team
-        const allNames = [name];
-        const aliasEntry = Object.entries(TEAM_ALIASES).find(([k, vals]) =>
-          normalizeName(k) === normalizeName(name) ||
-          vals.some(v => normalizeName(v) === normalizeName(name)) ||
-          teamMatches(name, k)
-        );
-        if (aliasEntry) allNames.push(aliasEntry[0], ...aliasEntry[1]);
+      for (const event of espnClockEvents) {
+        const matchedNames = new Set();
+        const matchedTeams = new Set();
+        searchProfiles.forEach((profile, profileIndex) => {
+          event.teams.forEach((team, teamIndex) => {
+            if (teamProfileMatchesEspnTeam(profile, team)) {
+              matchedNames.add(profileIndex);
+              matchedTeams.add(teamIndex);
+            }
+          });
+        });
 
-        // Try all alias variants against all ESPN names
-        for (const variant of allNames) {
-          const vKey = variant.toLowerCase();
-          if (espnClockData[vKey]) return espnClockData[vKey];
-          for (const [espnName, data] of Object.entries(espnClockData)) {
-            if (normalizeName(variant) === normalizeName(espnName)) return data;
-          }
-        }
-
-        // School name match (strip mascot)
-        for (const variant of allNames) {
-          const school = schoolNameOnly(variant);
-          for (const [espnName, data] of Object.entries(espnClockData)) {
-            const espnSchool = schoolNameOnly(espnName);
-            if (school && espnSchool && (espnSchool.includes(school) || school.includes(espnSchool))) return data;
-          }
+        if (matchedNames.size < requiredMatches) continue;
+        const score = (matchedNames.size * 10) + matchedTeams.size;
+        if (score > bestScore) {
+          bestScore = score;
+          bestEvent = event;
         }
       }
+
+      if (bestEvent) {
+        return {
+          period: bestEvent.period,
+          clock: bestEvent.clock,
+          statusDesc: bestEvent.statusDesc
+        };
+      }
+
+      for (const profile of searchProfiles) {
+        for (const key of profile.keys) {
+          const matches = espnClockData[key];
+          if (matches?.length === 1) return matches[0];
+        }
+      }
+
       return null;
     }
 
@@ -3678,20 +3797,23 @@
     }
 
     function totalPaceProgress(game) {
-      // Try ESPN clock for accurate progress
       const espn = getEspnClockForGame(game);
+      const espnStatus = espnClockStatusKey(espn?.statusDesc || "");
+      if (espnStatus === "final") return 1;
+      if (espnStatus === "halftime") return 0.5;
       if (espn && espn.clock && espn.period) {
         const clockParts = espn.clock.split(":");
         const mins = parseInt(clockParts[0] || "0");
         const secs = parseInt(clockParts[1] || "0");
-        const clockRemaining = mins + secs / 60; // minutes remaining in current half
-        // NCAAB: 20-min halves. Total game = 40 min.
+        const clockRemaining = mins + secs / 60;
         const elapsed = espn.period === 1
-          ? (20 - clockRemaining)          // first half
-          : (20 + 20 - clockRemaining);    // second half
-        return Math.max(0.01, Math.min(elapsed / 40, 1));
+          ? (20 - clockRemaining)
+          : espn.period === 2
+            ? (40 - clockRemaining)
+            : (40 + ((espn.period - 2) * 5) + (5 - clockRemaining));
+        const totalMinutes = espn.period <= 2 ? 40 : 40 + ((espn.period - 2) * 5);
+        return Math.max(0.01, Math.min(elapsed / totalMinutes, 1));
       }
-      // Fallback to wall-time estimate
       const start = parseGameStartDate(game);
       if (!start) return null;
       const elapsedMinutes = Math.max(0, (currentEtNow().getTime() - start.getTime()) / 60000);
@@ -3808,20 +3930,18 @@
       if (rawStatus === "halftime") return "Halftime";
       if (rawStatus === "final" || rawStatus === "post" || game.completed) return "Final";
 
-      // Try ESPN real clock data first
       const espn = getEspnClockForGame(game);
       if (espn) {
-        const desc = (espn.statusDesc || "").toLowerCase();
+        const desc = espnClockStatusKey(espn.statusDesc || "");
         if (desc === "halftime") return "Halftime";
         if (desc === "final") return "Final";
-        if (desc.includes("progress") || desc.includes("in")) {
+        if (desc === "scheduled" || desc === "pre event" || desc === "pre game") return "";
+        if (desc === "in progress" || desc === "end of period") {
           const half = espn.period === 1 ? "1H" : espn.period === 2 ? "2H" : `OT${espn.period - 2}`;
           return espn.clock ? `${half} · ${espn.clock}` : half;
         }
-        if (desc === "scheduled" || desc === "pre-event") return "";
       }
 
-      // Fallback to wall-time estimate
       const start = parseGameStartDate(game);
       if (!start) return "";
       const now = currentEtNow();
