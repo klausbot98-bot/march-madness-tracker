@@ -2476,49 +2476,188 @@
         color: #a78bfa;
       }
 
-      .mobile-pick-card {
-        background: #0a1628;
-        border-left: 3px solid rgba(10,132,255,0.3);
+      .pick-bankroll-card {
+        margin-bottom: 12px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        border: 1px solid rgba(148, 163, 184, 0.14);
+        background: linear-gradient(180deg, rgba(20, 26, 38, 0.96), rgba(24, 32, 49, 0.92));
+        box-shadow: var(--shadow);
       }
 
-      .mobile-edge-badge {
-        padding: 4px 8px;
-        background: rgba(10,132,255,0.14);
-        color: #7ec3ff;
-        border: 1px solid rgba(10,132,255,0.24);
-        font-size: 0.7rem;
-        font-weight: 700;
-      }
-
-      .mobile-pick-meta {
-        margin-top: 8px;
-        line-height: 1.45;
-      }
-
-      .mobile-pick-actions {
+      .pick-bankroll-row {
         display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
+      .pick-bankroll-row + .pick-bankroll-row {
+        margin-top: 8px;
+      }
+
+      .pick-bankroll-row strong {
+        color: var(--text);
+      }
+
+      .mobile-pick-card,
+      .pick-card {
+        position: relative;
+        padding: 14px;
+        border-radius: 18px;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        background: linear-gradient(180deg, rgba(20, 26, 38, 0.98), rgba(24, 32, 49, 0.94));
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .pick-card.play {
+        border-color: rgba(34, 197, 94, 0.26);
+      }
+
+      .pick-card.lean {
+        border-color: rgba(251, 191, 36, 0.26);
+      }
+
+      .pick-card.is-passed {
+        opacity: 0.72;
+      }
+
+      .pick-header,
+      .pick-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         gap: 10px;
+      }
+
+      .pick-badge {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        border: 1px solid transparent;
+      }
+
+      .pick-badge.play {
+        color: #d6ffe3;
+        background: rgba(34, 197, 94, 0.14);
+        border-color: rgba(34, 197, 94, 0.28);
+        box-shadow: 0 0 18px rgba(34, 197, 94, 0.16);
+      }
+
+      .pick-badge.lean {
+        color: #fde68a;
+        background: rgba(251, 191, 36, 0.14);
+        border-color: rgba(251, 191, 36, 0.28);
+        box-shadow: 0 0 18px rgba(251, 191, 36, 0.12);
+      }
+
+      .pick-badge.pass {
+        color: #cbd5e1;
+        background: rgba(148, 163, 184, 0.14);
+        border-color: rgba(148, 163, 184, 0.28);
+      }
+
+      .pick-time,
+      .pick-sizing,
+      .pick-edge {
+        color: var(--muted);
+        font-size: 0.8rem;
+      }
+
+      .pick-game,
+      .pick-selection {
+        margin-top: 10px;
+      }
+
+      .pick-game {
+        font-weight: 700;
+        line-height: 1.35;
+      }
+
+      .pick-selection {
+        color: var(--text);
+        font-size: 0.94rem;
+      }
+
+      .pick-analysis {
+        width: 100%;
+        margin-top: 12px;
+        padding: 12px;
+        border-radius: 14px;
+        border: 1px solid rgba(148, 163, 184, 0.12);
+        background: rgba(255, 255, 255, 0.03);
+        color: inherit;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .pick-analysis-preview,
+      .pick-analysis-full {
+        line-height: 1.45;
+        color: var(--muted);
+      }
+
+      .pick-analysis-preview {
+        max-height: 2.2em;
+        overflow: hidden;
+      }
+
+      .pick-analysis-full {
+        display: none;
+        margin-top: 8px;
+      }
+
+      .pick-analysis.expanded .pick-analysis-full {
+        display: block;
+      }
+
+      .pick-analysis.expanded .pick-analysis-preview {
+        max-height: none;
+      }
+
+      .pick-actions {
         margin-top: 12px;
       }
 
-      .mobile-pick-button {
+      .pick-btn {
         flex: 1;
-        min-height: 40px;
+        min-height: 42px;
         border-radius: 12px;
-        border: 1px solid transparent;
+        background: transparent;
+        color: var(--text);
+        border: 1px solid rgba(148, 163, 184, 0.24);
         font-size: 0.86rem;
         font-weight: 700;
       }
 
-      .mobile-pick-button.place {
-        background: var(--ios-blue);
-        color: #fff;
+      .pick-btn.place {
+        border-color: rgba(34, 197, 94, 0.4);
+        color: #d6ffe3;
       }
 
-      .mobile-pick-button.pass {
-        background: #2c2c2e;
-        color: var(--ios-text-secondary);
-        border-color: var(--ios-card-border);
+      .pick-btn.pass {
+        border-color: rgba(148, 163, 184, 0.32);
+        color: #cbd5e1;
+      }
+
+      .pick-placed-overlay {
+        position: absolute;
+        inset: 10px 10px auto auto;
+        z-index: 1;
+        border-radius: 999px;
+        padding: 6px 10px;
+        background: rgba(34, 197, 94, 0.16);
+        border: 1px solid rgba(34, 197, 94, 0.34);
+        color: #d6ffe3;
+        font-size: 0.72rem;
+        font-weight: 800;
       }
 
       .mobile-empty {
@@ -3120,6 +3259,11 @@
       { id: "P6", date: "2026-03-20", name: "KenPom Overs", gameTime: "3:07 PM ET", legs: ["Iowa St/Tenn St O145.5", "UCF/UCLA O152.5", "Queens/Purdue O159.5"], units: 0.5, line: 627, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: true, result: "loss", payout: 0, legStates: { "Iowa St/Tenn St O145.5": { result: "win", score: "182 total" }, "UCF/UCLA O152.5": { result: "loss", score: "146 total" }, "Queens/Purdue O159.5": { result: "win", score: "175 total" } }, notes: "3-leg over parlay. All KenPom-backed: +4.5, +3.5, +4.5 pt edges. 5% parlay boost ($3.73). $90.83 return on $12.50." }
     ];
 
+    const AI_PICKS = [
+      { id: "2026-03-21-dayton-uncw-under", date: "2026-03-21", gameTime: "7:00 PM ET", game: "Dayton Flyers @ UNC Wilmington Seahawks", pick: "Under 139.5", odds: -112, units: 1.5, dollars: 37.5, category: "play", confidence: 2.5, kellyPct: 4.2, edgePts: 2.5, headline: "Dayton's elite defense suffocates UNCW", analysis: "Dayton's defense is the story. Ranked #22 in AdjDE, they can choke off an UNC Wilmington offense that has to win with shot volume rather than efficiency. KenPom projects 137 points at 68.5 possessions, and this matchup does not have the pace pressure needed to lift the game above 139.5. In a 3-vs-14 profile, Dayton is also the side more likely to control second-half tempo if it gets in front.", factors: ["defensive_mismatch", "heavy_favorite", "total_edge"] },
+      { id: "2026-03-21-texasam-houston-over", date: "2026-03-21", gameTime: "6:10 PM ET", game: "Texas A&M Aggies @ Houston Cougars", pick: "Over 142.5", odds: -105, units: 0.5, dollars: 12.5, category: "lean", confidence: 1.2, kellyPct: 1.1, edgePts: 1.5, headline: "Houston can score enough to drag a thin over home", analysis: "This is a thinner position because the matchup has obvious headwinds, but the number is still short of KenPom's 144-point projection. Houston's offense can create efficient possessions even against physical defenses, and Texas A&M contributes enough transition and foul pressure to keep an over path alive. The edge is modest, so the card keeps it speculative at half a unit rather than pressing it like a core play.", factors: ["total_edge", "tempo_mismatch", "lean_only"] }
+    ];
+
     const STORAGE_KEY = "march-madness-2026-bets-v2";
 
     const dom = {
@@ -3183,6 +3327,7 @@
 
     let bets = cloneData(BETS);
     let parlays = cloneData(PARLAYS);
+    let aiPicks = cloneData(AI_PICKS);
     let previousSummarySnapshot = {};
     let tournamentGames = buildFallbackTournamentGames();
     let tournamentStatus = { loaded: false, error: null, updatedAt: null };
@@ -3464,6 +3609,11 @@
       if (Number.isInteger(line)) return line > 0 ? `+${line}` : `${line}`;
       const fixed = line.toFixed(1).replace(/\.0$/, "");
       return line > 0 ? `+${fixed}` : fixed;
+    }
+
+    function confidenceStars(confidence) {
+      const rating = Math.max(0, Math.min(5, Math.round(Number(confidence) || 0)));
+      return `${"★".repeat(rating)}${"☆".repeat(5 - rating)}`;
     }
 
     function formatCurrency(value, { signed = true } = {}) {
@@ -4978,23 +5128,41 @@
 
     function renderMobilePicksView() {
       const today = currentEtDate();
-      const picks = bets.filter((bet) => bet.date === today && bet.result == null);
+      const summary = summarize();
+      const picks = aiPicks.filter((pick) => pick.date === today);
+      const exposureUnits = picks.reduce((sum, pick) => sum + (Number(pick.units) || 0), 0);
+      const exposureDollars = picks.reduce((sum, pick) => sum + unitToDollars(Number(pick.units) || 0), 0);
+      const potentialReturn = picks.reduce((sum, pick) => sum + americanProfit(Number(pick.units) || 0, Number(pick.odds) || -110), 0);
       dom.mobilePicksContent.innerHTML = `
         <div class="mobile-section-head">
           <h2>AI PICKS</h2>
           <div class="mobile-section-subtitle">Agent recommendations for today</div>
         </div>
-        ${picks.length ? `<div class="mobile-picks-grid">
-          ${picks.map((bet) => `
-            <article class="mobile-pick-card">
-              <div class="mobile-pick-head">
-                <strong>${bet.pick}</strong>
-                <span class="mobile-edge-badge">${bet.kenpomGap == null ? "Model" : `${bet.kenpomGap.toFixed(1)}pt edge`} ⚡</span>
+        ${picks.length ? `
+        <div class="pick-bankroll-card">
+          <div class="pick-bankroll-row"><strong>📊 Bankroll</strong><span>${formatCurrency(STARTING_BANKROLL + summary.realized, { signed: false })}</span></div>
+          <div class="pick-bankroll-row"><strong>Today's exposure</strong><span>${formatUnitsSecondary(exposureUnits)} · ${formatCurrency(exposureDollars, { signed: false })} if all placed</span></div>
+          <div class="pick-bankroll-row"><strong>Potential return</strong><span>${formatCurrency(potentialReturn, { signed: false })} if all hit</span></div>
+        </div>
+        <div class="mobile-picks-grid">
+          ${picks.map((pick) => `
+            <article class="mobile-pick-card pick-card ${pick.category} ${pick.result === "placed" ? "is-placed" : ""} ${pick.result === "declined" ? "is-passed" : ""}">
+              ${pick.result === "placed" ? `<div class="pick-placed-overlay">Placed ✓</div>` : ""}
+              <div class="pick-header">
+                <span class="pick-badge ${pick.category}">${pick.category === "play" ? "🎯 PLAY" : pick.category === "lean" ? "⚠️ LEAN" : "🚫 PASS"}</span>
+                <span class="pick-time">${pick.gameTime || "TBD"}</span>
               </div>
-              <div class="mobile-pick-meta">${pickInsightText(bet)}</div>
-              <div class="mobile-pick-actions">
-                <button type="button" class="mobile-pick-button place" data-mobile-place="${bet.id}">✅ Place</button>
-                <button type="button" class="mobile-pick-button pass" data-mobile-decline="${bet.id}">❌ Pass</button>
+              <div class="pick-game">${pick.game}</div>
+              <div class="pick-selection">${pick.pick} (${formatLineValue(pick.odds)})</div>
+              <div class="pick-sizing">${formatUnitsSecondary(pick.units)} · ${formatCurrency(unitToDollars(pick.units), { signed: false })} · Kelly ${Number(pick.kellyPct || 0).toFixed(1)}%</div>
+              <div class="pick-edge">Edge: ${Number(pick.edgePts || 0).toFixed(1)}pts · ${confidenceStars(pick.confidence)}</div>
+              <button type="button" class="pick-analysis ${pick.expanded ? "expanded" : ""}" data-ai-pick-expand="${pick.id}">
+                <div class="pick-analysis-preview">${pick.headline}...</div>
+                <div class="pick-analysis-full">${pick.analysis}</div>
+              </button>
+              <div class="pick-actions">
+                <button type="button" class="pick-btn place" data-ai-pick-place="${pick.id}">✅ Place</button>
+                <button type="button" class="pick-btn pass" data-ai-pick-pass="${pick.id}">❌ Pass</button>
               </div>
             </article>
           `).join("")}
@@ -5070,6 +5238,22 @@
       bet.result = "declined";
       saveState();
       render();
+    }
+
+    function handleAiPickAction(id, result) {
+      const pick = aiPicks.find((entry) => String(entry.id) === String(id));
+      if (!pick) return;
+      pick.result = pick.result === result ? null : result;
+      saveState();
+      renderMobilePicksView();
+    }
+
+    function toggleAiPickExpanded(id) {
+      const pick = aiPicks.find((entry) => String(entry.id) === String(id));
+      if (!pick) return;
+      pick.expanded = !pick.expanded;
+      saveState();
+      renderMobilePicksView();
     }
 
     function renderDailyBreakdown() {
@@ -5781,7 +5965,8 @@
       const payload = {
         version: 3,
         bets: cloneData(bets),
-        parlays: cloneData(parlays)
+        parlays: cloneData(parlays),
+        aiPicks: cloneData(aiPicks)
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     }
@@ -5800,9 +5985,21 @@
           const entry = parlayMap.get(parlay.id);
           return entry ? { ...parlay, ...entry, result: sanitizeResult(entry.result) } : parlay;
         });
+        const aiPickMap = new Map((saved.aiPicks || []).map((entry) => [entry.id, entry]));
+        aiPicks = cloneData(AI_PICKS).map((pick) => {
+          const entry = aiPickMap.get(pick.id);
+          if (!entry) return pick;
+          return {
+            ...pick,
+            ...entry,
+            result: entry.result === "declined" ? "declined" : sanitizeResult(entry.result),
+            expanded: Boolean(entry.expanded)
+          };
+        });
       } catch (error) {
         bets = cloneData(BETS);
         parlays = cloneData(PARLAYS);
+        aiPicks = cloneData(AI_PICKS);
       }
       // Force-sync: if hardcoded PARLAYS has a result, override localStorage
       const hardcodedParlayMap = new Map(PARLAYS.map((p) => [p.id, p]));
@@ -6010,6 +6207,24 @@
         if (mobileFilterButton) {
           state.mobileAllBetsFilter = mobileFilterButton.dataset.mobileFilter;
           renderMobileAllBets();
+          return;
+        }
+
+        const aiPickExpandButton = event.target.closest("[data-ai-pick-expand]");
+        if (aiPickExpandButton) {
+          toggleAiPickExpanded(aiPickExpandButton.dataset.aiPickExpand);
+          return;
+        }
+
+        const aiPickPlaceButton = event.target.closest("[data-ai-pick-place]");
+        if (aiPickPlaceButton) {
+          handleAiPickAction(aiPickPlaceButton.dataset.aiPickPlace, "placed");
+          return;
+        }
+
+        const aiPickPassButton = event.target.closest("[data-ai-pick-pass]");
+        if (aiPickPassButton) {
+          handleAiPickAction(aiPickPassButton.dataset.aiPickPass, "declined");
           return;
         }
 
