@@ -3187,6 +3187,45 @@
     let tournamentStatus = { loaded: false, error: null, updatedAt: null };
     let oddsData = [];
     let liveScoreData = [];
+    let espnClockData = {}; // teamName → { period, clock, statusDesc }
+
+    async function fetchEspnClock() {
+      try {
+        const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+        const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?dates=${today}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const clockMap = {};
+        for (const event of data.events || []) {
+          const comp = event.competitions?.[0];
+          if (!comp) continue;
+          const status = comp.status || {};
+          const period = status.period || 0;
+          const clock = status.displayClock || "";
+          const desc = status.type?.description || "";
+          for (const team of comp.competitors || []) {
+            const name = team.team?.displayName || "";
+            if (name) {
+              clockMap[name.toLowerCase()] = { period, clock, statusDesc: desc };
+            }
+          }
+        }
+        espnClockData = clockMap;
+      } catch (e) { /* silent */ }
+    }
+
+    function getEspnClockForGame(game) {
+      if (!game?.teams?.length) return null;
+      for (const t of game.teams) {
+        const key = (t.name || "").toLowerCase();
+        if (espnClockData[key]) return espnClockData[key];
+        // Try partial match
+        for (const [espnName, data] of Object.entries(espnClockData)) {
+          if (key.includes(espnName.split(" ")[0]) || espnName.includes(key.split(" ")[0])) return data;
+        }
+      }
+      return null;
+    }
 
     function cloneData(items) {
       return items.map((item) => ({ ...item }));
@@ -3595,6 +3634,20 @@
     }
 
     function totalPaceProgress(game) {
+      // Try ESPN clock for accurate progress
+      const espn = getEspnClockForGame(game);
+      if (espn && espn.clock && espn.period) {
+        const clockParts = espn.clock.split(":");
+        const mins = parseInt(clockParts[0] || "0");
+        const secs = parseInt(clockParts[1] || "0");
+        const clockRemaining = mins + secs / 60; // minutes remaining in current half
+        // NCAAB: 20-min halves. Total game = 40 min.
+        const elapsed = espn.period === 1
+          ? (20 - clockRemaining)          // first half
+          : (20 + 20 - clockRemaining);    // second half
+        return Math.max(0.01, Math.min(elapsed / 40, 1));
+      }
+      // Fallback to wall-time estimate
       const start = parseGameStartDate(game);
       if (!start) return null;
       const elapsedMinutes = Math.max(0, (currentEtNow().getTime() - start.getTime()) / 60000);
@@ -3711,6 +3764,20 @@
       if (rawStatus === "halftime") return "Halftime";
       if (rawStatus === "final" || rawStatus === "post" || game.completed) return "Final";
 
+      // Try ESPN real clock data first
+      const espn = getEspnClockForGame(game);
+      if (espn) {
+        const desc = (espn.statusDesc || "").toLowerCase();
+        if (desc === "halftime") return "Halftime";
+        if (desc === "final") return "Final";
+        if (desc.includes("progress") || desc.includes("in")) {
+          const half = espn.period === 1 ? "1H" : espn.period === 2 ? "2H" : `OT${espn.period - 2}`;
+          return espn.clock ? `${half} · ${espn.clock}` : half;
+        }
+        if (desc === "scheduled" || desc === "pre-event") return "";
+      }
+
+      // Fallback to wall-time estimate
       const start = parseGameStartDate(game);
       if (!start) return "";
       const now = currentEtNow();
@@ -5924,9 +5991,11 @@
       fetchTournamentSchedule();
       fetchOddsData();
       fetchLiveScores();
+      fetchEspnClock();
       setInterval(fetchLiveScores, 180000);
       setInterval(fetchOddsData, 300000);
       setInterval(fetchTournamentSchedule, 300000);
+      setInterval(fetchEspnClock, 30000); // ESPN clock every 30s for real-time updates
     }
 
     init();
