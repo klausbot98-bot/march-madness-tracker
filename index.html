@@ -2130,16 +2130,17 @@
 
       .live-bet-mobile {
         display: grid;
-        gap: 6px;
+        gap: 2px;
+        min-width: 0;
       }
 
       .live-bet-card {
-        min-height: 65px;
-        padding: 10px 12px;
+        min-height: 0;
+        padding: 8px 12px;
         border-radius: 12px;
         border-left-width: 3px;
         background: #1a2233;
-        gap: 0;
+        gap: 2px;
       }
 
       .live-bet-card.covering,
@@ -2158,153 +2159,160 @@
       }
 
       .live-bet-card.parlay-bet {
-        min-height: 90px;
+        min-height: 55px;
       }
 
-      .live-bet-head,
-      .live-bet-meta {
-        gap: 10px;
-        min-width: 0;
-      }
-
-      .live-bet-title,
-      .live-bet-head-status {
-        min-width: 0;
+      .live-bet-row {
         display: flex;
+        justify-content: space-between;
         align-items: center;
-        gap: 6px;
+        gap: 8px;
+        min-height: 22px;
+        min-width: 0;
       }
 
-      .live-bet-title {
+      .live-bet-row-pick,
+      .live-bet-row-meta,
+      .live-bet-row-units,
+      .live-bet-row-status,
+      .live-bet-progress-text {
+        min-width: 0;
+      }
+
+      .live-bet-row-pick {
         flex: 1 1 auto;
-      }
-
-      .live-bet-title strong {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        font-size: 0.92rem;
+        font-size: 0.9rem;
         line-height: 1.1;
       }
 
-      .live-bet-head-status {
+      .live-bet-row-meta {
         flex: 0 0 auto;
         color: var(--muted);
         font-size: 0.78rem;
         white-space: nowrap;
       }
 
-      .live-bet-dot {
-        width: 7px;
-        height: 7px;
-        background: currentColor;
-        box-shadow: none;
-        animation: none;
-      }
-
-      .live-bet-dot.covering,
-      .live-bet-dot.win {
-        color: #22c55e;
-      }
-
-      .live-bet-dot.not-covering,
-      .live-bet-dot.loss {
-        color: #ef4444;
-      }
-
-      .live-bet-dot.upcoming,
-      .live-bet-dot.push {
-        color: #f59e0b;
-      }
-
-      .live-bet-units {
-        font-size: 0.74rem;
+      .live-bet-row-units {
+        flex: 0 0 auto;
+        font-size: 0.72rem;
         color: var(--muted);
+        white-space: nowrap;
       }
 
-      .live-bet-inline-status {
-        font-size: 0.74rem;
+      .live-bet-row-status {
+        flex: 0 1 auto;
+        font-size: 0.72rem;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        text-align: right;
       }
 
-      .live-bet-inline-status.covering,
-      .live-bet-inline-status.win {
+      .live-bet-row-status.covering,
+      .live-bet-row-status.win,
+      .live-bet-parlay-leg.covering,
+      .live-bet-parlay-leg.win {
         color: #22c55e;
       }
 
-      .live-bet-inline-status.not-covering,
-      .live-bet-inline-status.loss {
+      .live-bet-row-status.not-covering,
+      .live-bet-row-status.loss,
+      .live-bet-parlay-leg.not-covering,
+      .live-bet-parlay-leg.loss {
         color: #ef4444;
       }
 
-      .live-bet-inline-status.upcoming,
-      .live-bet-inline-status.push {
+      .live-bet-row-status.upcoming,
+      .live-bet-row-status.push,
+      .live-bet-parlay-leg.upcoming,
+      .live-bet-parlay-leg.push {
         color: var(--muted);
       }
 
-      .live-bet-tag {
-        padding: 2px 8px;
-        font-size: 0.62rem;
+      .live-bet-total-status,
+      .live-bet-parlay-legs {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        white-space: nowrap;
       }
 
-      .live-bet-legs {
-        display: flex;
-        gap: 8px;
+      .live-bet-total-status {
+        flex: 1 1 auto;
+        justify-content: flex-end;
+        min-width: 0;
+      }
+
+      .live-bet-progress {
+        width: 60px;
+        height: 4px;
+        border-radius: 2px;
+        background: #1e293b;
+        overflow: hidden;
+        flex: 0 0 auto;
+      }
+
+      .live-bet-progress-fill {
+        display: block;
+        height: 100%;
+        border-radius: 2px;
+        background: #94a3b8;
+      }
+
+      .live-bet-progress-fill.covering,
+      .live-bet-progress-fill.win {
+        background: #22c55e;
+      }
+
+      .live-bet-progress-fill.not-covering,
+      .live-bet-progress-fill.loss {
+        background: #ef4444;
+      }
+
+      .live-bet-progress-text {
+        flex: 0 0 auto;
+        font-size: 0.72rem;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+
+      .live-bet-row-legs {
         overflow-x: auto;
-        padding-bottom: 2px;
         scrollbar-width: none;
       }
 
-      .live-bet-legs::-webkit-scrollbar {
+      .live-bet-row-legs::-webkit-scrollbar {
         display: none;
       }
 
-      .live-bet-leg {
+      .live-bet-parlay-legs {
+        gap: 12px;
+      }
+
+      .live-bet-parlay-leg {
         flex: 0 0 auto;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding-top: 0;
-        border-top: 0;
-        color: var(--text);
-        font-size: 0.7rem;
+        font-size: 0.72rem;
+        line-height: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
         white-space: nowrap;
       }
 
-      .live-bet-leg-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: currentColor;
-        flex: 0 0 auto;
-      }
-
-      .live-bet-leg.covering,
-      .live-bet-leg.win {
-        color: #22c55e;
-      }
-
-      .live-bet-leg.not-covering,
-      .live-bet-leg.loss {
-        color: #ef4444;
-      }
-
-      .live-bet-leg.upcoming,
-      .live-bet-leg.push {
-        color: #f59e0b;
-      }
-
+      .live-bet-head,
+      .live-bet-meta,
+      .live-bet-title,
+      .live-bet-head-status,
+      .live-bet-inline-status,
+      .live-bet-tag,
+      .live-bet-dot,
+      .live-bet-legs,
+      .live-bet-leg,
+      .live-bet-leg-dot,
       .live-bet-leg-label {
-        color: var(--text);
-        max-width: 220px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .live-bet-card.parlay-bet .live-bet-mobile {
-        gap: 8px;
+        all: unset;
       }
 
       .live-game-card {
@@ -3508,6 +3516,61 @@
       return Math.max(0.12, Math.min(elapsedMinutes / 40, 1));
     }
 
+    function totalPickLine(pick) {
+      const totalLine = parseFloat(String(pick || "").match(/(\d+(?:\.\d+)?)/)?.[1] || "");
+      return Number.isFinite(totalLine) ? totalLine : null;
+    }
+
+    function totalPickProgress(pick, game) {
+      const line = totalPickLine(pick);
+      const teams = Array.isArray(game?.teams) ? game.teams : [];
+      const currentTotal = teams.length >= 2
+        ? teams.reduce((sum, team) => sum + (Number.isFinite(team.score) ? team.score : 0), 0)
+        : 0;
+      return {
+        line,
+        currentTotal,
+        ratio: line && line > 0 ? Math.max(0, Math.min(currentTotal / line, 1)) : 0
+      };
+    }
+
+    function mobileStatusEmoji(state) {
+      if (state === "covering" || state === "win") return "✅";
+      if (state === "not-covering" || state === "loss") return "❌";
+      return "⏳";
+    }
+
+    function mobileStatusClass(state) {
+      if (state === "win" || state === "loss" || state === "push") return state;
+      return state === "covering" || state === "not-covering" ? state : "upcoming";
+    }
+
+    function compactLegLabel(pick) {
+      const teams = parsePickTeams(pick);
+      const suffix = String(pick || "").replace(/^(.+?)\s+/, "").trim();
+      const shortTeams = teams.length
+        ? teams.map((team) => {
+            const aliases = Object.entries(TEAM_ALIASES).find(([, values]) => values.some((value) => teamMatches(value, team)))?.[1] || [];
+            const stateSchool = team.match(/^([A-Za-z]+)\s+(?:State|St)\b/i);
+            const shortAlias = aliases.find((alias) => /^[A-Z]{2,4}$/.test(alias))
+              || (stateSchool ? `${stateSchool[1][0]}SU` : "")
+              || aliases.find((alias) => alias.length <= 4 && !alias.includes(" "))
+              || team.split(/\s+/).map((part) => part[0]).join("").toUpperCase()
+              || team.slice(0, 4).toUpperCase();
+            return shortAlias.toUpperCase();
+          }).join("/")
+        : String(pick || "").split(/\s+/).slice(0, 2).join(" ");
+      return suffix ? `${shortTeams} ${suffix}` : shortTeams;
+    }
+
+    function fallbackGameForBet(date, time) {
+      return {
+        date,
+        displayTime: time || "Today",
+        teams: []
+      };
+    }
+
     function evaluateLivePick(pick, type, game) {
       const teams = game?.teams || [];
       if (teams.length < 2) {
@@ -3610,8 +3673,7 @@
         .filter((bet) => (bet.result === "placed" || bet.result == null) && bet.date === today)
         .map((bet) => {
           const teams = extractBetTeams(bet.game);
-          const game = findTodayLiveGameForTeams(teams);
-          if (!game) return null;
+          const game = findTodayLiveGameForTeams(teams) || fallbackGameForBet(bet.date, bet.gameTime);
           const evaluation = evaluateLivePick(bet.pick, bet.type, game);
           return {
             sortTime: parseTimeToMinutes(game.displayTime),
@@ -3633,25 +3695,43 @@
           const legs = (parlay.legs || [])
             .map((leg) => {
               const legState = parlay.legStates?.[leg]?.result ?? bets.find((bet) => bet.pick === leg)?.result ?? null;
-              if (!(legState === "placed" || legState == null || legState === "pending")) return null;
               const teams = parsePickTeams(leg);
-              const game = findTodayLiveGameForTeams(teams);
-              if (!game) return null;
+              const linkedBet = bets.find((bet) => bet.pick === leg);
+              const game = findTodayLiveGameForTeams(teams) || fallbackGameForBet(linkedBet?.date || parlay.date, linkedBet?.gameTime || parlay.gameTime);
+              const liveEvaluation = evaluateLivePick(leg, inferBetTypeFromPick(leg), game);
+              const resolvedState = legState === "win" || legState === "loss" || legState === "push"
+                ? {
+                    state: legState,
+                    label: legState === "win" ? "Won" : legState === "loss" ? "Lost" : "Push",
+                    scoreLabel: parlay.legStates?.[leg]?.score || liveEvaluation.scoreLabel,
+                    compactScoreLabel: liveEvaluation.compactScoreLabel,
+                    statusText: `${mobileStatusEmoji(legState)} ${legState === "win" ? "Won" : legState === "loss" ? "Lost" : "Push"}`
+                  }
+                : liveEvaluation;
               return {
                 pick: leg,
                 game,
-                evaluation: evaluateLivePick(leg, inferBetTypeFromPick(leg), game)
+                legState,
+                evaluation: resolvedState
               };
             })
             .filter(Boolean);
 
           if (!legs.length) return null;
-          const hasLiveLeg = legs.some((leg) => leg.evaluation.state !== "upcoming");
-          const evaluation = hasLiveLeg
-            ? (legs.some((leg) => leg.evaluation.state === "not-covering")
-              ? { state: "not-covering", label: "Legs Live" }
-              : { state: "covering", label: "Legs Live" })
-            : { state: "upcoming", label: "Upcoming" };
+          const hasLoss = legs.some((leg) => leg.evaluation.state === "loss" || leg.evaluation.state === "not-covering");
+          const hasLive = legs.some((leg) => leg.evaluation.state === "covering" || leg.evaluation.state === "not-covering");
+          const allWon = legs.every((leg) => leg.evaluation.state === "win");
+          const anyResolved = legs.some((leg) => ["win", "loss", "push"].includes(leg.evaluation.state));
+          const scoreSource = legs.find((leg) => leg.evaluation.state !== "upcoming") || legs[0];
+          const evaluation = allWon
+            ? { state: "win", label: "Won" }
+            : hasLoss
+              ? { state: hasLive ? "not-covering" : "loss", label: hasLive ? "Legs Live" : "Lost" }
+              : hasLive
+                ? { state: "covering", label: "Legs Live" }
+                : anyResolved
+                  ? { state: "upcoming", label: "Pending" }
+                  : { state: "upcoming", label: "Upcoming" };
 
           return {
             sortTime: Math.min(...legs.map((leg) => parseTimeToMinutes(leg.game.displayTime))),
@@ -3662,9 +3742,7 @@
             game: legs[0].game,
             evaluation: {
               ...evaluation,
-              scoreLabel: hasLiveLeg
-                ? legs.find((leg) => leg.evaluation.state !== "upcoming")?.evaluation.scoreLabel || legs[0].game.displayTime || "Today"
-                : legs[0].game.displayTime || "Today"
+              scoreLabel: scoreSource?.evaluation.scoreLabel || legs[0].game.displayTime || "Today"
             },
             legs,
             isParlay: true
@@ -3684,20 +3762,39 @@
       if (entry.isParlay) {
         return `
           <div class="live-bet-mobile">
-            <div class="live-bet-head">
-              <div class="live-bet-title">
-                <strong>${entry.title}</strong>
-              </div>
-              ${liveBetTagMarkup({ state: entry.evaluation.state, label: entry.evaluation.label.toUpperCase() })}
+            <div class="live-bet-row">
+              <strong class="live-bet-row-pick">${entry.title}</strong>
+              <span class="live-bet-row-meta">${formatUnitsSecondary(entry.units)}</span>
             </div>
-            <div class="live-bet-legs">
-              ${entry.legs.map((leg) => `
-                <div class="live-bet-leg ${leg.evaluation.state}">
-                  <span class="live-bet-leg-dot"></span>
-                  <span>${leg.evaluation.state === "covering" ? "✅" : leg.evaluation.state === "not-covering" ? "❌" : "⏳"}</span>
-                  <span class="live-bet-leg-label">${leg.pick}</span>
-                </div>
-              `).join("")}
+            <div class="live-bet-row live-bet-row-legs">
+              <div class="live-bet-parlay-legs">
+                ${entry.legs.map((leg) => `
+                  <span class="live-bet-parlay-leg ${mobileStatusClass(leg.evaluation.state)}">${mobileStatusEmoji(leg.evaluation.state)} ${compactLegLabel(leg.pick)}</span>
+                `).join("")}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      if (inferBetTypeFromPick(entry.pick) === "total") {
+        const progress = totalPickProgress(entry.pick, entry.game);
+        const statusClass = mobileStatusClass(entry.evaluation.state);
+        return `
+          <div class="live-bet-mobile">
+            <div class="live-bet-row">
+              <strong class="live-bet-row-pick">${entry.title}</strong>
+              <span class="live-bet-row-meta">${entry.evaluation.state !== "upcoming" ? `● ${entry.evaluation.compactScoreLabel}` : entry.evaluation.compactScoreLabel}</span>
+            </div>
+            <div class="live-bet-row">
+              <span class="live-bet-row-units">${formatUnitsSecondary(entry.units)}</span>
+              <div class="live-bet-total-status">
+                <span class="live-bet-progress">
+                  <span class="live-bet-progress-fill ${statusClass}" style="width: ${(progress.ratio * 100).toFixed(1)}%"></span>
+                </span>
+                <span class="live-bet-progress-text">${progress.currentTotal}/${progress.line ?? "0"}</span>
+                <span class="live-bet-row-status ${statusClass}">${entry.evaluation.statusText}</span>
+              </div>
             </div>
           </div>
         `;
@@ -3705,18 +3802,13 @@
 
       return `
         <div class="live-bet-mobile">
-          <div class="live-bet-head">
-            <div class="live-bet-title">
-              <strong>${entry.title}</strong>
-            </div>
-            <div class="live-bet-head-status">
-              ${entry.evaluation.state !== "upcoming" ? `<span class="live-bet-dot ${entry.evaluation.state}"></span>` : ""}
-              <span>${entry.evaluation.compactScoreLabel}</span>
-            </div>
+          <div class="live-bet-row">
+            <strong class="live-bet-row-pick">${entry.title}</strong>
+            <span class="live-bet-row-meta">${entry.evaluation.state !== "upcoming" ? `● ${entry.evaluation.compactScoreLabel}` : entry.evaluation.compactScoreLabel}</span>
           </div>
-          <div class="live-bet-meta">
-            <span class="live-bet-units">${formatUnitsSecondary(entry.units)}</span>
-            <span class="live-bet-inline-status ${entry.evaluation.state}">${entry.evaluation.statusText}</span>
+          <div class="live-bet-row">
+            <span class="live-bet-row-units">${formatUnitsSecondary(entry.units)}</span>
+            <span class="live-bet-row-status ${mobileStatusClass(entry.evaluation.state)}">${entry.evaluation.statusText}</span>
           </div>
         </div>
       `;
