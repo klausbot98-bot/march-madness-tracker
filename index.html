@@ -2224,6 +2224,8 @@
         background: linear-gradient(180deg, rgba(20, 26, 38, 0.98), rgba(24, 32, 49, 0.94));
         box-shadow: var(--shadow);
         overflow: hidden;
+        transition: opacity 300ms ease, max-height 300ms ease, padding 300ms ease, margin 300ms ease, border-width 300ms ease, transform 300ms ease, border-color 200ms ease, box-shadow 200ms ease;
+        max-height: 1200px;
       }
 
     .pick-card.play {
@@ -2248,6 +2250,21 @@
 
       .pick-card.is-passed {
         opacity: 0.72;
+      }
+
+      .pick-card.is-fading-out {
+        opacity: 0;
+        max-height: 0;
+        margin: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        border-width: 0;
+        transform: translateY(-8px);
+      }
+
+      .pick-card.is-placed {
+        border-color: rgba(34, 197, 94, 0.42);
+        box-shadow: 0 18px 36px rgba(8, 15, 26, 0.34), inset 0 0 0 1px rgba(34, 197, 94, 0.12);
       }
 
       .pick-header,
@@ -2404,6 +2421,120 @@
         color: #d6ffe3;
         font-size: 0.72rem;
         font-weight: 800;
+      }
+
+      .pick-topline {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+        font-size: 0.82rem;
+        color: var(--muted);
+      }
+
+      .pick-counter {
+        color: var(--text);
+        font-weight: 700;
+      }
+
+      .pick-toggle-link {
+        border: 0;
+        padding: 0;
+        background: transparent;
+        color: #cbd5e1;
+        font-size: 0.82rem;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+
+      .pick-toggle-link:hover {
+        color: #ffffff;
+      }
+
+      .pick-actions[hidden],
+      .pick-editor[hidden] {
+        display: none;
+      }
+
+      .pick-actual-line {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 8px;
+        color: #d6ffe3;
+        font-size: 0.82rem;
+      }
+
+      .pick-actual-line strong {
+        color: #ffffff;
+      }
+
+      .pick-editor {
+        margin-top: 12px;
+        padding: 12px;
+        border-radius: 14px;
+        border: 1px solid rgba(148, 163, 184, 0.16);
+        background: rgba(10, 15, 24, 0.68);
+        display: grid;
+        gap: 10px;
+      }
+
+      .pick-editor-row {
+        display: flex;
+        align-items: end;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .pick-editor-field {
+        display: grid;
+        gap: 6px;
+      }
+
+      .pick-editor-field label {
+        color: var(--muted);
+        font-size: 0.76rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .pick-odds-input,
+      .pick-units-input {
+        width: 70px;
+        min-height: 40px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        background: #1a1f2e;
+        color: #ffffff;
+        font: inherit;
+      }
+
+      .pick-units-input {
+        width: 80px;
+      }
+
+      .pick-editor-payout {
+        margin-left: auto;
+        color: #cbd5e1;
+        font-size: 0.82rem;
+      }
+
+      .pick-editor-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .pick-btn.confirm {
+        border-color: rgba(34, 197, 94, 0.42);
+        background: rgba(34, 197, 94, 0.12);
+        color: #d6ffe3;
+      }
+
+      .pick-btn.cancel {
+        color: #cbd5e1;
       }
 
       .mobile-empty {
@@ -3021,6 +3152,11 @@
       chartPoints: [],
       chartHoverIndex: null,
       quickAddOpen: false,
+      pickActions: {},
+      showAllPassedPicks: false,
+      editingAiPickId: null,
+      aiPickDrafts: {},
+      fadingPickIds: new Set(),
       mobileView: "live",
       mobileAllBetsFilter: "all",
       mobileViewport: window.innerWidth < 768
@@ -3246,6 +3382,131 @@
       const stake = unitToDollars(units);
       if (odds > 0) return stake * (odds / 100);
       return stake * (100 / Math.abs(odds));
+    }
+
+    function pickActionFor(id) {
+      return state.pickActions?.[String(id)] || null;
+    }
+
+    function pickStatusFor(id) {
+      return pickActionFor(id)?.status || null;
+    }
+
+    function pickIsPassed(id) {
+      return pickStatusFor(id) === "passed";
+    }
+
+    function pickIsPlaced(id) {
+      return pickStatusFor(id) === "placed";
+    }
+
+    function visibleAiPicksForDate(date) {
+      return aiPicks.filter((pick) => pick.date === date && (!pickIsPassed(pick.id) || state.showAllPassedPicks || state.fadingPickIds.has(String(pick.id))));
+    }
+
+    function aiPickCounts(date) {
+      const picks = aiPicks.filter((pick) => pick.date === date);
+      const remaining = picks.filter((pick) => {
+        const status = pickStatusFor(pick.id);
+        return status !== "placed" && status !== "passed";
+      }).length;
+      return { picks, remaining, total: picks.length };
+    }
+
+    function aiPickDraftFor(pick) {
+      return state.aiPickDrafts[String(pick.id)] || {
+        odds: String(Number(pick.odds) || -110),
+        units: String(Number(pick.units) || 0)
+      };
+    }
+
+    function potentialPayoutForDraft(draft) {
+      const odds = Number(draft?.odds);
+      const units = Number(draft?.units);
+      if (!Number.isFinite(odds) || !Number.isFinite(units) || units <= 0 || odds === 0) return "Enter odds + units";
+      return `${formatCurrency(americanProfit(units, odds), { signed: false })} profit`;
+    }
+
+    function openAiPickEditor(id) {
+      const pick = aiPicks.find((entry) => String(entry.id) === String(id));
+      if (!pick) return;
+      state.editingAiPickId = String(id);
+      state.aiPickDrafts[String(id)] = {
+        odds: String(Number(pick.odds) || -110),
+        units: String(Number(pick.units) || 0)
+      };
+      renderMobilePicksView();
+      renderDesktopAiPicks();
+      requestAnimationFrame(() => {
+        const input = document.querySelector(`[data-ai-pick-input="${id}"][data-ai-pick-field="odds"]`);
+        input?.focus();
+        input?.select();
+      });
+    }
+
+    function cancelAiPickEditor(id) {
+      if (String(state.editingAiPickId) !== String(id)) return;
+      state.editingAiPickId = null;
+      delete state.aiPickDrafts[String(id)];
+      renderMobilePicksView();
+      renderDesktopAiPicks();
+    }
+
+    function updateAiPickDraft(id, field, value) {
+      const key = String(id);
+      const draft = state.aiPickDrafts[key] || {};
+      draft[field] = value;
+      state.aiPickDrafts[key] = draft;
+      document.querySelectorAll(`[data-ai-pick-payout="${key}"]`).forEach((node) => {
+        node.textContent = potentialPayoutForDraft(draft);
+      });
+    }
+
+    function confirmAiPickPlacement(id) {
+      const pick = aiPicks.find((entry) => String(entry.id) === String(id));
+      const draft = state.aiPickDrafts[String(id)];
+      if (!pick || !draft) return;
+      const odds = Number(draft.odds);
+      const units = Number(draft.units);
+      if (!Number.isFinite(odds) || odds === 0 || !Number.isFinite(units) || units <= 0) return;
+      state.pickActions[String(id)] = {
+        status: "placed",
+        odds,
+        units,
+        placedAt: Date.now()
+      };
+      state.editingAiPickId = null;
+      delete state.aiPickDrafts[String(id)];
+      saveState();
+      renderMobilePicksView();
+      renderDesktopAiPicks();
+    }
+
+    function passAiPick(id) {
+      const key = String(id);
+      state.fadingPickIds.add(key);
+      renderMobilePicksView();
+      renderDesktopAiPicks();
+      window.setTimeout(() => {
+        state.fadingPickIds.delete(key);
+        state.pickActions[key] = {
+          status: "passed",
+          passedAt: Date.now()
+        };
+        if (state.editingAiPickId === key) {
+          state.editingAiPickId = null;
+          delete state.aiPickDrafts[key];
+        }
+        saveState();
+        renderMobilePicksView();
+        renderDesktopAiPicks();
+      }, 300);
+    }
+
+    function toggleShowAllPassedPicks() {
+      state.showAllPassedPicks = !state.showAllPassedPicks;
+      renderMobilePicksView();
+      renderDesktopAiPicks();
     }
 
     function normalizeResult(result) {
@@ -4813,7 +5074,8 @@
     function renderMobilePicksView() {
       const today = currentEtDate();
       const summary = summarize();
-      const picks = aiPicks.filter((pick) => pick.date === today);
+      const counts = aiPickCounts(today);
+      const picks = visibleAiPicksForDate(today);
       const exposureUnits = picks.reduce((sum, pick) => sum + (Number(pick.units) || 0), 0);
       const exposureDollars = picks.reduce((sum, pick) => sum + unitToDollars(Number(pick.units) || 0), 0);
       const potentialReturn = picks.reduce((sum, pick) => sum + americanProfit(Number(pick.units) || 0, Number(pick.odds) || -110), 0);
@@ -4822,34 +5084,18 @@
           <h2>AI PICKS</h2>
           <div class="mobile-section-subtitle">Agent recommendations for today</div>
         </div>
-        ${picks.length ? `
+        ${counts.total ? `
+        <div class="pick-topline">
+          <span class="pick-counter">${counts.remaining} of ${counts.total} remaining</span>
+          <button type="button" class="pick-toggle-link" data-ai-picks-show-all>${state.showAllPassedPicks ? "Hide passed" : "Show all"}</button>
+        </div>
         <div class="pick-bankroll-card">
           <div class="pick-bankroll-row"><strong>📊 Bankroll</strong><span>${formatCurrency(STARTING_BANKROLL + summary.realized, { signed: false })}</span></div>
           <div class="pick-bankroll-row"><strong>Today's exposure</strong><span>${formatUnitsSecondary(exposureUnits)} · ${formatCurrency(exposureDollars, { signed: false })} if all placed</span></div>
           <div class="pick-bankroll-row"><strong>Potential return</strong><span>${formatCurrency(potentialReturn, { signed: false })} if all hit</span></div>
         </div>
         <div class="mobile-picks-grid">
-          ${picks.map((pick) => `
-            <article class="mobile-pick-card pick-card ${pick.category} ${pick.result === "placed" ? "is-placed" : ""} ${pick.result === "declined" ? "is-passed" : ""}">
-              ${pick.result === "placed" ? `<div class="pick-placed-overlay">Placed ✓</div>` : ""}
-              <div class="pick-header">
-                <span class="pick-badge ${pick.category}">${pick.category === "play" ? "🎯 PLAY" : pick.category === "lean" ? "⚠️ LEAN" : "🚫 PASS"}</span>
-                <span class="pick-time">${pick.gameTime || "TBD"}</span>
-              </div>
-              <div class="pick-game">${pick.game}</div>
-              <div class="pick-selection">${pick.pick} (${formatLineValue(pick.odds)})</div>
-              <div class="pick-sizing">${formatUnitsSecondary(pick.units)} · ${formatCurrency(unitToDollars(pick.units), { signed: false })} · Kelly ${Number(pick.kellyPct || 0).toFixed(1)}%</div>
-              <div class="pick-edge">Edge: ${Number(pick.edgePts || 0).toFixed(1)}pts · ${confidenceStars(pick.confidence)}</div>
-              <button type="button" class="pick-analysis ${pick.expanded ? "expanded" : ""}" data-ai-pick-expand="${pick.id}">
-                <div class="pick-analysis-preview">${genericBettingCopy(pick.headline)}...</div>
-                <div class="pick-analysis-full">${genericBettingCopy(pick.analysis)}</div>
-              </button>
-              <div class="pick-actions">
-                <button type="button" class="pick-btn place" data-ai-pick-place="${pick.id}">✅ Place</button>
-                <button type="button" class="pick-btn pass" data-ai-pick-pass="${pick.id}">❌ Pass</button>
-              </div>
-            </article>
-          `).join("")}
+          ${picks.length ? picks.map((pick) => aiPickCardMarkup(pick, { mobile: true })).join("") : `<div class="mobile-empty">All picks passed. Use Show all to review them.</div>`}
         </div>` : `<div class="mobile-empty">No new picks · Next card at 6 AM</div>`}
       `;
     }
@@ -4861,36 +5107,59 @@
       return { key: "value", label: "⚡ VALUE", className: "value" };
     }
 
-    function renderDesktopAiPicks() {
-      const today = currentEtDate();
-      const summary = summarize();
-      const picks = aiPicks.filter((pick) => pick.date === today);
-      const exposureUnits = picks.reduce((sum, pick) => sum + (Number(pick.units) || 0), 0);
-      const exposureDollars = picks.reduce((sum, pick) => sum + (Number(pick.dollars) || unitToDollars(Number(pick.units) || 0)), 0);
-      const potentialReturn = picks.reduce((sum, pick) => sum + americanProfit(Number(pick.units) || 0, Number(pick.odds) || -110), 0);
-
-      dom.desktopAiPicksStatus.textContent = picks.length ? `${picks.length} active today` : "No picks";
-      dom.desktopAiPicksSummary.innerHTML = picks.length ? `
-        <div class="pick-bankroll-card">
-          <div class="pick-bankroll-row"><strong>Bankroll</strong><span>${formatCurrency(STARTING_BANKROLL + summary.realized, { signed: false })}</span></div>
-          <div class="pick-bankroll-row"><strong>Today's exposure</strong><span>${formatUnitsSecondary(exposureUnits)} · ${formatCurrency(exposureDollars, { signed: false })} if all placed</span></div>
-          <div class="pick-bankroll-row"><strong>Potential return</strong><span>${formatCurrency(potentialReturn, { signed: false })} if all hit</span></div>
-        </div>
-      ` : "";
-
-      dom.desktopAiPicksGrid.innerHTML = picks.length ? picks.map((pick) => {
-        const category = desktopAiPickCategory(pick);
-        return `
-          <article class="pick-card desktop-pick-card ${category.className} ${pick.result === "placed" ? "is-placed" : ""} ${pick.result === "declined" ? "is-passed" : ""}">
-            ${pick.result === "placed" ? `<div class="pick-placed-overlay">Placed ✓</div>` : ""}
-            <div class="pick-header">
-              <span class="pick-badge ${category.className}">${category.label}</span>
-              <span class="pick-time">${pick.gameTime || "TBD"}</span>
+    function aiPickEditorMarkup(pick) {
+      const draft = aiPickDraftFor(pick);
+      return `
+        <div class="pick-editor" ${String(state.editingAiPickId) === String(pick.id) ? "" : "hidden"}>
+          <div class="pick-editor-row">
+            <div class="pick-editor-field">
+              <label for="pick-odds-${pick.id}">Odds</label>
+              <input id="pick-odds-${pick.id}" class="pick-odds-input" type="number" inputmode="numeric" value="${draft.odds}" data-ai-pick-input="${pick.id}" data-ai-pick-field="odds">
             </div>
-            <div class="pick-game">${pick.game}</div>
-            <div class="pick-selection">${pick.pick} (${formatLineValue(pick.odds)})</div>
+            <div class="pick-editor-field">
+              <label for="pick-units-${pick.id}">Units</label>
+              <input id="pick-units-${pick.id}" class="pick-units-input" type="number" min="0.1" step="0.1" inputmode="decimal" value="${draft.units}" data-ai-pick-input="${pick.id}" data-ai-pick-field="units">
+            </div>
+            <div class="pick-editor-payout" data-ai-pick-payout="${pick.id}">${potentialPayoutForDraft(draft)}</div>
+          </div>
+          <div class="pick-editor-actions">
+            <button type="button" class="pick-btn confirm" data-ai-pick-confirm="${pick.id}">Confirm</button>
+            <button type="button" class="pick-btn cancel" data-ai-pick-cancel="${pick.id}">Cancel</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function aiPickCardMarkup(pick, { mobile }) {
+      const action = pickActionFor(pick.id);
+      const status = action?.status || null;
+      const category = mobile ? { className: pick.category, label: pick.category === "play" ? "🎯 PLAY" : pick.category === "lean" ? "⚠️ LEAN" : "🚀 MOONSHOT" } : desktopAiPickCategory(pick);
+      const placedOdds = Number(action?.odds);
+      const placedUnits = Number(action?.units);
+      const isPlaced = status === "placed";
+      const isPassed = status === "passed";
+      const isFading = state.fadingPickIds.has(String(pick.id));
+      const actualOdds = Number.isFinite(placedOdds) ? placedOdds : Number(pick.odds);
+      const actualUnits = Number.isFinite(placedUnits) ? placedUnits : Number(pick.units);
+      return `
+        <article class="${mobile ? "mobile-pick-card" : "pick-card desktop-pick-card"} pick-card ${category.className} ${isPlaced ? "is-placed" : ""} ${isPassed ? "is-passed" : ""} ${isFading ? "is-fading-out" : ""}">
+          ${isPlaced ? `<div class="pick-placed-overlay">Placed ✓</div>` : ""}
+          <div class="pick-header">
+            <span class="pick-badge ${category.className}">${category.label}</span>
+            <span class="pick-time">${pick.gameTime || "TBD"}</span>
+          </div>
+          <div class="pick-game">${pick.game}</div>
+          <div class="pick-selection">${pick.pick} (${formatLineValue(actualOdds)})</div>
+          ${mobile ? `
+            <div class="pick-sizing">${formatUnitsSecondary(actualUnits)} · ${formatCurrency(unitToDollars(actualUnits), { signed: false })} · Kelly ${Number(pick.kellyPct || 0).toFixed(1)}%</div>
+            <div class="pick-edge">Edge: ${Number(pick.edgePts || 0).toFixed(1)}pts · ${confidenceStars(pick.confidence)}</div>
+            <button type="button" class="pick-analysis ${pick.expanded ? "expanded" : ""}" data-ai-pick-expand="${pick.id}">
+              <div class="pick-analysis-preview">${genericBettingCopy(pick.headline)}...</div>
+              <div class="pick-analysis-full">${genericBettingCopy(pick.analysis)}</div>
+            </button>
+          ` : `
             <div class="desktop-pick-meta">
-              <span class="pick-sizing">${formatUnitsSecondary(pick.units)} · ${formatCurrency(Number(pick.dollars) || unitToDollars(pick.units), { signed: false })}</span>
+              <span class="pick-sizing">${formatUnitsSecondary(actualUnits)} · ${formatCurrency(unitToDollars(actualUnits), { signed: false })}</span>
               <span class="pick-edge">Edge ${Number(pick.edgePts || 0).toFixed(1)}pts · ${confidenceStars(pick.confidence)}</span>
             </div>
             <div class="desktop-pick-meta">
@@ -4899,13 +5168,42 @@
             </div>
             <div class="pick-selection">${genericBettingCopy(pick.headline)}</div>
             <div class="desktop-pick-analysis">${genericBettingCopy(pick.analysis)}</div>
-            <div class="pick-actions">
-              <button type="button" class="pick-btn place" data-ai-pick-place="${pick.id}">Place</button>
-              <button type="button" class="pick-btn pass" data-ai-pick-pass="${pick.id}">Pass</button>
-            </div>
-          </article>
-        `;
-      }).join("") : `<div class="empty-state"><strong>No AI picks for today.</strong></div>`;
+          `}
+          ${isPlaced ? `<div class="pick-actual-line"><span>Actual</span><strong>${formatLineValue(actualOdds)}</strong><span>·</span><span>${formatUnitsSecondary(actualUnits)}</span></div>` : ""}
+          ${aiPickEditorMarkup(pick)}
+          <div class="pick-actions" ${(isPlaced || isPassed || String(state.editingAiPickId) === String(pick.id)) ? "hidden" : ""}>
+            <button type="button" class="pick-btn place" data-ai-pick-place="${pick.id}">${mobile ? "✅ Place" : "Place"}</button>
+            <button type="button" class="pick-btn pass" data-ai-pick-pass="${pick.id}">${mobile ? "❌ Pass" : "Pass"}</button>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderDesktopAiPicks() {
+      const today = currentEtDate();
+      const summary = summarize();
+      const counts = aiPickCounts(today);
+      const picks = visibleAiPicksForDate(today);
+      const exposureUnits = picks.reduce((sum, pick) => sum + (Number(pick.units) || 0), 0);
+      const exposureDollars = picks.reduce((sum, pick) => sum + (Number(pick.dollars) || unitToDollars(Number(pick.units) || 0)), 0);
+      const potentialReturn = picks.reduce((sum, pick) => sum + americanProfit(Number(pick.units) || 0, Number(pick.odds) || -110), 0);
+
+      dom.desktopAiPicksStatus.textContent = counts.total ? `${counts.remaining} of ${counts.total} remaining` : "No picks";
+      dom.desktopAiPicksSummary.innerHTML = counts.total ? `
+        <div class="pick-topline">
+          <span class="pick-counter">${counts.remaining} of ${counts.total} remaining</span>
+          <button type="button" class="pick-toggle-link" data-ai-picks-show-all>${state.showAllPassedPicks ? "Hide passed" : "Show all"}</button>
+        </div>
+        <div class="pick-bankroll-card">
+          <div class="pick-bankroll-row"><strong>Bankroll</strong><span>${formatCurrency(STARTING_BANKROLL + summary.realized, { signed: false })}</span></div>
+          <div class="pick-bankroll-row"><strong>Today's exposure</strong><span>${formatUnitsSecondary(exposureUnits)} · ${formatCurrency(exposureDollars, { signed: false })} if all placed</span></div>
+          <div class="pick-bankroll-row"><strong>Potential return</strong><span>${formatCurrency(potentialReturn, { signed: false })} if all hit</span></div>
+        </div>
+      ` : "";
+
+      dom.desktopAiPicksGrid.innerHTML = counts.total
+        ? (picks.length ? picks.map((pick) => aiPickCardMarkup(pick, { mobile: false })).join("") : `<div class="empty-state"><strong>All picks passed. Use Show all to review them.</strong></div>`)
+        : `<div class="empty-state"><strong>No AI picks for today.</strong></div>`;
     }
 
     function mobileAllBetsItems() {
@@ -4976,15 +5274,6 @@
       bet.result = "declined";
       saveState();
       render();
-    }
-
-    function handleAiPickAction(id, result) {
-      const pick = aiPicks.find((entry) => String(entry.id) === String(id));
-      if (!pick) return;
-      pick.result = pick.result === result ? null : result;
-      saveState();
-      renderMobilePicksView();
-      renderDesktopAiPicks();
     }
 
     function toggleAiPickExpanded(id) {
@@ -5212,7 +5501,8 @@
         version: 3,
         bets: cloneData(bets),
         parlays: cloneData(parlays),
-        aiPicks: cloneData(aiPicks)
+        aiPicks: cloneData(aiPicks),
+        pickActions: { ...(state.pickActions || {}) }
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     }
@@ -5221,6 +5511,7 @@
       try {
         const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
         if (!saved) return;
+        state.pickActions = saved.pickActions || {};
         const betMap = new Map((saved.bets || []).map((entry) => [entry.id, entry]));
         const parlayMap = new Map((saved.parlays || []).map((entry) => [entry.id, entry]));
         bets = cloneData(BETS).map((bet) => {
@@ -5246,6 +5537,7 @@
         bets = cloneData(BETS);
         parlays = cloneData(PARLAYS);
         aiPicks = cloneData(AI_PICKS);
+        state.pickActions = {};
       }
       // Force-sync: if hardcoded PARLAYS has a result, override localStorage
       const hardcodedParlayMap = new Map(PARLAYS.map((p) => [p.id, p]));
@@ -5463,13 +5755,31 @@
 
         const aiPickPlaceButton = event.target.closest("[data-ai-pick-place]");
         if (aiPickPlaceButton) {
-          handleAiPickAction(aiPickPlaceButton.dataset.aiPickPlace, "placed");
+          openAiPickEditor(aiPickPlaceButton.dataset.aiPickPlace);
           return;
         }
 
         const aiPickPassButton = event.target.closest("[data-ai-pick-pass]");
         if (aiPickPassButton) {
-          handleAiPickAction(aiPickPassButton.dataset.aiPickPass, "declined");
+          passAiPick(aiPickPassButton.dataset.aiPickPass);
+          return;
+        }
+
+        const aiPickConfirmButton = event.target.closest("[data-ai-pick-confirm]");
+        if (aiPickConfirmButton) {
+          confirmAiPickPlacement(aiPickConfirmButton.dataset.aiPickConfirm);
+          return;
+        }
+
+        const aiPickCancelButton = event.target.closest("[data-ai-pick-cancel]");
+        if (aiPickCancelButton) {
+          cancelAiPickEditor(aiPickCancelButton.dataset.aiPickCancel);
+          return;
+        }
+
+        const aiPicksShowAllButton = event.target.closest("[data-ai-picks-show-all]");
+        if (aiPicksShowAllButton) {
+          toggleShowAllPassedPicks();
           return;
         }
 
@@ -5549,10 +5859,31 @@
         updateBetLine(id, line);
       });
 
+      document.addEventListener("input", (event) => {
+        const input = event.target.closest("[data-ai-pick-input][data-ai-pick-field]");
+        if (!input) return;
+        updateAiPickDraft(input.dataset.aiPickInput, input.dataset.aiPickField, input.value);
+      });
+
       document.addEventListener("keydown", (event) => {
-        if (event.key !== "Escape" || state.editingLineId == null) return;
-        state.editingLineId = null;
-        renderBetsTable();
+        if (event.key === "Escape") {
+          if (state.editingLineId != null) {
+            state.editingLineId = null;
+            renderBetsTable();
+            return;
+          }
+          if (state.editingAiPickId != null) {
+            cancelAiPickEditor(state.editingAiPickId);
+          }
+          return;
+        }
+
+        if (event.key === "Enter") {
+          const input = event.target.closest("[data-ai-pick-input]");
+          if (!input) return;
+          event.preventDefault();
+          confirmAiPickPlacement(input.dataset.aiPickInput);
+        }
       });
 
       document.querySelectorAll("th.sortable").forEach((header) => {
