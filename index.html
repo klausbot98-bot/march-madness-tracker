@@ -1811,14 +1811,49 @@
     }
 
     @media (max-width: 767px) {
+      html,
+      body {
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
       body {
         padding-bottom: 24px;
       }
 
       .app {
         width: min(100% - 16px, 100%);
+        max-width: 100% !important;
+        overflow-x: hidden;
         padding-top: 12px;
         padding-bottom: 24px;
+      }
+
+      .app,
+      .topbar,
+      .layout,
+      .stack,
+      .card,
+      section,
+      .live-bets-panel,
+      .live-scores-panel,
+      .table-wrap,
+      .table-scroll,
+      .live-bet-card {
+        width: 100%;
+        max-width: 100% !important;
+        min-width: 0;
+        overflow-x: hidden;
+      }
+
+      .topbar > *,
+      .layout > *,
+      .stack > *,
+      section > *,
+      .section-head > *,
+      .live-bet-head > *,
+      .live-bet-meta > * {
+        min-width: 0;
       }
 
       .topbar {
@@ -1870,18 +1905,13 @@
       .hero-description,
       #summaryGrid,
       #heroMeta,
-      .pnl-hero .pill,
+      .pnl-hero,
       .scroll-hint {
         display: none !important;
       }
 
       .title-badge {
         display: inline-flex;
-      }
-
-      .pnl-hero {
-        padding: 14px 16px;
-        gap: 6px;
       }
 
       .pnl-value {
@@ -1891,8 +1921,8 @@
 
       .hero-kpis {
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 0;
-        margin-top: 14px;
+        gap: 6px;
+        margin-top: 12px;
         border: 1px solid rgba(148, 163, 184, 0.14);
         border-radius: 16px;
         overflow: hidden;
@@ -1900,12 +1930,16 @@
       }
 
       .hero-kpi {
-        min-height: 0;
-        padding: 10px 12px;
+        min-height: 52px;
+        padding: 6px 8px;
         border-radius: 0;
         border: 0;
         border-right: 1px solid rgba(148, 163, 184, 0.12);
         background: transparent;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 2px;
       }
 
       .hero-kpi:last-child {
@@ -1917,35 +1951,33 @@
       }
 
       .hero-kpi strong {
-        margin-bottom: 5px;
-        font-size: 0.58rem;
+        margin-bottom: 0;
+        font-size: 0.54rem;
         letter-spacing: 0.11em;
+        line-height: 1;
       }
 
       .hero-kpi-value {
-        font-size: 1.02rem;
-        line-height: 1.1;
+        font-size: 0.94rem;
+        line-height: 1;
       }
 
       .hero-kpi-meta {
-        margin-top: 4px;
-        font-size: 0.68rem;
-        line-height: 1.2;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        display: none !important;
       }
 
       .tab-bar {
         display: flex;
         width: 100%;
         gap: 6px;
-        padding: 6px;
-        margin-bottom: 14px;
+        padding: 4px;
+        margin-bottom: 12px;
         overflow-x: auto;
         overflow-y: hidden;
         border-radius: 999px;
-        top: 8px;
+        position: sticky;
+        top: 0;
+        z-index: 40;
         scrollbar-width: none;
       }
 
@@ -1955,9 +1987,9 @@
 
       .tab-button {
         flex: 0 0 auto;
-        min-height: 38px;
-        padding: 8px 14px;
-        font-size: 0.78rem;
+        min-height: 28px;
+        padding: 6px 12px;
+        font-size: 0.72rem;
         font-weight: 700;
         letter-spacing: 0.02em;
       }
@@ -1982,12 +2014,11 @@
       .live-bets-panel {
         display: block;
         order: -3;
-        padding: 14px;
+        padding: 10px 12px;
       }
 
       .live-scores-panel {
-        order: -2;
-        padding: 14px;
+        display: none !important;
       }
 
       .table-wrap {
@@ -2040,35 +2071,112 @@
       }
 
       .live-bets-grid {
-        gap: 10px;
+        gap: 8px;
         margin-top: 0;
       }
 
       .live-bet-card {
-        min-height: 80px;
-        padding: 10px 12px;
-        border-radius: 14px;
+        min-height: 0;
+        padding: 8px 10px;
+        border-radius: 12px;
+        gap: 4px;
       }
 
-      .live-bet-title strong {
-        font-size: 0.9rem;
+      .live-bets-panel .section-head p {
+        display: none !important;
       }
 
-      .live-bet-pick {
-        font-size: 0.86rem;
+      .live-bet-head,
+      .live-bet-meta,
+      .live-bet-leg {
+        gap: 8px;
+      }
+
+      .live-bet-card:not(:has(.live-bet-legs)) {
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 0;
+      }
+
+      .live-bet-card:not(:has(.live-bet-legs)) .live-bet-head,
+      .live-bet-card:not(:has(.live-bet-legs)) .live-bet-meta {
+        display: contents;
+      }
+
+      .live-bet-card:not(:has(.live-bet-legs)) .live-bet-dot,
+      .live-bet-card:not(:has(.live-bet-legs)) .live-bet-title strong {
+        display: none;
+      }
+
+      .live-bet-card:not(:has(.live-bet-legs)) .live-bet-pick,
+      .live-bet-card:not(:has(.live-bet-legs)) .live-bet-meta span:last-child,
+      .live-bet-card:not(:has(.live-bet-legs)) .live-bet-tag {
+        flex: 0 1 auto;
+        white-space: nowrap;
+      }
+
+      .live-bet-card:not(:has(.live-bet-legs)) .live-bet-pick {
+        font-size: 0.82rem;
         font-weight: 700;
+        color: var(--text);
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .live-bet-card:not(:has(.live-bet-legs)) .live-bet-meta span:last-child {
+        font-size: 0;
+        color: transparent;
+      }
+
+      .live-bet-card:not(:has(.live-bet-legs)) .live-bet-meta span:last-child::before,
+      .live-bet-card:not(:has(.live-bet-legs)) .live-bet-tag::before {
+        content: "·";
+        font-size: 0.74rem;
+        color: var(--muted);
+        margin: 0 6px;
+      }
+
+      .live-bet-card:not(:has(.live-bet-legs)) .live-bet-meta strong {
+        font-size: 0.8rem;
         color: var(--text);
       }
 
-      .live-bet-meta {
-        font-size: 0.74rem;
+      .live-bet-card:not(:has(.live-bet-legs)) .live-bet-tag {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        font-size: 0.68rem;
       }
 
-      .live-bet-meta strong {
-        font-size: 0.92rem;
+      .live-bet-card:has(.live-bet-legs) .live-bet-dot,
+      .live-bet-card:has(.live-bet-legs) .live-bet-meta {
+        display: none;
+      }
+
+      .live-bet-card:has(.live-bet-legs) .live-bet-head {
+        margin-bottom: 2px;
+      }
+
+      .live-bet-card:has(.live-bet-legs) .live-bet-title strong {
+        font-size: 0.84rem;
+      }
+
+      .live-bet-card:has(.live-bet-legs) .live-bet-tag {
+        padding: 2px 6px;
+        font-size: 0.62rem;
+      }
+
+      .live-bet-legs {
+        gap: 4px;
       }
 
       .live-bet-leg {
+        padding-top: 4px;
+        font-size: 0.7rem;
+      }
+
+      .live-bet-leg strong {
         font-size: 0.74rem;
       }
 
