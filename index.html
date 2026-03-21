@@ -2090,6 +2090,7 @@
       }
 
       .mobile-live-card.rich-live {
+        min-height: 95px;
         padding-top: 12px;
         padding-bottom: 12px;
       }
@@ -2210,6 +2211,10 @@
         gap: 10px;
       }
 
+      .mobile-live-topline {
+        align-items: flex-start;
+      }
+
       .mobile-live-badge,
       .mobile-live-upcoming {
         display: inline-flex;
@@ -2237,6 +2242,11 @@
       .mobile-live-score-extra {
         color: var(--ios-text-secondary);
         font-size: 0.8rem;
+      }
+
+      .mobile-live-scoreline {
+        justify-content: flex-start;
+        line-height: 1.25;
       }
 
       .mobile-live-scoreline strong,
@@ -2277,6 +2287,144 @@
 
       .mobile-margin-fill.not-covering {
         background: #ff453a;
+      }
+
+      .mobile-spread-viz,
+      .mobile-under-viz,
+      .mobile-over-viz {
+        padding: 4px 0;
+      }
+
+      .spread-track {
+        position: relative;
+        width: 100%;
+        height: 8px;
+        border-radius: 4px;
+        background: linear-gradient(90deg, rgba(255,69,58,0.15) 0%, rgba(255,69,58,0.15) 40%, rgba(142,142,147,0.12) 40%, rgba(142,142,147,0.12) 40.5%, rgba(48,209,88,0.15) 40.5%, rgba(48,209,88,0.15) 100%);
+      }
+
+      .spread-threshold {
+        position: absolute;
+        top: -2px;
+        width: 2px;
+        height: 12px;
+        background: #8e8e93;
+        transform: translateX(-50%);
+      }
+
+      .spread-marker {
+        position: absolute;
+        top: -4px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        transform: translateX(-50%);
+        transition: left 0.5s ease;
+      }
+
+      .spread-marker.covering {
+        background: #30d158;
+        box-shadow: 0 0 8px rgba(48,209,88,0.4);
+      }
+
+      .spread-marker.not-covering {
+        background: #ff453a;
+        box-shadow: 0 0 8px rgba(255,69,58,0.4);
+      }
+
+      .spread-labels,
+      .under-labels,
+      .over-labels {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 4px;
+        font-size: 0.68rem;
+        color: #8e8e93;
+      }
+
+      .spread-status,
+      .under-status,
+      .over-status {
+        font-size: 0.72rem;
+        font-weight: 600;
+        margin-top: 2px;
+      }
+
+      .spread-status.covering {
+        color: #30d158;
+      }
+
+      .spread-status.not-covering {
+        color: #ff453a;
+      }
+
+      .under-track,
+      .over-track {
+        width: 100%;
+        height: 8px;
+        border-radius: 4px;
+        background: #1e293b;
+        overflow: hidden;
+      }
+
+      .under-fill,
+      .over-fill {
+        height: 100%;
+        border-radius: 4px;
+        transition: width 0.5s ease;
+      }
+
+      .under-fill {
+        background: #30d158;
+      }
+
+      .under-fill.warning {
+        background: #ff9f0a;
+      }
+
+      .under-fill.danger {
+        background: #ff453a;
+      }
+
+      .under-status.safe {
+        color: #30d158;
+      }
+
+      .under-status.warning {
+        color: #ff9f0a;
+      }
+
+      .under-status.danger {
+        color: #ff453a;
+      }
+
+      .over-track {
+        position: relative;
+      }
+
+      .over-fill.on-pace {
+        background: #30d158;
+      }
+
+      .over-fill.behind-pace {
+        background: #ff453a;
+      }
+
+      .over-target-line {
+        position: absolute;
+        right: 0;
+        top: -2px;
+        width: 2px;
+        height: 12px;
+        background: #8e8e93;
+      }
+
+      .over-status.on-pace {
+        color: #30d158;
+      }
+
+      .over-status.behind-pace {
+        color: #ff453a;
       }
 
       @keyframes pulse-live {
@@ -3430,6 +3578,90 @@
       };
     }
 
+    function clamp(value, min, max) {
+      return Math.min(Math.max(value, min), max);
+    }
+
+    function parseSpreadPick(pick) {
+      const match = String(pick || "").match(/^(.+?)\s([+-]\d+(?:\.\d+)?)$/);
+      if (!match) return null;
+      const spread = Number.parseFloat(match[2]);
+      if (!Number.isFinite(spread)) return null;
+      return { team: match[1].trim(), spread };
+    }
+
+    function spreadVisualizationData(pick, game) {
+      const parsed = parseSpreadPick(pick);
+      const teams = Array.isArray(game?.teams) ? game.teams : [];
+      if (!parsed || teams.length < 2) return null;
+
+      const pickTeamEntry = teams.find((team) => teamMatches(team.name, parsed.team));
+      const oppTeamEntry = teams.find((team) => !teamMatches(team.name, parsed.team));
+      if (!pickTeamEntry || !oppTeamEntry || !Number.isFinite(pickTeamEntry.score) || !Number.isFinite(oppTeamEntry.score)) return null;
+
+      const scoreDiff = pickTeamEntry.score - oppTeamEntry.score;
+      const coverMargin = scoreDiff + parsed.spread;
+      const markerPos = ((clamp(coverMargin, -20, 30) + 20) / 50) * 100;
+      return {
+        spreadLine: parsed.spread > 0 ? `+${parsed.spread}` : `${parsed.spread}`,
+        currentMargin: scoreDiff > 0 ? `Up ${scoreDiff}` : scoreDiff < 0 ? `Down ${Math.abs(scoreDiff)}` : "Tied",
+        coverMargin,
+        covering: coverMargin > 0,
+        thresholdPos: 40,
+        markerPos,
+        statusText: coverMargin > 0
+          ? `✅ Safe by ${Math.abs(coverMargin).toFixed(1).replace(/\.0$/, "")}`
+          : coverMargin < 0
+            ? `❌ Needs ${Math.abs(coverMargin).toFixed(1).replace(/\.0$/, "")}`
+            : "⚠️ On the number"
+      };
+    }
+
+    function totalVisualizationData(pick, game) {
+      const line = totalPickLine(pick);
+      const teams = Array.isArray(game?.teams) ? game.teams : [];
+      if (!Number.isFinite(line) || teams.length < 2) return null;
+
+      const currentTotal = teams.reduce((sum, team) => sum + (Number.isFinite(team.score) ? team.score : 0), 0);
+      const remaining = line - currentTotal;
+      const remainingPct = clamp((remaining / line) * 100, 0, 100);
+      const filledPct = clamp((currentTotal / line) * 100, 0, 100);
+      const pace = totalPaceProgress(game);
+      const isUnder = /\b(?:under|u)\b/i.test(String(pick || ""));
+      const paceRatio = pace == null ? null : clamp(pace * 100, 0, 100);
+
+      if (isUnder) {
+        const state = remaining < 0 ? "danger" : remainingPct > 50 ? "safe" : remainingPct >= 25 ? "warning" : "danger";
+        return {
+          kind: "under",
+          currentTotal,
+          remaining,
+          remainingPct,
+          state,
+          emoji: remaining < 0 ? "❌" : state === "safe" ? "✅" : "⚠️",
+          statusText: remaining < 0
+            ? "❌ Over budget"
+            : `${state === "safe" ? "✅" : "⚠️"} ${Math.round(remainingPct)}% budget left`
+        };
+      }
+
+      const needed = Math.max(0, remaining);
+      const hit = currentTotal >= line;
+      const onPace = hit || paceRatio == null || filledPct >= paceRatio;
+      const state = hit || onPace ? "on-pace" : "behind-pace";
+      return {
+        kind: "over",
+        currentTotal,
+        needed,
+        filledPct,
+        state,
+        emoji: hit ? "✅" : onPace ? "✅" : "❌",
+        statusText: hit
+          ? "✅ Target cleared"
+          : `${onPace ? "✅" : "❌"} ${Math.round(filledPct)}% there`
+      };
+    }
+
     function mobileStatusEmoji(state) {
       if (state === "covering" || state === "win") return "✅";
       if (state === "not-covering" || state === "loss") return "❌";
@@ -3752,31 +3984,86 @@
 
       const isLiveSingle = entry.evaluation.isLive && entry.evaluation.hasScores;
       const liveBadge = `<span class="mobile-live-badge">LIVE <span class="mobile-live-dot">●</span></span>`;
+      const betType = inferBetTypeFromPick(entry.pick);
 
-      if (isLiveSingle && inferBetTypeFromPick(entry.pick) === "total") {
-        const statusClass = mobileStatusClass(entry.evaluation.state);
-        return `
-          <div class="live-bet-mobile">
-            <div class="mobile-live-topline">
-              <strong class="live-bet-row-pick">${entry.title}</strong>
-              ${liveBadge}
-            </div>
-            <div class="mobile-live-scoreline">
-              <span>${entry.evaluation.mobileScoreLabel}</span>
-              <span class="mobile-live-score-extra">Total: ${entry.evaluation.currentTotal}</span>
-            </div>
-            <div class="mobile-live-barline">
-              <div class="mobile-margin-bar">
-                <div class="mobile-margin-fill ${statusClass}" style="width: ${((entry.evaluation.barRatio || 0) * 100).toFixed(1)}%"></div>
+      if (isLiveSingle && betType === "spread") {
+        const spreadData = spreadVisualizationData(entry.pick, entry.game);
+        if (spreadData) {
+          return `
+            <div class="live-bet-mobile">
+              <div class="mobile-live-topline">
+                <strong class="live-bet-row-pick">${entry.title}</strong>
+                ${liveBadge}
               </div>
-              <span class="mobile-live-bar-caption">${entry.evaluation.currentTotal}/${entry.evaluation.line ?? "0"}</span>
+              <div class="mobile-live-scoreline">
+                <span>${entry.evaluation.mobileScoreLabel}</span>
+              </div>
+              <div class="mobile-spread-viz">
+                <div class="spread-track">
+                  <div class="spread-threshold" style="left: ${spreadData.thresholdPos}%"></div>
+                  <div class="spread-marker ${spreadData.covering ? "covering" : "not-covering"}" style="left: ${spreadData.markerPos}%"></div>
+                </div>
+                <div class="spread-labels">
+                  <span class="spread-label-line">${spreadData.spreadLine}</span>
+                  <span class="spread-label-current">${spreadData.currentMargin}</span>
+                </div>
+                <div class="spread-status ${spreadData.covering ? "covering" : "not-covering"}">${spreadData.statusText}</div>
+              </div>
             </div>
-            <div class="mobile-live-bottomline ${statusClass}">
-              <span>${entry.evaluation.state === "covering" ? "On pace" : "Off pace"}</span>
-              <span>${entry.evaluation.throughPercent != null ? `${entry.evaluation.throughPercent}% through` : ""}</span>
+          `;
+        }
+      }
+
+      if (isLiveSingle && betType === "total") {
+        const totalData = totalVisualizationData(entry.pick, entry.game);
+        if (totalData?.kind === "under") {
+          return `
+            <div class="live-bet-mobile">
+              <div class="mobile-live-topline">
+                <strong class="live-bet-row-pick">${entry.title}</strong>
+                ${liveBadge}
+              </div>
+              <div class="mobile-live-scoreline">
+                <span>${entry.evaluation.mobileScoreLabel}</span>
+              </div>
+              <div class="mobile-under-viz">
+                <div class="under-track">
+                  <div class="under-fill ${totalData.state === "warning" ? "warning" : totalData.state === "danger" ? "danger" : ""}" style="width: ${totalData.remainingPct.toFixed(1)}%"></div>
+                </div>
+                <div class="under-labels">
+                  <span>${totalData.currentTotal} scored</span>
+                  <span>${totalData.remaining > 0 ? `${totalData.remaining.toFixed(1).replace(/\.0$/, "")} remaining` : "0 remaining"}</span>
+                </div>
+                <div class="under-status ${totalData.state}">${totalData.statusText}</div>
+              </div>
             </div>
-          </div>
-        `;
+          `;
+        }
+
+        if (totalData?.kind === "over") {
+          return `
+            <div class="live-bet-mobile">
+              <div class="mobile-live-topline">
+                <strong class="live-bet-row-pick">${entry.title}</strong>
+                ${liveBadge}
+              </div>
+              <div class="mobile-live-scoreline">
+                <span>${entry.evaluation.mobileScoreLabel}</span>
+              </div>
+              <div class="mobile-over-viz">
+                <div class="over-track">
+                  <div class="over-fill ${totalData.state}" style="width: ${totalData.filledPct.toFixed(1)}%"></div>
+                  <div class="over-target-line"></div>
+                </div>
+                <div class="over-labels">
+                  <span>${totalData.currentTotal} scored</span>
+                  <span>${totalData.needed > 0 ? `Need ${totalData.needed.toFixed(1).replace(/\.0$/, "")} more` : "Target hit"}</span>
+                </div>
+                <div class="over-status ${totalData.state}">${totalData.statusText}</div>
+              </div>
+            </div>
+          `;
+        }
       }
 
       if (isLiveSingle) {
