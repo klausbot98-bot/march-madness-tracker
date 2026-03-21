@@ -2202,7 +2202,9 @@
       }
 
       .mobile-live-topline,
+      .mobile-live-scoreblock,
       .mobile-live-scoreline,
+      .mobile-live-clock,
       .mobile-live-barline,
       .mobile-live-bottomline {
         display: flex;
@@ -2213,6 +2215,14 @@
 
       .mobile-live-topline {
         align-items: flex-start;
+      }
+
+      .mobile-live-meta {
+        color: #8e8e93;
+        font-size: 0.7rem;
+        line-height: 1.15;
+        white-space: nowrap;
+        text-align: right;
       }
 
       .mobile-live-badge,
@@ -2239,14 +2249,28 @@
       .mobile-live-scoreline,
       .mobile-live-bottomline,
       .mobile-live-bar-caption,
-      .mobile-live-score-extra {
+      .mobile-live-score-extra,
+      .mobile-live-clock {
         color: var(--ios-text-secondary);
         font-size: 0.8rem;
+      }
+
+      .mobile-live-scoreblock {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
       }
 
       .mobile-live-scoreline {
         justify-content: flex-start;
         line-height: 1.25;
+      }
+
+      .mobile-live-clock {
+        justify-content: flex-start;
+        font-size: 0.68rem;
+        color: #8e8e93;
+        line-height: 1.1;
       }
 
       .mobile-live-scoreline strong,
@@ -3552,6 +3576,12 @@
       return `${rounded >= 0 ? "+" : "-"}${formatted}`;
     }
 
+    function formatAbsoluteNumber(value) {
+      if (!Number.isFinite(value)) return "0";
+      const rounded = Math.round(value * 10) / 10;
+      return Number.isInteger(rounded) ? rounded.toFixed(0) : rounded.toFixed(1);
+    }
+
     function totalPaceProgress(game) {
       const start = parseGameStartDate(game);
       if (!start) return null;
@@ -3604,15 +3634,16 @@
       const markerPos = ((clamp(coverMargin, -20, 30) + 20) / 50) * 100;
       return {
         spreadLine: parsed.spread > 0 ? `+${parsed.spread}` : `${parsed.spread}`,
-        currentMargin: scoreDiff > 0 ? `Up ${scoreDiff}` : scoreDiff < 0 ? `Down ${Math.abs(scoreDiff)}` : "Tied",
+        currentMargin: scoreDiff > 0 ? `Winning by ${formatAbsoluteNumber(scoreDiff)}` : scoreDiff < 0 ? `Losing by ${formatAbsoluteNumber(Math.abs(scoreDiff))}` : "Tied",
+        scoreDiff,
         coverMargin,
         covering: coverMargin > 0,
         thresholdPos: 40,
         markerPos,
         statusText: coverMargin > 0
-          ? `✅ Safe by ${Math.abs(coverMargin).toFixed(1).replace(/\.0$/, "")}`
+          ? `✅ Cover ${formatSignedMargin(coverMargin)}`
           : coverMargin < 0
-            ? `❌ Needs ${Math.abs(coverMargin).toFixed(1).replace(/\.0$/, "")}`
+            ? `❌ Behind ${formatSignedMargin(coverMargin)}`
             : "⚠️ On the number"
       };
     }
@@ -3628,8 +3659,6 @@
       const filledPct = clamp((currentTotal / line) * 100, 0, 100);
       const pace = totalPaceProgress(game);
       const isUnder = /\b(?:under|u)\b/i.test(String(pick || ""));
-      const paceRatio = pace == null ? null : clamp(pace * 100, 0, 100);
-
       if (isUnder) {
         const state = remaining < 0 ? "danger" : remainingPct > 50 ? "safe" : remainingPct >= 25 ? "warning" : "danger";
         return {
@@ -3646,20 +3675,53 @@
       }
 
       const needed = Math.max(0, remaining);
+      const projectedTotal = pace != null && pace > 0 ? currentTotal / pace : null;
       const hit = currentTotal >= line;
-      const onPace = hit || paceRatio == null || filledPct >= paceRatio;
+      const onPace = hit || (projectedTotal != null ? projectedTotal > line : false);
       const state = hit || onPace ? "on-pace" : "behind-pace";
       return {
         kind: "over",
         currentTotal,
         needed,
         filledPct,
+        projectedTotal,
+        hasProjection: projectedTotal != null,
         state,
-        emoji: hit ? "✅" : onPace ? "✅" : "❌",
-        statusText: hit
-          ? "✅ Target cleared"
-          : `${onPace ? "✅" : "❌"} ${Math.round(filledPct)}% there`
+        statusText: projectedTotal == null
+          ? "⏳ Awaiting tip-off"
+          : `Projected: ${formatAbsoluteNumber(projectedTotal)} · ${onPace ? "On pace ✅" : "Behind pace ❌"}`
       };
+    }
+
+    function liveGameClockLabel(game) {
+      if (!game) return "";
+      const rawPeriod = game.period ?? game.clockPeriod ?? game.currentPeriod ?? game.quarter ?? game.inning ?? game.rawPeriod ?? null;
+      const rawClock = game.clock ?? game.timer ?? game.timeRemaining ?? game.displayClock ?? game.rawClock ?? null;
+
+      const periodLabel = (() => {
+        if (typeof rawPeriod === "string" && rawPeriod.trim()) return rawPeriod.trim();
+        if (Number.isFinite(Number(rawPeriod))) {
+          const period = Number(rawPeriod);
+          if (period === 1) return "1st Half";
+          if (period === 2) return "2nd Half";
+          return `OT${period - 2}`;
+        }
+        return "";
+      })();
+      const clockLabel = typeof rawClock === "string" && rawClock.trim() ? rawClock.trim() : "";
+      if (periodLabel && clockLabel) return `${periodLabel} · ${clockLabel}`;
+      if (periodLabel) return periodLabel;
+      if (clockLabel) return clockLabel;
+
+      const start = parseGameStartDate(game);
+      if (!start) return "";
+      const elapsed = Math.max(0, Math.round((currentEtNow().getTime() - start.getTime()) / 60000));
+      const halfLabel = elapsed < 20 ? "First Half" : elapsed < 25 ? "Halftime" : "Second Half";
+      return `${halfLabel} · ~${elapsed}min`;
+    }
+
+    function mobileLiveHeaderMeta(entry) {
+      return `${formatUnitsSecondary(entry.units)} · ${formatCurrency(unitToDollars(entry.units), { signed: false })} · LIVE <span class="mobile-live-dot">●</span>`;
     }
 
     function mobileStatusEmoji(state) {
@@ -3697,6 +3759,8 @@
           { name: awayTeam, score: scoreForTeam(awayTeam) },
           { name: homeTeam, score: scoreForTeam(homeTeam) }
         ],
+        period: game.period ?? game.clockPeriod ?? game.currentPeriod ?? game.quarter ?? null,
+        clock: game.clock ?? game.timer ?? game.timeRemaining ?? game.displayClock ?? null,
         status,
         completed,
         source: "odds-scores"
@@ -3969,7 +4033,7 @@
           <div class="live-bet-mobile">
             <div class="live-bet-row">
               <strong class="live-bet-row-pick">${entry.title}</strong>
-              <span class="live-bet-row-meta">${formatUnitsSecondary(entry.units)}</span>
+              <span class="mobile-live-meta">${formatUnitsSecondary(entry.units)} · ${formatCurrency(unitToDollars(entry.units), { signed: false })}</span>
             </div>
             <div class="live-bet-row live-bet-row-legs">
               <div class="live-bet-parlay-legs">
@@ -3983,7 +4047,8 @@
       }
 
       const isLiveSingle = entry.evaluation.isLive && entry.evaluation.hasScores;
-      const liveBadge = `<span class="mobile-live-badge">LIVE <span class="mobile-live-dot">●</span></span>`;
+      const liveMeta = `<span class="mobile-live-meta">${mobileLiveHeaderMeta(entry)}</span>`;
+      const clockLabel = liveGameClockLabel(entry.game);
       const betType = inferBetTypeFromPick(entry.pick);
 
       if (isLiveSingle && betType === "spread") {
@@ -3993,10 +4058,13 @@
             <div class="live-bet-mobile">
               <div class="mobile-live-topline">
                 <strong class="live-bet-row-pick">${entry.title}</strong>
-                ${liveBadge}
+                ${liveMeta}
               </div>
-              <div class="mobile-live-scoreline">
+              <div class="mobile-live-scoreblock">
+                <div class="mobile-live-scoreline">
                 <span>${entry.evaluation.mobileScoreLabel}</span>
+                </div>
+                ${clockLabel ? `<div class="mobile-live-clock"><span>${clockLabel}</span></div>` : ""}
               </div>
               <div class="mobile-spread-viz">
                 <div class="spread-track">
@@ -4021,10 +4089,13 @@
             <div class="live-bet-mobile">
               <div class="mobile-live-topline">
                 <strong class="live-bet-row-pick">${entry.title}</strong>
-                ${liveBadge}
+                ${liveMeta}
               </div>
-              <div class="mobile-live-scoreline">
-                <span>${entry.evaluation.mobileScoreLabel}</span>
+              <div class="mobile-live-scoreblock">
+                <div class="mobile-live-scoreline">
+                  <span>${entry.evaluation.mobileScoreLabel}</span>
+                </div>
+                ${clockLabel ? `<div class="mobile-live-clock"><span>${clockLabel}</span></div>` : ""}
               </div>
               <div class="mobile-under-viz">
                 <div class="under-track">
@@ -4045,10 +4116,13 @@
             <div class="live-bet-mobile">
               <div class="mobile-live-topline">
                 <strong class="live-bet-row-pick">${entry.title}</strong>
-                ${liveBadge}
+                ${liveMeta}
               </div>
-              <div class="mobile-live-scoreline">
-                <span>${entry.evaluation.mobileScoreLabel}</span>
+              <div class="mobile-live-scoreblock">
+                <div class="mobile-live-scoreline">
+                  <span>${entry.evaluation.mobileScoreLabel}</span>
+                </div>
+                ${clockLabel ? `<div class="mobile-live-clock"><span>${clockLabel}</span></div>` : ""}
               </div>
               <div class="mobile-over-viz">
                 <div class="over-track">
@@ -4069,18 +4143,21 @@
       if (isLiveSingle) {
         const statusClass = mobileStatusClass(entry.evaluation.state);
         return `
-          <div class="live-bet-mobile">
-            <div class="mobile-live-topline">
-              <strong class="live-bet-row-pick">${entry.title}</strong>
-              ${liveBadge}
-            </div>
+        <div class="live-bet-mobile">
+          <div class="mobile-live-topline">
+            <strong class="live-bet-row-pick">${entry.title}</strong>
+            ${liveMeta}
+          </div>
+          <div class="mobile-live-scoreblock">
             <div class="mobile-live-scoreline">
               <span>${entry.evaluation.mobileScoreLabel}</span>
             </div>
-            <div class="mobile-live-barline">
-              <div class="mobile-margin-bar">
-                <div class="mobile-margin-fill ${statusClass}" style="width: ${((entry.evaluation.barRatio || 0) * 100).toFixed(1)}%"></div>
-              </div>
+            ${clockLabel ? `<div class="mobile-live-clock"><span>${clockLabel}</span></div>` : ""}
+          </div>
+          <div class="mobile-live-barline">
+            <div class="mobile-margin-bar">
+              <div class="mobile-margin-fill ${statusClass}" style="width: ${((entry.evaluation.barRatio || 0) * 100).toFixed(1)}%"></div>
+            </div>
             </div>
             <div class="mobile-live-bottomline ${statusClass}">
               <span>${entry.evaluation.summaryText}</span>
