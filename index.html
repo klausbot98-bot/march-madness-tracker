@@ -1064,11 +1064,23 @@
       border-left-color: var(--green);
     }
 
+    .live-bet-card.win {
+      border-left-color: var(--green);
+    }
+
     .live-bet-card.not-covering {
       border-left-color: var(--red);
     }
 
+    .live-bet-card.loss {
+      border-left-color: var(--red);
+    }
+
     .live-bet-card.upcoming {
+      border-left-color: var(--yellow);
+    }
+
+    .live-bet-card.push {
       border-left-color: var(--yellow);
     }
 
@@ -1134,13 +1146,31 @@
       border-color: rgba(34, 197, 94, 0.22);
     }
 
+    .live-bet-tag.win {
+      color: var(--green);
+      background: var(--green-soft);
+      border-color: rgba(34, 197, 94, 0.22);
+    }
+
     .live-bet-tag.not-covering {
       color: var(--red);
       background: var(--red-soft);
       border-color: rgba(239, 68, 68, 0.22);
     }
 
+    .live-bet-tag.loss {
+      color: var(--red);
+      background: var(--red-soft);
+      border-color: rgba(239, 68, 68, 0.22);
+    }
+
     .live-bet-tag.upcoming {
+      color: var(--yellow);
+      background: var(--yellow-soft);
+      border-color: rgba(251, 191, 36, 0.22);
+    }
+
+    .live-bet-tag.push {
       color: var(--yellow);
       background: var(--yellow-soft);
       border-color: rgba(251, 191, 36, 0.22);
@@ -2627,8 +2657,8 @@
           <section class="live-bets-panel card">
             <div class="section-head">
               <div>
-                <h2>MY LIVE BETS</h2>
-                <p class="subtle">Only Kevin’s active bets and parlay legs in today’s live slate.</p>
+                <h2>MY BETS</h2>
+                <p class="subtle">Kevin’s bets for today, grouped by live, upcoming, and settled status.</p>
               </div>
               <div id="liveBetsStatus" class="pill">Today</div>
             </div>
@@ -2973,7 +3003,7 @@
     };
 
     let state = {
-      filter: "active",
+      filter: "all",
       sort: "date-asc",
       activeTab: "dashboard",
       activeBracketRegion: "South",
