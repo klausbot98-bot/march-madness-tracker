@@ -1850,7 +1850,7 @@
 
     @media (max-width: 767px) {
       :root {
-        --ios-bg: #000;
+        --ios-bg: #050a14;
         --ios-card: #1c1c1e;
         --ios-card-border: rgba(255,255,255,0.06);
         --ios-text: #fff;
@@ -1916,7 +1916,7 @@
         z-index: 100;
         min-height: 90px;
         padding: 12px 16px;
-        background: rgba(0,0,0,0.72);
+        background: linear-gradient(180deg, rgba(10,20,40,0.85) 0%, rgba(0,0,0,0.72) 100%);
         backdrop-filter: blur(20px) saturate(180%);
         border-bottom: 1px solid var(--ios-card-border);
       }
@@ -1964,6 +1964,14 @@
         letter-spacing: -0.04em;
       }
 
+      body:has(#heroKpis .hero-kpi:first-child .positive) .mobile-header-bankroll {
+        text-shadow: 0 0 20px rgba(48,209,88,0.15);
+      }
+
+      body:has(#heroKpis .hero-kpi:first-child .negative) .mobile-header-bankroll {
+        text-shadow: 0 0 20px rgba(255,69,58,0.15);
+      }
+
       .mobile-header-meta {
         margin-top: 4px;
         font-size: 0.75rem;
@@ -1975,7 +1983,7 @@
         top: 90px;
         z-index: 99;
         padding: 8px 16px 0;
-        background: linear-gradient(180deg, rgba(0,0,0,0.92), rgba(0,0,0,0.76) 78%, transparent);
+        background: linear-gradient(180deg, rgba(5,10,20,0.94), rgba(5,10,20,0.8) 78%, transparent);
       }
 
       .mobile-segmented {
@@ -1985,7 +1993,7 @@
         height: 32px;
         padding: 2px;
         border-radius: 999px;
-        background: var(--ios-card);
+        background: #111827;
         border: 1px solid var(--ios-card-border);
       }
 
@@ -2008,8 +2016,8 @@
       }
 
       .mobile-segmented button.active {
-        background: #fff;
-        color: #000;
+        background: linear-gradient(135deg, #1e3a5f, #1a1a3e);
+        color: #fff;
       }
 
       .mobile-view {
@@ -2040,8 +2048,11 @@
 
       .mobile-live-card,
       .mobile-pick-card,
-      .mobile-all-bet-card {
+      .mobile-all-bet-card,
+      .mobile-empty,
+      .mobile-card-enter {
         padding: 14px 16px;
+        animation: card-enter 0.25s ease forwards;
       }
 
       .mobile-live-card {
@@ -2050,12 +2061,27 @@
 
       .mobile-live-card.covering,
       .mobile-live-card.win {
+        background: #0d1b2a;
+        border: 1px solid rgba(48,209,88,0.08);
         border-left-color: var(--ios-green);
       }
 
       .mobile-live-card.not-covering,
       .mobile-live-card.loss {
+        background: #0d1b2a;
+        border: 1px solid rgba(255,69,58,0.08);
         border-left-color: var(--ios-red);
+      }
+
+      .mobile-live-card.upcoming,
+      .mobile-live-card.push {
+        background: #12121e;
+        border: 1px solid rgba(255,159,10,0.06);
+      }
+
+      .mobile-live-card:has(.live-bet-parlay-legs) {
+        background: #1a1812;
+        border: 1px solid rgba(255,159,10,0.06);
       }
 
       .live-bet-mobile {
@@ -2148,7 +2174,7 @@
         width: 50px;
         height: 4px;
         border-radius: 999px;
-        background: #2c2c2e;
+        background: #1e293b;
         overflow: hidden;
         flex: 0 0 auto;
       }
@@ -2234,7 +2260,7 @@
         width: 100%;
         height: 6px;
         border-radius: 3px;
-        background: #2c2c2e;
+        background: #1e293b;
         overflow: hidden;
         margin: 4px 0;
       }
@@ -2258,6 +2284,11 @@
         50% { opacity: 0.4; }
       }
 
+      @keyframes card-enter {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
       .mobile-section-head {
         margin-bottom: 12px;
       }
@@ -2266,9 +2297,11 @@
         font-size: 0.95rem;
         line-height: 1.2;
         letter-spacing: 0.04em;
+        color: #a78bfa;
       }
 
       .mobile-pick-card {
+        background: #0a1628;
         border-left: 3px solid rgba(10,132,255,0.3);
       }
 
@@ -2313,7 +2346,18 @@
       }
 
       .mobile-empty {
+        display: flex;
+        align-items: center;
+        gap: 8px;
         padding: 18px 16px;
+        color: #6b7280;
+      }
+
+      .mobile-empty::before {
+        content: "○";
+        color: #6b7280;
+        font-size: 0.9rem;
+        line-height: 1;
       }
 
       .mobile-filter-row {
@@ -2331,24 +2375,33 @@
 
       .mobile-chip {
         border: 1px solid transparent;
-        background: #2c2c2e;
-        color: var(--ios-text-secondary);
+        background: #1a1a2e;
+        color: #8e8e93;
         padding: 8px 12px;
         font-size: 0.76rem;
         font-weight: 700;
       }
 
       .mobile-chip.active {
-        background: #fff;
-        color: #000;
+        background: linear-gradient(135deg, #1e3a5f, #2d1b69);
+        color: #fff;
       }
 
       .mobile-all-bet-card {
         cursor: pointer;
       }
 
+      .mobile-all-bets-list .mobile-all-bet-card:nth-child(odd) {
+        background: #1c1c1e;
+      }
+
+      .mobile-all-bets-list .mobile-all-bet-card:nth-child(even) {
+        background: #141420;
+      }
+
       .mobile-all-bet-card.expanded {
-        background: #202024;
+        border-color: rgba(167,139,250,0.12);
+        box-shadow: 0 12px 26px rgba(0,0,0,0.34);
       }
 
       .mobile-all-bet-pnl {
@@ -2870,10 +2923,10 @@
       { id: 6, date: "2026-03-19", gameTime: "9:45 PM ET", game: "Saint Louis vs Georgia", pick: "Saint Louis +2.5", line: -125, originalLine: -115, units: 1, book: BET_BOOK, type: "spread", confidence: "low", sharpSignal: true, kenpomGap: 1.9, result: "won", score: "Saint Louis 102 - Georgia 77", payout: 45.00, notes: "Won outright by 25. Line was -125 actual." },
       { id: 7, date: "2026-03-19", gameTime: "1:50 PM ET", game: "High Point vs Wisconsin", pick: "HP/Wis Under 162.5", line: -110, originalLine: -110, units: 1, book: BET_BOOK, type: "total", confidence: "high", sharpSignal: true, kenpomGap: null, result: "lost", score: "HP 83 - Wisconsin 82 (165 total)", payout: 0, notes: "Total sits above projected pace-adjusted expectation." },
       { id: 8, date: "2026-03-19", gameTime: "7:25 PM ET", game: "Texas vs BYU", pick: "Texas +2.5", line: -110, originalLine: -110, units: 1, book: BET_BOOK, type: "spread", confidence: "medium", sharpSignal: false, kenpomGap: null, result: "won", score: "Texas 79 - BYU 71", payout: 47.73, notes: "Won outright by 8. 11 seed catching points against a 6." },
-      { id: 9, date: "2026-03-20", gameTime: "7:35 PM ET", game: "Queens vs Purdue", pick: "Queens +25.5", line: -110, originalLine: -110, units: 2, book: BET_BOOK, type: "spread", confidence: "high", sharpSignal: true, kenpomGap: 3.5, result: "placed", score: null, notes: "🔥 PLAY. KP: Purdue by 22, getting 25.5. 3.5pt edge. Mismatch cushion profile went 2/2 Day 1." },
+      { id: 9, date: "2026-03-20", gameTime: "7:35 PM ET", game: "Queens vs Purdue", pick: "Queens +25.5", line: -110, originalLine: -110, units: 2, book: BET_BOOK, type: "spread", confidence: "high", sharpSignal: true, kenpomGap: 3.5, result: "loss", score: "Queens 71 - Purdue 104", payout: 0, notes: "🔥 PLAY. KP: Purdue by 22, getting 25.5. 3.5pt edge. Mismatch cushion profile went 2/2 Day 1." },
       { id: 10, date: "2026-03-20", gameTime: "12:15 PM ET", game: "Santa Clara vs Kentucky", pick: "Santa Clara +2.5", line: -110, originalLine: -110, units: 2, book: BET_BOOK, type: "spread", confidence: "high", sharpSignal: true, kenpomGap: 0.5, result: "loss", score: "Santa Clara 84 - Kentucky 89", notes: "🔥 PLAY. KP: Kentucky by 2. Rank gap only 10. Thrill 80. EXACT Day 1 short-dog profile (5/5). Best play on the board." },
-      { id: 11, date: "2026-03-20", gameTime: "6:50 PM ET", game: "Iowa vs Clemson", pick: "Iowa -1.5", line: -110, originalLine: -110, units: 1.5, book: BET_BOOK, type: "spread", confidence: "high", sharpSignal: true, kenpomGap: 0.5, result: "placed", score: null, notes: "🔥 PLAY. KP likes Iowa. Market says coin flip. Competitive game, thrill 76, rank gap 15." },
-      { id: 12, date: "2026-03-20", gameTime: "7:25 PM ET", game: "UCF vs UCLA", pick: "UCF +5.5", line: -110, originalLine: -110, units: 1, book: BET_BOOK, type: "spread", confidence: "medium", sharpSignal: true, kenpomGap: 1.5, result: "placed", score: null, notes: "⚡ SOLID. KP: UCLA by 4, getting 5.5. Rank gap 27, thrill 71. Competitive enough." },
+      { id: 11, date: "2026-03-20", gameTime: "6:50 PM ET", game: "Iowa vs Clemson", pick: "Iowa -1.5", line: -110, originalLine: -110, units: 1.5, book: BET_BOOK, type: "spread", confidence: "high", sharpSignal: true, kenpomGap: 0.5, result: "win", score: "Iowa 67 - Clemson 61", payout: 59.55, notes: "🔥 PLAY. KP likes Iowa. Market says coin flip. Competitive game, thrill 76, rank gap 15." },
+      { id: 12, date: "2026-03-20", gameTime: "7:25 PM ET", game: "UCF vs UCLA", pick: "UCF +5.5", line: -115, originalLine: -115, units: 1, book: BET_BOOK, type: "spread", confidence: "medium", sharpSignal: true, kenpomGap: 1.5, result: "win", score: "UCF 71 - UCLA 75", payout: 46.74, notes: "⚡ SOLID. KP: UCLA by 4, getting 5.5. Rank gap 27, thrill 71. Competitive enough." },
       { id: 13, date: "2026-03-20", gameTime: "1:35 PM ET", game: "LIU vs Arizona", pick: "LIU +30.5", line: -110, originalLine: -110, units: 1, book: BET_BOOK, type: "spread", confidence: "medium", sharpSignal: false, kenpomGap: 1.5, result: "loss", score: "LIU 58 - Arizona 92", notes: "⚡ SOLID. KP: Arizona by 29, getting 30.5. Mismatch cushion play." },
       { id: 14, date: "2026-03-20", gameTime: "3:15 PM ET", game: "Hofstra vs Alabama", pick: "Hofstra/Bama Over 158.5", line: -110, originalLine: -110, units: 1, book: BET_BOOK, type: "total", confidence: "medium", sharpSignal: true, kenpomGap: 4.5, result: "win", score: "Hofstra 70 - Alabama 90", payout: 47.73, notes: "⚡ SOLID. Only total play — 4.5pt KP edge. Higher bar for totals after Day 1 loss. Bama plays fast." },
       { id: 15, date: "2026-03-20", gameTime: "10:10 PM ET", game: "Missouri vs Miami FL", pick: "Mizzou/Miami Over 145.5", line: -108, originalLine: -108, units: 1, book: BET_BOOK, type: "total", confidence: "high", sharpSignal: true, kenpomGap: 5.5, result: "placed", score: null, notes: "🔥 PLAY. KP total 151 vs DK 145.5. 5.5pt edge — biggest total edge tonight. Thrill 72, competitive game." },
@@ -2884,10 +2937,10 @@
     const PARLAYS = [
       { id: "P1", date: "2026-03-19", name: "Early Sharp", legs: ["TCU +2.5", "USF +4.5", "HP/Wis Under 162.5"], units: 0.5, line: 550, book: BET_BOOK, type: "parlay", confidence: "medium", sharpSignal: true, result: "lost", payout: 0, notes: "HP/Wis over killed the parlay." },
       { id: "P2", date: "2026-03-19", name: "Chaos Parlay", legs: ["VCU +2.5", "Texas A&M +2.5", "Saint Louis +2.5"], units: 0.5, line: 584, book: BET_BOOK, type: "parlay", confidence: "medium", sharpSignal: false, result: "won", payout: 85.49, notes: "All three dogs won outright. +584 actual odds." },
-      { id: "P3", date: "2026-03-20", name: "Day 2 Competitive", gameTime: "12:15 PM ET", legs: ["Santa Clara +2.5", "Iowa -1.5", "UCF +5.5"], units: 0.5, line: 550, book: BET_BOOK, type: "parlay", confidence: "medium", sharpSignal: true, result: "placed", legStates: { "Santa Clara +2.5": { result: "loss", score: "Santa Clara 84 - Kentucky 89" }, "Iowa -1.5": { result: "placed" }, "UCF +5.5": { result: "placed" } }, notes: "Three competitive games, all KenPom-backed. Multi-factor picks." },
+      { id: "P3", date: "2026-03-20", name: "Day 2 Competitive", gameTime: "12:15 PM ET", legs: ["Santa Clara +2.5", "Iowa -1.5", "UCF +5.5"], units: 0.5, line: 550, book: BET_BOOK, type: "parlay", confidence: "medium", sharpSignal: true, result: "loss", payout: 0, legStates: { "Santa Clara +2.5": { result: "loss", score: "Santa Clara 84 - Kentucky 89" }, "Iowa -1.5": { result: "win", score: "Iowa 67 - Clemson 61" }, "UCF +5.5": { result: "win", score: "UCF 71 - UCLA 75" } }, notes: "Three competitive games, all KenPom-backed. Multi-factor picks." },
       { id: "P4", date: "2026-03-20", name: "SC Boosted SGP", gameTime: "12:15 PM ET", legs: ["Santa Clara ML", "Over 157.5", "Allan Graver 10+ pts"], units: 0.5, line: 607, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: true, result: "loss", legStates: { "Santa Clara ML": { result: "loss", score: "Santa Clara 84 - Kentucky 89" }, "Over 157.5": { result: "win", score: "173 total" }, "Allan Graver 10+ pts": { result: "pending" } }, notes: "SGP w/ +64% profit boost. All legs correlated — SC wins in a shootout, Graver scores. $88.35 return on $12.50." },
       { id: "P5", date: "2026-03-20", name: "Afternoon Parlay", gameTime: "4:10 PM ET", legs: ["Tennessee -12.5", "Utah State -1.5"], units: 1, line: 257, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: false, result: "win", payout: 91.11, legStates: { "Tennessee -12.5": { result: "win", score: "Tennessee 78 - Miami OH 56" }, "Utah State -1.5": { result: "win", score: "Utah State 86 - Villanova 76" } }, notes: "Tennessee -12.5 + Utah State -1.5 @ +257 w/ 2.5% bet boost. $91.11 return on $25." },
-      { id: "P6", date: "2026-03-20", name: "KenPom Overs", gameTime: "3:07 PM ET", legs: ["Iowa St/Tenn St O145.5", "UCF/UCLA O152.5", "Queens/Purdue O159.5"], units: 0.5, line: 627, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: true, result: "placed", payout: 90.83, legStates: { "Iowa St/Tenn St O145.5": { result: "win", score: "182 total" }, "UCF/UCLA O152.5": { result: "placed" }, "Queens/Purdue O159.5": { result: "placed" } }, notes: "3-leg over parlay. All KenPom-backed: +4.5, +3.5, +4.5 pt edges. 5% parlay boost ($3.73). $90.83 return on $12.50." }
+      { id: "P6", date: "2026-03-20", name: "KenPom Overs", gameTime: "3:07 PM ET", legs: ["Iowa St/Tenn St O145.5", "UCF/UCLA O152.5", "Queens/Purdue O159.5"], units: 0.5, line: 627, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: true, result: "loss", payout: 0, legStates: { "Iowa St/Tenn St O145.5": { result: "win", score: "182 total" }, "UCF/UCLA O152.5": { result: "loss", score: "146 total" }, "Queens/Purdue O159.5": { result: "win", score: "175 total" } }, notes: "3-leg over parlay. All KenPom-backed: +4.5, +3.5, +4.5 pt edges. 5% parlay boost ($3.73). $90.83 return on $12.50." }
     ];
 
     const STORAGE_KEY = "march-madness-2026-bets-v2";
