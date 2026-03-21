@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>March Madness 2026 Betting Tracker</title>
+  <title>Bet Tracker</title>
   <style>
     :root {
       --bg: #0a0e17;
@@ -409,11 +409,17 @@
       background: linear-gradient(135deg, rgba(34, 197, 94, 0.28), rgba(34, 197, 94, 0.16));
     }
 
-    .layout {
+    .layout,
+    .dashboard-layout {
       display: grid;
       grid-template-columns: minmax(0, 2.5fr) minmax(280px, 0.8fr);
       gap: 22px;
       align-items: start;
+    }
+
+    .live-panel-shell {
+      display: grid;
+      gap: 20px;
     }
 
     .stack {
@@ -993,7 +999,6 @@
     }
 
     .live-bets-panel {
-      display: none;
       padding: 18px;
     }
 
@@ -1047,6 +1052,63 @@
       display: grid;
       gap: 12px;
       margin-top: 14px;
+    }
+
+    .desktop-picks-panel {
+      padding: 20px;
+    }
+
+    .desktop-picks-summary {
+      margin-top: 16px;
+      margin-bottom: 18px;
+    }
+
+    .desktop-picks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+      gap: 18px;
+    }
+
+    .desktop-pick-card {
+      min-height: 100%;
+      display: grid;
+      gap: 12px;
+      align-content: start;
+      padding: 18px;
+    }
+
+    .desktop-pick-card.core {
+      border-color: rgba(34, 197, 94, 0.3);
+    }
+
+    .desktop-pick-card.moonshot {
+      border-color: rgba(168, 85, 247, 0.34);
+    }
+
+    .desktop-pick-card.value {
+      border-color: rgba(251, 191, 36, 0.3);
+    }
+
+    .desktop-pick-card.lean {
+      border-color: rgba(148, 163, 184, 0.28);
+    }
+
+    .desktop-pick-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .desktop-pick-analysis {
+      margin-top: 2px;
+      padding: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--muted);
+      line-height: 1.55;
     }
 
     .live-bet-card {
@@ -1391,39 +1453,6 @@
       font-size: 0.82rem;
     }
 
-    .schedule-panel,
-    .bracket-panel {
-      padding: 20px;
-    }
-
-    .schedule-days,
-    .schedule-day-list {
-      display: grid;
-      gap: 16px;
-    }
-
-    .schedule-day-card,
-    .schedule-list-card,
-    .bracket-stage,
-    .bracket-region-shell,
-    .bracket-finals-shell,
-    .bracket-matchup {
-      border-radius: var(--radius);
-      border: 1px solid var(--border);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.015));
-      box-shadow: var(--shadow);
-    }
-
-    .schedule-day-card {
-      padding: 18px;
-    }
-
-    .schedule-day-card h3 {
-      margin-bottom: 12px;
-      font-size: 1rem;
-      letter-spacing: -0.02em;
-    }
-
     .seed {
       display: inline-flex;
       align-items: center;
@@ -1436,311 +1465,6 @@
       font-size: 0.8rem;
       font-weight: 700;
       flex: 0 0 auto;
-    }
-
-    .schedule-days {
-      grid-template-columns: 1fr;
-    }
-
-    .schedule-day-head,
-    .schedule-game-meta,
-    .schedule-team-row,
-    .bracket-team-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .schedule-day-head {
-      margin-bottom: 14px;
-      flex-wrap: wrap;
-    }
-
-    .schedule-day-list {
-      gap: 12px;
-    }
-
-    .schedule-list-card {
-      padding: 14px 16px;
-    }
-
-    .schedule-list-card.bet-highlight,
-    .bracket-matchup.bet-highlight {
-      border-color: rgba(249, 115, 22, 0.62);
-      box-shadow: 0 18px 48px rgba(249, 115, 22, 0.12);
-    }
-
-    .schedule-list-card.completed,
-    .bracket-matchup.completed {
-      border-color: rgba(31, 214, 107, 0.18);
-    }
-
-    .schedule-game-meta {
-      margin-bottom: 10px;
-      flex-wrap: wrap;
-    }
-
-    .schedule-game-time {
-      font-weight: 700;
-    }
-
-    .schedule-game-channel,
-    .schedule-game-score,
-    .round-slot-count,
-    .bracket-round-label,
-    .bracket-card-meta {
-      color: var(--muted);
-      font-size: 0.82rem;
-    }
-
-    .schedule-team-stack,
-    .bracket-team-stack {
-      display: grid;
-      gap: 8px;
-    }
-
-    .schedule-team-row,
-    .bracket-team-row {
-      min-width: 0;
-    }
-
-    .schedule-team-id,
-    .bracket-team-id {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      min-width: 0;
-      font-weight: 600;
-    }
-
-    .schedule-team-name,
-    .bracket-team-name {
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .schedule-game-score {
-      font-weight: 700;
-    }
-
-    .bracket-shell {
-      display: grid;
-      gap: 18px;
-    }
-
-    .bracket-mobile-tabs {
-      display: none;
-      gap: 10px;
-      overflow-x: auto;
-      padding-bottom: 4px;
-    }
-
-    .bracket-mobile-tabs button {
-      appearance: none;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: rgba(255, 255, 255, 0.03);
-      color: var(--muted);
-      padding: 9px 14px;
-      border-radius: 999px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      white-space: nowrap;
-      cursor: pointer;
-    }
-
-    .bracket-mobile-tabs button.active {
-      color: var(--text);
-      border-color: rgba(227, 24, 55, 0.62);
-      box-shadow: 0 0 0 1px rgba(227, 24, 55, 0.18) inset;
-    }
-
-    .bracket-stage {
-      position: relative;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 300px minmax(0, 1fr);
-      gap: 20px;
-      padding: 18px;
-      overflow: hidden;
-      background:
-        radial-gradient(circle at top, rgba(227, 24, 55, 0.08), transparent 34%),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.01));
-    }
-
-    .bracket-stage-canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .bracket-side,
-    .bracket-finals-shell {
-      position: relative;
-      z-index: 1;
-    }
-
-    .bracket-side {
-      display: grid;
-      gap: 16px;
-      align-content: start;
-    }
-
-    .bracket-region-shell,
-    .bracket-finals-shell {
-      padding: 16px;
-      backdrop-filter: blur(14px);
-    }
-
-    .bracket-region-head,
-    .bracket-finals-head {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-
-    .bracket-region-head h3,
-    .bracket-finals-head h3 {
-      margin: 0;
-      font-size: 1rem;
-      letter-spacing: -0.02em;
-    }
-
-    .bracket-round-heads {
-      display: grid;
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .bracket-round-heads.region {
-      grid-template-columns: repeat(4, minmax(148px, 1fr));
-    }
-
-    .bracket-round-heads.center {
-      grid-template-columns: repeat(2, minmax(148px, 1fr));
-    }
-
-    .bracket-round-head {
-      padding-bottom: 8px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    .bracket-round-head h4 {
-      margin: 0 0 4px;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: rgba(255, 255, 255, 0.92);
-    }
-
-    .bracket-round-date {
-      color: var(--muted);
-      font-size: 0.76rem;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .bracket-region-board,
-    .bracket-finals-board {
-      display: grid;
-      gap: 12px;
-      position: relative;
-      min-height: 1154px;
-    }
-
-    .bracket-region-board {
-      grid-template-columns: repeat(4, minmax(148px, 1fr));
-      grid-template-rows: repeat(15, 68px);
-    }
-
-    .bracket-finals-board {
-      grid-template-columns: repeat(2, minmax(132px, 1fr));
-      grid-template-rows: repeat(15, 68px);
-    }
-
-    .bracket-slot {
-      min-width: 0;
-      z-index: 1;
-    }
-
-    .bracket-matchup {
-      display: grid;
-      gap: 10px;
-      padding: 10px 12px;
-      min-height: 116px;
-      position: relative;
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.018)),
-        rgba(10, 10, 10, 0.9);
-    }
-
-    .bracket-matchup::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-      pointer-events: none;
-    }
-
-    .bracket-matchup.tbd {
-      opacity: 0.78;
-    }
-
-    .bracket-card-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .bracket-card-meta {
-      font-weight: 600;
-      white-space: nowrap;
-    }
-
-    .bracket-card-tag {
-      color: #ff6d84;
-      font-size: 0.72rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .bracket-team-row + .bracket-team-row {
-      margin-top: 8px;
-    }
-
-    .bracket-team-row.winner {
-      color: var(--text);
-      background: rgba(31, 214, 107, 0.14);
-      border-radius: 10px;
-      padding: 6px 8px;
-      margin-left: -8px;
-      margin-right: -8px;
-    }
-
-    .winner-tag {
-      color: var(--green);
-      font-size: 0.78rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    .bracket-footer {
-      margin-top: auto;
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
     }
 
     .empty-state {
@@ -1775,6 +1499,7 @@
       }
 
       .layout,
+      .dashboard-layout,
       .topbar {
         grid-template-columns: 1fr;
       }
@@ -1818,8 +1543,9 @@
       .stats-panel,
       .parlays-panel,
       .daily-panel,
-      .schedule-panel,
-      .bracket-panel {
+      .desktop-picks-panel,
+      .live-bets-panel,
+      .live-scores-panel {
         padding: 16px;
       }
 
@@ -1827,20 +1553,6 @@
       thead th {
         padding-left: 12px;
         padding-right: 12px;
-      }
-    }
-
-    @media (max-width: 1180px) {
-      .bracket-stage {
-        grid-template-columns: minmax(0, 1fr);
-      }
-
-      .bracket-side {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .bracket-finals-shell {
-        order: 2;
       }
     }
 
@@ -1891,12 +1603,13 @@
       .chart-panel,
       .stats-panel,
       .investment-card,
-      .schedule-panel,
-      .bracket-panel,
+      .desktop-picks-panel,
+      .live-bets-panel,
       .tab-bar,
       #dashboardPanel,
-      #bracketPanel,
-      #schedulePanel {
+      #aiPicksPanel,
+      #livePanel,
+      #historyPanel {
         display: none !important;
       }
 
@@ -2513,13 +2226,25 @@
         overflow: hidden;
       }
 
-      .pick-card.play {
-        border-color: rgba(34, 197, 94, 0.26);
-      }
+    .pick-card.play {
+      border-color: rgba(34, 197, 94, 0.26);
+    }
 
-      .pick-card.lean {
-        border-color: rgba(251, 191, 36, 0.26);
-      }
+    .pick-card.core {
+      border-color: rgba(34, 197, 94, 0.3);
+    }
+
+    .pick-card.moonshot {
+      border-color: rgba(168, 85, 247, 0.34);
+    }
+
+    .pick-card.value {
+      border-color: rgba(251, 191, 36, 0.3);
+    }
+
+    .pick-card.lean {
+      border-color: rgba(251, 191, 36, 0.26);
+    }
 
       .pick-card.is-passed {
         opacity: 0.72;
@@ -2544,19 +2269,40 @@
         border: 1px solid transparent;
       }
 
-      .pick-badge.play {
-        color: #d6ffe3;
-        background: rgba(34, 197, 94, 0.14);
-        border-color: rgba(34, 197, 94, 0.28);
-        box-shadow: 0 0 18px rgba(34, 197, 94, 0.16);
-      }
+    .pick-badge.play {
+      color: #d6ffe3;
+      background: rgba(34, 197, 94, 0.14);
+      border-color: rgba(34, 197, 94, 0.28);
+      box-shadow: 0 0 18px rgba(34, 197, 94, 0.16);
+    }
 
-      .pick-badge.lean {
-        color: #fde68a;
-        background: rgba(251, 191, 36, 0.14);
-        border-color: rgba(251, 191, 36, 0.28);
-        box-shadow: 0 0 18px rgba(251, 191, 36, 0.12);
-      }
+    .pick-badge.core {
+      color: #d6ffe3;
+      background: rgba(34, 197, 94, 0.14);
+      border-color: rgba(34, 197, 94, 0.28);
+      box-shadow: 0 0 18px rgba(34, 197, 94, 0.16);
+    }
+
+    .pick-badge.moonshot {
+      color: #ede9fe;
+      background: rgba(168, 85, 247, 0.14);
+      border-color: rgba(168, 85, 247, 0.28);
+      box-shadow: 0 0 18px rgba(168, 85, 247, 0.18);
+    }
+
+    .pick-badge.value {
+      color: #fde68a;
+      background: rgba(251, 191, 36, 0.14);
+      border-color: rgba(251, 191, 36, 0.28);
+      box-shadow: 0 0 18px rgba(251, 191, 36, 0.12);
+    }
+
+    .pick-badge.lean {
+      color: #cbd5e1;
+      background: rgba(148, 163, 184, 0.14);
+      border-color: rgba(148, 163, 184, 0.28);
+      box-shadow: none;
+    }
 
       .pick-badge.pass {
         color: #cbd5e1;
@@ -2763,19 +2509,11 @@
         grid-template-columns: 1fr;
       }
 
-      .schedule-list-card {
-        padding: 12px 14px;
-      }
-
       .live-bet-head,
       .live-bet-meta,
       .live-bet-leg {
         display: grid;
         grid-template-columns: 1fr;
-      }
-
-      .bracket-stage {
-        padding: 14px;
       }
 
       .day-bet,
@@ -2859,12 +2597,12 @@
   <div class="app">
     <header class="topbar">
       <section class="card hero">
-        <div class="eyebrow"><span class="dot"></span>Tournament dashboard</div>
+        <div class="eyebrow"><span class="dot"></span>Betting dashboard</div>
         <div class="hero-title-row">
-          <h1>March Madness 2026<span class="title-suffix"><br>Betting Tracker</span></h1>
-          <span class="title-badge">Day 2</span>
+          <h1>Bet Tracker</h1>
+          <span id="titleBadge" class="title-badge">Mar 21</span>
         </div>
-        <p class="subtle hero-description">Track sides, totals, parlays, bracket movement, and tournament scheduling in one place. Results persist locally, export cleanly to CSV, and print without extra tooling.</p>
+        <p class="subtle hero-description">Track sides, totals, parlays, and live market movement in one place. Results persist locally, export cleanly to CSV, and print without extra tooling.</p>
         <div id="heroKpis" class="hero-kpis"></div>
       </section>
       <aside class="card pnl-hero">
@@ -2876,8 +2614,9 @@
 
     <nav id="tabBar" class="tab-bar" aria-label="Main views">
       <button type="button" class="tab-button active" data-tab="dashboard">Dashboard</button>
-      <button type="button" class="tab-button" data-tab="bracket">Bracket</button>
-      <button type="button" class="tab-button" data-tab="schedule">Schedule</button>
+      <button type="button" class="tab-button" data-tab="ai-picks">AI Picks</button>
+      <button type="button" class="tab-button" data-tab="live">Live</button>
+      <button type="button" class="tab-button" data-tab="history">History</button>
     </nav>
 
     <div id="mobileApp" class="mobile-app-shell">
@@ -2903,80 +2642,8 @@
     <section id="dashboardPanel" class="tab-panel">
       <section id="summaryGrid" class="summary-grid"></section>
 
-      <main class="layout">
+      <main class="dashboard-layout">
         <div class="stack">
-          <section class="table-wrap">
-            <div class="section-head" style="padding: 18px 18px 0;">
-              <div>
-                <h2>Active Bets</h2>
-                <p class="subtle">Sortable by date, time, and result. Click a bet to expand deeper signal notes.</p>
-              </div>
-              <div class="controls">
-                <div id="filterGroup" class="segmented" aria-label="Bet filters"></div>
-                <select id="sortSelect" class="sort-select" aria-label="Sort bets"></select>
-                <button id="quickAddButton" class="toolbar-button primary" type="button">Quick Add Bet</button>
-                <button id="exportCsv" class="toolbar-button" type="button">Export CSV</button>
-                <button id="printView" class="toolbar-button" type="button">Print</button>
-              </div>
-            </div>
-            <div class="table-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th class="sortable" data-sort-key="date">Date</th>
-                    <th class="sortable" data-sort-key="gameTime">Game Time</th>
-                    <th>Game</th>
-                    <th>Pick</th>
-                    <th>Line</th>
-                    <th>Stake</th>
-                    <th class="sortable" data-sort-key="result">Result</th>
-                    <th>P&amp;L</th>
-                    <th>Mark Result</th>
-                  </tr>
-                </thead>
-                <tbody id="betsBody"></tbody>
-              </table>
-            </div>
-            <div class="scroll-hint" id="scrollHint">
-              <span>Scroll right for more →</span>
-              <div class="scroll-hint-bar"></div>
-            </div>
-          </section>
-
-          <section class="live-bets-panel card">
-            <div class="section-head">
-              <div>
-                <h2>MY BETS</h2>
-                <p class="subtle">Kevin’s bets for today, grouped by live, upcoming, and settled status.</p>
-              </div>
-              <div id="liveBetsStatus" class="pill">Today</div>
-            </div>
-            <div id="liveBetsGrid" class="live-bets-grid"></div>
-          </section>
-
-          <section class="live-scores-panel card">
-            <div class="section-head">
-              <div>
-                <h2>Live Scores</h2>
-                <p class="subtle">Today’s tournament slate, ready for live score wiring.</p>
-              </div>
-              <div id="liveScoresStatus" class="pill">Today</div>
-            </div>
-            <div id="liveScoresGrid" class="live-scores-grid"></div>
-          </section>
-
-          <section class="daily-panel card">
-            <div class="section-head">
-              <div>
-                <h2>Daily Breakdown</h2>
-                <p class="subtle">Collapse by day to isolate exposure and realized dollars.</p>
-              </div>
-            </div>
-            <div id="dailyBreakdown" class="breakdown-list"></div>
-          </section>
-        </div>
-
-        <aside class="stack">
           <section class="chart-panel card">
             <div class="section-head">
               <div>
@@ -3000,7 +2667,9 @@
             </div>
             <div id="statsGrid" class="stats-grid"></div>
           </section>
+        </div>
 
+        <aside class="stack">
           <section class="card investment-card">
             <div class="section-head">
               <div>
@@ -3014,30 +2683,94 @@
       </main>
     </section>
 
-    <section id="bracketPanel" class="tab-panel hidden">
-      <section class="card bracket-panel">
+    <section id="aiPicksPanel" class="tab-panel hidden">
+      <section class="card desktop-picks-panel">
         <div class="section-head">
           <div>
-            <h2>Tournament Bracket</h2>
-            <p class="subtle">Four-region bracket with live winners filled as games complete. Bet-tracked games carry the red accent.</p>
+            <h2>AI Picks</h2>
+            <p class="subtle">Today’s agent recommendations with sizing, edge, confidence, and quick action controls.</p>
           </div>
-          <div id="bracketStatus" class="pill">Loading bracket...</div>
+          <div id="desktopAiPicksStatus" class="pill">Today</div>
         </div>
-        <div id="bracketView"></div>
+        <div id="desktopAiPicksSummary" class="desktop-picks-summary"></div>
+        <div id="desktopAiPicksGrid" class="desktop-picks-grid"></div>
       </section>
     </section>
 
-    <section id="schedulePanel" class="tab-panel hidden">
-      <section class="card schedule-panel">
+    <section id="livePanel" class="tab-panel hidden live-panel-shell">
+      <section class="live-bets-panel card">
         <div class="section-head">
           <div>
-            <h2>Tournament Schedule</h2>
-            <p class="subtle">All tournament games by round. First-round games are grouped by region with seeds, windows, channels, and completed scores.</p>
+            <h2>MY BETS</h2>
+            <p class="subtle">Today’s tracked bets, grouped by live, upcoming, and resolved status.</p>
           </div>
-          <div id="scheduleStatus" class="pill">Loading schedule...</div>
+          <div id="liveBetsStatus" class="pill">Today</div>
         </div>
-        <div id="scheduleView"></div>
+        <div id="liveBetsGrid" class="live-bets-grid"></div>
       </section>
+
+      <section class="live-scores-panel card">
+        <div class="section-head">
+          <div>
+            <h2>Live Scores</h2>
+            <p class="subtle">Today’s tracked slate with live score and market context.</p>
+          </div>
+          <div id="liveScoresStatus" class="pill">Today</div>
+        </div>
+        <div id="liveScoresGrid" class="live-scores-grid"></div>
+      </section>
+    </section>
+
+    <section id="historyPanel" class="tab-panel hidden">
+      <div class="stack">
+        <section class="table-wrap">
+          <div class="section-head" style="padding: 18px 18px 0;">
+            <div>
+              <h2>Bet History</h2>
+              <p class="subtle">Sortable by date, time, and result. Click a bet to expand deeper signal notes.</p>
+            </div>
+            <div class="controls">
+              <div id="filterGroup" class="segmented" aria-label="Bet filters"></div>
+              <select id="sortSelect" class="sort-select" aria-label="Sort bets"></select>
+              <button id="quickAddButton" class="toolbar-button primary" type="button">Quick Add Bet</button>
+              <button id="exportCsv" class="toolbar-button" type="button">Export CSV</button>
+              <button id="printView" class="toolbar-button" type="button">Print</button>
+            </div>
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th class="sortable" data-sort-key="date">Date</th>
+                  <th class="sortable" data-sort-key="gameTime">Game Time</th>
+                  <th>Game</th>
+                  <th>Pick</th>
+                  <th>Line</th>
+                  <th>Stake</th>
+                  <th class="sortable" data-sort-key="result">Result</th>
+                  <th>P&amp;L</th>
+                  <th>Mark Result</th>
+                </tr>
+              </thead>
+              <tbody id="betsBody"></tbody>
+            </table>
+          </div>
+          <div class="scroll-hint" id="scrollHint">
+            <span>Scroll right for more →</span>
+            <div class="scroll-hint-bar"></div>
+          </div>
+        </section>
+
+        <section class="daily-panel card">
+          <div class="section-head">
+            <div>
+              <h2>Daily Breakdown</h2>
+              <p class="subtle">Collapse by day to isolate exposure and realized dollars.</p>
+            </div>
+          </div>
+          <div id="dailyBreakdown" class="breakdown-list"></div>
+        </section>
+      </div>
     </section>
   </div>
 
@@ -3104,20 +2837,6 @@
     const ESPN_API_BASE = "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard";
     const SPORT = "basketball_ncaab";
     const BET_BOOK = "draftkings";
-    const TOURNAMENT_FETCH_DATES = [
-      "20260317",
-      "20260318",
-      "20260319",
-      "20260320",
-      "20260321",
-      "20260322",
-      "20260326",
-      "20260327",
-      "20260328",
-      "20260329",
-      "20260404",
-      "20260406"
-    ];
     const FILTERS = ["all", "active", "settled", "wins", "losses"];
     const SORT_OPTIONS = [
       { value: "date-asc", label: "Date: Earliest" },
@@ -3131,40 +2850,6 @@
     const FINAL_RESULTS = ["win", "won", "loss", "lost", "push"];
     const TYPE_LABELS = { spread: "Spread", total: "Total", ml: "Moneyline", parlay: "Parlay" };
     const CONFIDENCE_LABELS = { high: "High", medium: "Medium", low: "Low" };
-    const ROUND_ORDER = ["first-four", "first-round", "second-round", "sweet-16", "elite-8", "final-four", "championship"];
-    const ROUND_LABELS = {
-      "first-four": "First Four",
-      "first-round": "First Round",
-      "second-round": "Second Round",
-      "sweet-16": "Sweet 16",
-      "elite-8": "Elite 8",
-      "final-four": "Final Four",
-      "championship": "Championship"
-    };
-    const BRACKET_ROUND_META = {
-      "first-round": { title: "First Round", dateLabel: "March 19-22", expected: 8 },
-      "second-round": { title: "Second Round", dateLabel: "March 23-24", expected: 4 },
-      "sweet-16": { title: "Sweet 16", dateLabel: "March 27-28", expected: 2 },
-      "elite-8": { title: "Elite 8", dateLabel: "March 29-30", expected: 1 },
-      "final-four": { title: "Final Four", dateLabel: "April 5", expected: 2 },
-      "championship": { title: "Championship", dateLabel: "April 7", expected: 1 }
-    };
-    const REGION_ORDER = ["South", "West", "East", "Midwest"];
-    const BRACKET_SIDE_REGIONS = {
-      left: ["South", "East"],
-      right: ["West", "Midwest"]
-    };
-    const REGION_SLOT_BY_SEEDS = {
-      "1-16": 1,
-      "8-9": 2,
-      "5-12": 3,
-      "4-13": 4,
-      "6-11": 5,
-      "3-14": 6,
-      "7-10": 7,
-      "2-15": 8
-    };
-
     const TEAM_ALIASES = {
       TCU: ["TCU Horned Frogs", "TCU"],
       Akron: ["Akron Zips", "Akron"],
@@ -3273,6 +2958,7 @@
     const STORAGE_KEY = "march-madness-2026-bets-v2";
 
     const dom = {
+      titleBadge: document.getElementById("titleBadge"),
       heroPnl: document.getElementById("heroPnl"),
       heroMeta: document.getElementById("heroMeta"),
       heroKpis: document.getElementById("heroKpis"),
@@ -3298,12 +2984,12 @@
       printView: document.getElementById("printView"),
       tabBar: document.getElementById("tabBar"),
       dashboardPanel: document.getElementById("dashboardPanel"),
-      bracketPanel: document.getElementById("bracketPanel"),
-      schedulePanel: document.getElementById("schedulePanel"),
-      bracketView: document.getElementById("bracketView"),
-      scheduleView: document.getElementById("scheduleView"),
-      bracketStatus: document.getElementById("bracketStatus"),
-      scheduleStatus: document.getElementById("scheduleStatus"),
+      aiPicksPanel: document.getElementById("aiPicksPanel"),
+      livePanel: document.getElementById("livePanel"),
+      historyPanel: document.getElementById("historyPanel"),
+      desktopAiPicksStatus: document.getElementById("desktopAiPicksStatus"),
+      desktopAiPicksSummary: document.getElementById("desktopAiPicksSummary"),
+      desktopAiPicksGrid: document.getElementById("desktopAiPicksGrid"),
       mobileApp: document.getElementById("mobileApp"),
       mobileHeader: document.getElementById("mobileHeader"),
       mobileLiveView: document.getElementById("mobileViewLive"),
@@ -3318,7 +3004,6 @@
       filter: "all",
       sort: "date-asc",
       activeTab: "dashboard",
-      activeBracketRegion: "South",
       editingLineId: null,
       expandedBets: new Set(),
       mobileExpandedBets: new Set(),
@@ -3335,8 +3020,6 @@
     let parlays = cloneData(PARLAYS);
     let aiPicks = cloneData(AI_PICKS);
     let previousSummarySnapshot = {};
-    let tournamentGames = buildFallbackTournamentGames();
-    let tournamentStatus = { loaded: false, error: null, updatedAt: null };
     let oddsData = [];
     let liveScoreData = [];
     let espnClockData = {}; // lookupKey → [{ eventId, period, clock, statusDesc }]
@@ -3644,11 +3327,21 @@
       return new Date(new Date().toLocaleString("en-US", { timeZone: "America/Toronto" }));
     }
 
-    function tournamentDayNumber() {
-      const sortedDates = [...new Set(mainTournamentGames().map((game) => game.date).filter(Boolean))].sort();
-      const today = currentEtDate();
-      const index = sortedDates.indexOf(today);
-      return index >= 0 ? index + 1 : null;
+    function formatHeaderDate(dateStr = currentEtDate()) {
+      const date = new Date(`${dateStr}T12:00:00`);
+      return date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    }
+
+    function formatLongHeaderDate(dateStr = currentEtDate()) {
+      const date = new Date(`${dateStr}T12:00:00`);
+      return date.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+    }
+
+    function genericBettingCopy(value) {
+      return String(value || "")
+        .replace(/March Madness 2026/gi, "Bet Tracker")
+        .replace(/March Madness/gi, "Bet Tracker")
+        .replace(/\bTournament\b/gi, "Slate");
     }
 
     function inferBetTypeFromPick(pick) {
@@ -3687,13 +3380,6 @@
     function dayLabel(dateStr) {
       const date = new Date(`${dateStr}T12:00:00`);
       return date.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
-    }
-
-    function scheduleDayLabel(dateStr) {
-      const date = new Date(`${dateStr}T12:00:00`);
-      const weekday = date.toLocaleDateString(undefined, { weekday: "long" });
-      const monthDay = date.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-      return `${weekday} ${monthDay}`;
     }
 
     function parseTimeToMinutes(label) {
@@ -3748,33 +3434,6 @@
       const date = new Date(dateValue);
       if (Number.isNaN(date.getTime())) return "";
       return date.toLocaleDateString("en-CA", { timeZone: "America/Toronto" });
-    }
-
-    function formatBracketDate(dateStr) {
-      if (!dateStr) return "TBD";
-      const date = dateStr.includes("T")
-        ? new Date(dateStr)
-        : new Date(`${dateStr}T12:00:00`);
-      if (Number.isNaN(date.getTime())) return "TBD";
-      return date.toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
-    }
-
-    function bracketDateTimeLabel(game) {
-      const dateLabel = formatBracketDate(game.eventDate || game.date);
-      const timeLabel = game.completed ? "Final" : game.displayTime || "TBD";
-      if (dateLabel === "TBD") return timeLabel;
-      if (!timeLabel || timeLabel === "TBD") return dateLabel;
-      return `${dateLabel} · ${timeLabel}`;
-    }
-
-    function bracketGridRow(round, slot) {
-      if (round === "first-round") return 1 + ((slot - 1) * 2);
-      if (round === "second-round") return 2 + ((slot - 1) * 4);
-      if (round === "sweet-16") return 4 + ((slot - 1) * 8);
-      if (round === "elite-8") return 8;
-      if (round === "final-four") return slot === 1 ? 4 : 12;
-      if (round === "championship") return 8;
-      return 1;
     }
 
     function normalizeName(value) {
@@ -4699,13 +4358,12 @@
 
     function renderMobileHeader(summary) {
       if (!dom.mobileHeader) return;
-      const dayNumber = tournamentDayNumber();
       const bankroll = formatCurrency(STARTING_BANKROLL + summary.realized, { signed: false });
       const today = todayMetrics();
       dom.mobileHeader.innerHTML = `
         <div class="mobile-header-top">
-          <div class="mobile-header-title">March Madness 2026</div>
-          <span class="mobile-day-badge">${dayNumber ? `Day ${dayNumber}` : "Off Slate"}</span>
+          <div class="mobile-header-title">Bet Tracker</div>
+          <span class="mobile-day-badge">${formatHeaderDate()}</span>
         </div>
         <div class="mobile-header-bankroll">${bankroll}</div>
         <div class="mobile-header-meta">${formatCurrency(today.pnl)} today · ${today.record.wins}-${today.record.losses} · ${formatPercent(today.roi)} ROI</div>
@@ -4879,7 +4537,7 @@
       const today = todayRecord();
       const overall = overallRecord(allTickets());
       const bankroll = STARTING_BANKROLL + summary.realized;
-      const dayNumber = tournamentDayNumber();
+      const shortDate = formatHeaderDate();
 
       dom.heroKpis.innerHTML = [
         {
@@ -4898,9 +4556,9 @@
           meta: `${overall.pushes} pushes overall`
         },
         {
-          label: "Tournament Day",
-          value: dayNumber ? `Day ${dayNumber}` : "Off slate",
-          meta: currentEtDate()
+          label: "Today",
+          value: shortDate,
+          meta: formatLongHeaderDate()
         }
       ].map((item) => `
         <article class="hero-kpi">
@@ -4909,6 +4567,11 @@
           <div class="hero-kpi-meta">${item.meta}</div>
         </article>
       `).join("");
+
+      if (dom.titleBadge) {
+        dom.titleBadge.textContent = shortDate;
+        dom.titleBadge.style.display = "inline-flex";
+      }
     }
 
     function animateHeroPnl(nextValue, summary) {
@@ -4956,8 +4619,13 @@
 
     function renderLiveScoresSection() {
       const today = currentEtDate();
-      const allGames = scheduleGroups().find((group) => group.date === today)?.games
-        || mainTournamentGames().filter((game) => game.date === today);
+      const allGames = liveScoreData
+        .filter((game) => game?.date === today)
+        .sort((left, right) => {
+          const leftState = liveGameState(left) === "live" ? 0 : 1;
+          const rightState = liveGameState(right) === "live" ? 0 : 1;
+          return leftState - rightState || parseTimeToMinutes(left.displayTime) - parseTimeToMinutes(right.displayTime);
+        });
       const liveGames = allGames.filter((game) => !isGameCompleted(game));
       const count = liveGames.length;
 
@@ -5163,8 +4831,8 @@
               <div class="pick-sizing">${formatUnitsSecondary(pick.units)} · ${formatCurrency(unitToDollars(pick.units), { signed: false })} · Kelly ${Number(pick.kellyPct || 0).toFixed(1)}%</div>
               <div class="pick-edge">Edge: ${Number(pick.edgePts || 0).toFixed(1)}pts · ${confidenceStars(pick.confidence)}</div>
               <button type="button" class="pick-analysis ${pick.expanded ? "expanded" : ""}" data-ai-pick-expand="${pick.id}">
-                <div class="pick-analysis-preview">${pick.headline}...</div>
-                <div class="pick-analysis-full">${pick.analysis}</div>
+                <div class="pick-analysis-preview">${genericBettingCopy(pick.headline)}...</div>
+                <div class="pick-analysis-full">${genericBettingCopy(pick.analysis)}</div>
               </button>
               <div class="pick-actions">
                 <button type="button" class="pick-btn place" data-ai-pick-place="${pick.id}">✅ Place</button>
@@ -5174,6 +4842,60 @@
           `).join("")}
         </div>` : `<div class="mobile-empty">No new picks · Next card at 6 AM</div>`}
       `;
+    }
+
+    function desktopAiPickCategory(pick) {
+      if (pick.category === "lean") return { key: "lean", label: "⚠️ LEAN", className: "lean" };
+      if (Number(pick.odds) >= 200) return { key: "moonshot", label: "🚀 MOONSHOT", className: "moonshot" };
+      if (Number(pick.edgePts) >= 5 || Number(pick.confidence) >= 4) return { key: "core", label: "🎯 CORE", className: "core" };
+      return { key: "value", label: "⚡ VALUE", className: "value" };
+    }
+
+    function renderDesktopAiPicks() {
+      const today = currentEtDate();
+      const summary = summarize();
+      const picks = aiPicks.filter((pick) => pick.date === today);
+      const exposureUnits = picks.reduce((sum, pick) => sum + (Number(pick.units) || 0), 0);
+      const exposureDollars = picks.reduce((sum, pick) => sum + (Number(pick.dollars) || unitToDollars(Number(pick.units) || 0)), 0);
+      const potentialReturn = picks.reduce((sum, pick) => sum + americanProfit(Number(pick.units) || 0, Number(pick.odds) || -110), 0);
+
+      dom.desktopAiPicksStatus.textContent = picks.length ? `${picks.length} active today` : "No picks";
+      dom.desktopAiPicksSummary.innerHTML = picks.length ? `
+        <div class="pick-bankroll-card">
+          <div class="pick-bankroll-row"><strong>Bankroll</strong><span>${formatCurrency(STARTING_BANKROLL + summary.realized, { signed: false })}</span></div>
+          <div class="pick-bankroll-row"><strong>Today's exposure</strong><span>${formatUnitsSecondary(exposureUnits)} · ${formatCurrency(exposureDollars, { signed: false })} if all placed</span></div>
+          <div class="pick-bankroll-row"><strong>Potential return</strong><span>${formatCurrency(potentialReturn, { signed: false })} if all hit</span></div>
+        </div>
+      ` : "";
+
+      dom.desktopAiPicksGrid.innerHTML = picks.length ? picks.map((pick) => {
+        const category = desktopAiPickCategory(pick);
+        return `
+          <article class="pick-card desktop-pick-card ${category.className} ${pick.result === "placed" ? "is-placed" : ""} ${pick.result === "declined" ? "is-passed" : ""}">
+            ${pick.result === "placed" ? `<div class="pick-placed-overlay">Placed ✓</div>` : ""}
+            <div class="pick-header">
+              <span class="pick-badge ${category.className}">${category.label}</span>
+              <span class="pick-time">${pick.gameTime || "TBD"}</span>
+            </div>
+            <div class="pick-game">${pick.game}</div>
+            <div class="pick-selection">${pick.pick} (${formatLineValue(pick.odds)})</div>
+            <div class="desktop-pick-meta">
+              <span class="pick-sizing">${formatUnitsSecondary(pick.units)} · ${formatCurrency(Number(pick.dollars) || unitToDollars(pick.units), { signed: false })}</span>
+              <span class="pick-edge">Edge ${Number(pick.edgePts || 0).toFixed(1)}pts · ${confidenceStars(pick.confidence)}</span>
+            </div>
+            <div class="desktop-pick-meta">
+              <span class="pick-sizing">Kelly ${Number(pick.kellyPct || 0).toFixed(1)}%</span>
+              <span class="pick-sizing">${pick.gameTime || "TBD"}</span>
+            </div>
+            <div class="pick-selection">${genericBettingCopy(pick.headline)}</div>
+            <div class="desktop-pick-analysis">${genericBettingCopy(pick.analysis)}</div>
+            <div class="pick-actions">
+              <button type="button" class="pick-btn place" data-ai-pick-place="${pick.id}">Place</button>
+              <button type="button" class="pick-btn pass" data-ai-pick-pass="${pick.id}">Pass</button>
+            </div>
+          </article>
+        `;
+      }).join("") : `<div class="empty-state"><strong>No AI picks for today.</strong></div>`;
     }
 
     function mobileAllBetsItems() {
@@ -5252,6 +4974,7 @@
       pick.result = pick.result === result ? null : result;
       saveState();
       renderMobilePicksView();
+      renderDesktopAiPicks();
     }
 
     function toggleAiPickExpanded(id) {
@@ -5470,501 +5193,8 @@
       ctx.fillText(formatCurrency(min), padding.left - 8, padding.top + chartHeight + 4);
     }
 
-    function createGame({ id, date, eventDate = null, round, region = null, slot = 1, channel = "TBD", displayTime = "TBD", source = "fallback", teams = [], status = "scheduled", completed = false, score = "", note = "", venue = "", winner = null }) {
-      const normalizedTeams = teams.map((team) => {
-        const seed = Number.isFinite(Number(team.seed)) && Number(team.seed) < 90 ? Number(team.seed) : null;
-        const name = team.name && team.name !== "TBD" ? team.name : "TBD";
-        return { seed, name, score: team.score ?? null, winner: Boolean(team.winner) };
-      });
-      return {
-        id,
-        date,
-        eventDate,
-        round,
-        region,
-        slot,
-        channel,
-        displayTime,
-        source,
-        teams: normalizedTeams,
-        status,
-        completed,
-        score,
-        note,
-        venue,
-        winner,
-        hasBet: bets.some((bet) => betMatchesGame(bet, normalizedTeams.map((team) => team.name)))
-      };
-    }
-
-    function isMainBracketGame(game) {
-      return game.round !== "first-four";
-    }
-
-    function buildFallbackTournamentGames() {
-      const games = [];
-      const add = (config) => games.push(createGame(config));
-      const firstRoundGames = [
-        { date: "2026-03-21", region: "South", slot: 1, time: "9:25 PM ET", channel: "TNT", teams: [{ seed: 1, name: "Florida" }, { seed: 16, name: "Prairie View" }] },
-        { date: "2026-03-20", region: "South", slot: 2, time: "6:50 PM ET", channel: "TNT", teams: [{ seed: 8, name: "Clemson" }, { seed: 9, name: "Iowa" }] },
-        { date: "2026-03-19", region: "South", slot: 3, time: "3:15 PM ET", channel: "truTV", teams: [{ seed: 5, name: "Vanderbilt" }, { seed: 12, name: "McNeese St" }] },
-        { date: "2026-03-19", region: "South", slot: 4, time: "12:40 PM ET", channel: "truTV", teams: [{ seed: 4, name: "Nebraska" }, { seed: 13, name: "Troy" }] },
-        { date: "2026-03-19", region: "South", slot: 5, time: "6:50 PM ET", channel: "TNT", teams: [{ seed: 6, name: "North Carolina" }, { seed: 11, name: "VCU" }] },
-        { date: "2026-03-20", region: "South", slot: 6, time: "9:25 PM ET", displayTime: "Final", channel: "TNT", status: "post", completed: true, score: "Illinois 105 - Penn 70", winner: "Illinois", teams: [{ seed: 3, name: "Illinois", score: 105, winner: true }, { seed: 14, name: "Penn", score: 70, winner: false }] },
-        { date: "2026-03-19", region: "South", slot: 7, time: "7:35 PM ET", channel: "truTV", teams: [{ seed: 7, name: "Saint Marys" }, { seed: 10, name: "Texas A&M" }] },
-        { date: "2026-03-20", region: "South", slot: 8, time: "10:10 PM ET", displayTime: "Final", channel: "truTV", status: "post", completed: true, score: "Houston 78 - Idaho 47", winner: "Houston", teams: [{ seed: 2, name: "Houston", score: 78, winner: true }, { seed: 15, name: "Idaho", score: 47, winner: false }] },
-
-        { date: "2026-03-19", region: "East", slot: 1, time: "2:50 PM ET", channel: "CBS", teams: [{ seed: 1, name: "Duke" }, { seed: 16, name: "Siena" }] },
-        { date: "2026-03-19", region: "East", slot: 2, time: "12:15 PM ET", channel: "CBS", teams: [{ seed: 8, name: "Ohio State" }, { seed: 9, name: "TCU" }] },
-        { date: "2026-03-20", region: "East", slot: 3, time: "7:10 PM ET", channel: "CBS", teams: [{ seed: 5, name: "St John's" }, { seed: 12, name: "Northern Iowa" }] },
-        { date: "2026-03-21", region: "East", slot: 4, time: "9:45 PM ET", channel: "CBS", teams: [{ seed: 4, name: "Kansas" }, { seed: 13, name: "CA Baptist" }] },
-        { date: "2026-03-19", region: "East", slot: 5, time: "1:30 PM ET", channel: "TNT", teams: [{ seed: 6, name: "Louisville" }, { seed: 11, name: "South Florida" }] },
-        { date: "2026-03-19", region: "East", slot: 6, time: "4:05 PM ET", channel: "TNT", teams: [{ seed: 3, name: "Michigan St" }, { seed: 14, name: "NDSU" }] },
-        { date: "2026-03-20", region: "East", slot: 7, time: "7:25 PM ET", channel: "TBS", teams: [{ seed: 7, name: "UCLA" }, { seed: 10, name: "UCF" }] },
-        { date: "2026-03-21", region: "East", slot: 8, time: "10:00 PM ET", channel: "TBS", teams: [{ seed: 2, name: "UConn" }, { seed: 15, name: "Furman" }] }
-      ];
-
-      const remainingFirstRoundGames = [
-        { date: "2026-03-20", region: "West", slot: 1, time: "1:35 PM ET", displayTime: "Final", channel: "TNT", status: "post", completed: true, score: "Arizona 92 - Long Island 58", winner: "Arizona", teams: [{ seed: 1, name: "Arizona", score: 92, winner: true }, { seed: 16, name: "Long Island", score: 58, winner: false }] },
-        { date: "2026-03-20", region: "West", slot: 2, time: "4:10 PM ET", displayTime: "Final", channel: "TNT", status: "post", completed: true, score: "Villanova 76 - Utah State 86", winner: "Utah State", teams: [{ seed: 8, name: "Villanova", score: 76, winner: false }, { seed: 9, name: "Utah State", score: 86, winner: true }] },
-        { date: "2026-03-19", region: "West", slot: 3, time: "1:50 PM ET", channel: "TBS", teams: [{ seed: 5, name: "Wisconsin" }, { seed: 12, name: "High Point" }] },
-        { date: "2026-03-19", region: "West", slot: 4, time: "4:25 PM ET", channel: "TBS", teams: [{ seed: 4, name: "Arkansas" }, { seed: 13, name: "Hawaii" }] },
-        { date: "2026-03-19", region: "West", slot: 5, time: "7:25 PM ET", channel: "TBS", teams: [{ seed: 6, name: "BYU" }, { seed: 11, name: "Texas" }] },
-        { date: "2026-03-20", region: "West", slot: 6, time: "10:00 PM ET", displayTime: "Final", channel: "TBS", status: "post", completed: true, score: "Gonzaga 73 - Kennesaw St 64", winner: "Gonzaga", teams: [{ seed: 3, name: "Gonzaga", score: 73, winner: true }, { seed: 14, name: "Kennesaw St", score: 64, winner: false }] },
-        { date: "2026-03-21", region: "West", slot: 7, time: "10:10 PM ET", channel: "truTV", teams: [{ seed: 7, name: "Miami" }, { seed: 10, name: "Missouri" }] },
-        { date: "2026-03-20", region: "West", slot: 8, time: "7:35 PM ET", channel: "truTV", teams: [{ seed: 2, name: "Purdue" }, { seed: 15, name: "Queens" }] },
-
-        { date: "2026-03-19", region: "Midwest", slot: 1, time: "7:10 PM ET", channel: "CBS", teams: [{ seed: 1, name: "Michigan" }, { seed: 16, name: "Howard" }] },
-        { date: "2026-03-20", region: "Midwest", slot: 2, time: "9:45 PM ET", displayTime: "Final", channel: "CBS", status: "post", completed: true, score: "Georgia 77 - Saint Louis 102", winner: "Saint Louis", teams: [{ seed: 8, name: "Georgia", score: 77, winner: false }, { seed: 9, name: "Saint Louis", score: 102, winner: true }] },
-        { date: "2026-03-20", region: "Midwest", slot: 3, time: "12:40 PM ET", displayTime: "Final", channel: "truTV", status: "post", completed: true, score: "Texas Tech 91 - Akron 71", winner: "Texas Tech", teams: [{ seed: 5, name: "Texas Tech", score: 91, winner: true }, { seed: 12, name: "Akron", score: 71, winner: false }] },
-        { date: "2026-03-20", region: "Midwest", slot: 4, time: "3:15 PM ET", displayTime: "Final", channel: "truTV", status: "post", completed: true, score: "Alabama 90 - Hofstra 70", winner: "Alabama", teams: [{ seed: 4, name: "Alabama", score: 90, winner: true }, { seed: 13, name: "Hofstra", score: 70, winner: false }] },
-        { date: "2026-03-20", region: "Midwest", slot: 5, time: "4:25 PM ET", displayTime: "Final", channel: "TBS", status: "post", completed: true, score: "Tennessee 78 - Miami OH 56", winner: "Tennessee", teams: [{ seed: 6, name: "Tennessee", score: 78, winner: true }, { seed: 11, name: "Miami OH", score: 56, winner: false }] },
-        { date: "2026-03-20", region: "Midwest", slot: 6, time: "1:50 PM ET", displayTime: "Final", channel: "TBS", status: "post", completed: true, score: "Virginia 82 - Wright St 73", winner: "Virginia", teams: [{ seed: 3, name: "Virginia", score: 82, winner: true }, { seed: 14, name: "Wright St", score: 73, winner: false }] },
-        { date: "2026-03-20", region: "Midwest", slot: 7, time: "12:15 PM ET", displayTime: "Final", channel: "CBS", status: "post", completed: true, score: "Kentucky 89 - Santa Clara 84", winner: "Kentucky", teams: [{ seed: 7, name: "Kentucky", score: 89, winner: true }, { seed: 10, name: "Santa Clara", score: 84, winner: false }] },
-        { date: "2026-03-20", region: "Midwest", slot: 8, time: "2:50 PM ET", displayTime: "Final", channel: "CBS", status: "post", completed: true, score: "Iowa State 108 - Tennessee St 74", winner: "Iowa State", teams: [{ seed: 2, name: "Iowa State", score: 108, winner: true }, { seed: 15, name: "Tennessee St", score: 74, winner: false }] }
-      ];
-
-      [...firstRoundGames, ...remainingFirstRoundGames].forEach((game) => {
-        add({
-          id: `fallback-first-round-${game.region}-${game.slot}`,
-          date: game.date,
-          round: "first-round",
-          region: game.region,
-          slot: game.slot,
-          displayTime: game.displayTime || game.time,
-          channel: game.channel,
-          teams: game.teams,
-          status: game.status,
-          completed: game.completed,
-          score: game.score,
-          winner: game.winner
-        });
-      });
-
-      REGION_ORDER.forEach((region) => {
-        for (let slot = 1; slot <= 4; slot += 1) add({ id: `fallback-second-round-${region}-${slot}`, date: slot <= 2 ? "2026-03-23" : "2026-03-24", round: "second-round", region, slot, displayTime: "TBD", channel: "TBD", teams: [{ seed: null, name: "TBD" }, { seed: null, name: "TBD" }] });
-        for (let slot = 1; slot <= 2; slot += 1) add({ id: `fallback-sweet-16-${region}-${slot}`, date: slot === 1 ? "2026-03-27" : "2026-03-28", round: "sweet-16", region, slot, displayTime: "TBD", channel: "CBS/TBS", teams: [{ seed: null, name: "TBD" }, { seed: null, name: "TBD" }] });
-        add({ id: `fallback-elite-8-${region}-1`, date: ["South", "West"].includes(region) ? "2026-03-29" : "2026-03-30", round: "elite-8", region, slot: 1, displayTime: "TBD", channel: "CBS/TBS", teams: [{ seed: null, name: "TBD" }, { seed: null, name: "TBD" }] });
-      });
-      for (let slot = 1; slot <= 2; slot += 1) add({ id: `fallback-final-four-${slot}`, date: "2026-04-05", round: "final-four", slot, displayTime: "TBD", channel: "CBS", teams: [{ seed: null, name: "TBD" }, { seed: null, name: "TBD" }] });
-      add({ id: "fallback-championship-1", date: "2026-04-07", round: "championship", slot: 1, displayTime: "TBD", channel: "CBS", teams: [{ seed: null, name: "TBD" }, { seed: null, name: "TBD" }] });
-      return games;
-    }
-
-    function roundFromHeadline(headline) {
-      if (/First Four/i.test(headline)) return "first-four";
-      if (/1st Round/i.test(headline)) return "first-round";
-      if (/2nd Round/i.test(headline)) return "second-round";
-      if (/Sweet 16/i.test(headline)) return "sweet-16";
-      if (/Elite 8/i.test(headline)) return "elite-8";
-      if (/Final Four/i.test(headline)) return "final-four";
-      if (/National Championship/i.test(headline)) return "championship";
-      return null;
-    }
-
-    function regionFromHeadline(headline) {
-      return REGION_ORDER.find((region) => headline.includes(`${region} Region`)) || null;
-    }
-
-    function slotForGame(round, region, teams, sequence) {
-      if (round === "first-round" && region) {
-        const seeds = teams.map((team) => team.seed).filter((seed) => seed != null).sort((a, b) => a - b);
-        const key = `${seeds[0]}-${seeds[1]}`;
-        return REGION_SLOT_BY_SEEDS[key] || sequence;
-      }
-      return sequence;
-    }
-
-    function parseEspnEvent(event) {
-      const comp = event.competitions?.[0];
-      if (!comp) return null;
-      const headline = comp.notes?.[0]?.headline || event.notes?.[0]?.headline || "";
-      const round = roundFromHeadline(headline);
-      if (!round) return null;
-      const region = regionFromHeadline(headline);
-      const competitors = [...(comp.competitors || [])];
-      const away = competitors.find((entry) => entry.homeAway === "away") || competitors[1] || {};
-      const home = competitors.find((entry) => entry.homeAway === "home") || competitors[0] || {};
-      const teams = [away, home].map((entry) => ({
-        seed: entry.curatedRank?.current ?? null,
-        name: entry.team?.shortDisplayName || entry.team?.displayName || "TBD",
-        score: Number(entry.score ?? 0),
-        winner: entry.winner === true
-      }));
-      const completed = Boolean(comp.status?.type?.completed);
-      const status = comp.status?.type?.state || "scheduled";
-      const channel = comp.broadcasts?.[0]?.names?.[0] || event.broadcast || comp.geoBroadcasts?.[0]?.media?.shortName || "TBD";
-      const score = completed ? `${teams[0].name} ${teams[0].score} - ${teams[1].name} ${teams[1].score}` : "";
-      const winner = completed ? teams.find((team) => team.winner || team.score === Math.max(...teams.map((entry) => entry.score)))?.name || null : null;
-      return {
-        id: event.id,
-        date: isoDateInEt(event.date),
-        eventDate: event.date,
-        round,
-        region,
-        headline,
-        channel,
-        displayTime: completed ? "Final" : formatGameTime(event.date),
-        teams,
-        status,
-        completed,
-        score,
-        venue: comp.venue?.fullName || "",
-        winner,
-        note: headline
-      };
-    }
-
-    async function fetchTournamentSchedule() {
-      try {
-        const responses = await Promise.all(
-          TOURNAMENT_FETCH_DATES.map((date) => fetch(`${ESPN_API_BASE}?dates=${date}&groups=100&limit=50`).then((res) => res.ok ? res.json() : null))
-        );
-        const fetched = [];
-        responses.forEach((payload) => {
-          (payload?.events || []).forEach((event) => {
-            const parsed = parseEspnEvent(event);
-            if (parsed) fetched.push(parsed);
-          });
-        });
-        tournamentGames = mergeTournamentGames(buildFallbackTournamentGames(), fetched);
-        tournamentStatus = { loaded: true, error: null, updatedAt: new Date() };
-      } catch (error) {
-        tournamentStatus = { loaded: false, error: error.message || "Unable to load ESPN bracket feed.", updatedAt: null };
-      }
-      renderLiveBetsSection();
-      renderLiveScoresSection();
-      renderTournamentViews();
-    }
-
-    function mergeTournamentGames(fallbackGames, fetchedGames) {
-      const sequenceByGroup = new Map();
-      const fetchedNormalized = fetchedGames
-        .filter(isMainBracketGame)
-        .sort((a, b) => `${a.round}${a.region || ""}${a.eventDate || ""}${a.id}`.localeCompare(`${b.round}${b.region || ""}${b.eventDate || ""}${b.id}`))
-        .map((game) => {
-          const groupKey = `${game.round}|${game.region || "finals"}`;
-          const sequence = (sequenceByGroup.get(groupKey) || 0) + 1;
-          sequenceByGroup.set(groupKey, sequence);
-          return createGame({
-            id: game.id,
-            date: game.date,
-            eventDate: game.eventDate,
-            round: game.round,
-            region: game.region,
-            slot: slotForGame(game.round, game.region, game.teams, sequence),
-            channel: game.channel,
-            displayTime: game.displayTime,
-            source: "espn",
-            teams: game.teams,
-            status: game.status,
-            completed: game.completed,
-            score: game.score,
-            note: game.note,
-            venue: game.venue,
-            winner: game.winner
-          });
-        });
-
-      const merged = new Map();
-      fallbackGames
-        .filter(isMainBracketGame)
-        .forEach((game) => merged.set(`${game.round}|${game.region || "finals"}|${game.slot}`, game));
-      fetchedNormalized.forEach((game) => merged.set(`${game.round}|${game.region || "finals"}|${game.slot}`, game));
-      return [...merged.values()].sort((a, b) => {
-        const roundDiff = ROUND_ORDER.indexOf(a.round) - ROUND_ORDER.indexOf(b.round);
-        if (roundDiff) return roundDiff;
-        const regionDiff = (REGION_ORDER.indexOf(a.region) + 1 || 99) - (REGION_ORDER.indexOf(b.region) + 1 || 99);
-        if (regionDiff) return regionDiff;
-        const dateDiff = a.date.localeCompare(b.date);
-        if (dateDiff) return dateDiff;
-        return a.slot - b.slot;
-      });
-    }
-
     function mainTournamentGames() {
-      return tournamentGames.filter(isMainBracketGame);
-    }
-
-    function scheduleGroups() {
-      const grouped = new Map();
-      mainTournamentGames()
-        .slice()
-        .sort((a, b) => {
-          const dateDiff = a.date.localeCompare(b.date);
-          if (dateDiff) return dateDiff;
-          const timeDiff = parseTimeToMinutes(a.displayTime) - parseTimeToMinutes(b.displayTime);
-          if (timeDiff) return timeDiff;
-          return a.slot - b.slot;
-        })
-        .forEach((game) => {
-          if (!grouped.has(game.date)) grouped.set(game.date, []);
-          grouped.get(game.date).push(game);
-        });
-      return [...grouped.entries()].map(([date, games]) => ({ date, games }));
-    }
-
-    function scheduleCardMarkup(game) {
-      const classes = ["schedule-list-card", "fade-in"];
-      if (game.hasBet) classes.push("bet-highlight");
-      if (game.completed) classes.push("completed");
-      return `
-        <article class="${classes.join(" ")}">
-          <div class="schedule-game-meta">
-            <span class="schedule-game-time">${game.displayTime}</span>
-            <span class="schedule-game-channel">${game.channel}</span>
-          </div>
-          <div class="schedule-team-stack">
-            ${game.teams.map((team) => `
-              <div class="schedule-team-row">
-                <div class="schedule-team-id">
-                  <span class="seed">${team.seed ?? "?"}</span>
-                  <span class="schedule-team-name">${team.name}</span>
-                </div>
-                <div class="schedule-game-score">
-                  ${game.completed && team.score != null ? `<strong>${team.score}</strong>` : ""}
-                </div>
-              </div>
-            `).join("")}
-          </div>
-          ${scheduleOddsMarkup(game)}
-          <div class="bracket-footer">
-            <span class="schedule-game-channel">${game.region ? `${game.region} Region` : ROUND_LABELS[game.round]}</span>
-            <span class="schedule-game-channel">${game.hasBet ? "Bet tracked" : (game.completed && game.score ? game.score : "")}</span>
-          </div>
-        </article>
-      `;
-    }
-
-    function bracketMatchupMarkup(game) {
-      const classes = ["bracket-matchup"];
-      if (game.hasBet) classes.push("bet-highlight");
-      if (game.completed) classes.push("completed");
-      if (game.teams.every((team) => team.name === "TBD")) classes.push("tbd");
-      return `
-        <article class="${classes.join(" ")}">
-          <div class="bracket-card-head">
-            <span class="bracket-card-meta">${bracketDateTimeLabel(game)}</span>
-            <span class="bracket-card-tag">${game.hasBet ? "Bet tracked" : game.channel}</span>
-          </div>
-          <div class="bracket-team-stack">
-            ${game.teams.map((team) => `
-              <div class="bracket-team-row ${team.winner ? "winner" : ""}">
-                <div class="bracket-team-id">
-                  <span class="seed">${team.seed ?? "?"}</span>
-                  <span class="bracket-team-name">${team.name}</span>
-                </div>
-                <div class="schedule-game-score">
-                  ${game.completed && team.score != null ? `<strong>${team.score}</strong>` : team.winner ? `<span class="winner-tag">W</span>` : ""}
-                </div>
-              </div>
-            `).join("")}
-          </div>
-          <div class="bracket-footer">
-            <span class="bracket-round-label">${game.region ? `${game.region} Region` : ROUND_LABELS[game.round]}</span>
-            <span class="bracket-round-label">${game.completed && game.score ? game.score : game.venue || ""}</span>
-          </div>
-        </article>
-      `;
-    }
-
-    function bracketSlotMarkup(game) {
-      return `
-        <div
-          class="bracket-slot"
-          data-region="${game.region || "finals"}"
-          data-round="${game.round}"
-          data-slot="${game.slot}"
-          style="grid-column:${game.round === "championship" ? 2 : game.round === "final-four" ? 1 : ["first-round", "second-round", "sweet-16", "elite-8"].indexOf(game.round) + 1};grid-row:${bracketGridRow(game.round, game.slot)};"
-        >
-          ${bracketMatchupMarkup(game)}
-        </div>
-      `;
-    }
-
-    function bracketRoundHeadsMarkup(rounds, variant) {
-      return `
-        <div class="bracket-round-heads ${variant}">
-          ${rounds.map((round) => `
-            <div class="bracket-round-head">
-              <h4>${BRACKET_ROUND_META[round].title}</h4>
-              <div class="bracket-round-date">${BRACKET_ROUND_META[round].dateLabel}</div>
-            </div>
-          `).join("")}
-        </div>
-      `;
-    }
-
-    function regionBoardMarkup(region, side) {
-      const rounds = ["first-round", "second-round", "sweet-16", "elite-8"];
-      const games = rounds.flatMap((round) => (
-        mainTournamentGames()
-          .filter((game) => game.region === region && game.round === round)
-          .sort((a, b) => a.slot - b.slot)
-      ));
-      return `
-        <section class="bracket-region-shell ${state.activeBracketRegion === region ? "active" : ""}" data-region-shell="${region}" data-side="${side}">
-          <div class="bracket-region-head">
-            <h3>${region} Region</h3>
-            <span class="round-slot-count">${games.filter((game) => game.round === "first-round").length}/8 first round</span>
-          </div>
-          ${bracketRoundHeadsMarkup(rounds, "region")}
-          <div class="bracket-region-board" data-board="${region}">
-            ${games.map(bracketSlotMarkup).join("")}
-          </div>
-        </section>
-      `;
-    }
-
-    function drawBracketConnectors() {
-      const stage = dom.bracketView.querySelector(".bracket-stage");
-      const svg = stage?.querySelector(".bracket-stage-canvas");
-      if (!stage || !svg) return;
-      const stageRect = stage.getBoundingClientRect();
-      if (!stageRect.width || !stageRect.height) return;
-
-      svg.innerHTML = "";
-      svg.setAttribute("viewBox", `0 0 ${stageRect.width} ${stageRect.height}`);
-
-      const line = (fromEl, toEl) => {
-        if (!fromEl || !toEl || fromEl.offsetParent === null || toEl.offsetParent === null) return;
-        const fromRect = fromEl.getBoundingClientRect();
-        const toRect = toEl.getBoundingClientRect();
-        const fromLeft = fromRect.left - stageRect.left;
-        const fromRight = fromRect.right - stageRect.left;
-        const fromY = fromRect.top - stageRect.top + (fromRect.height / 2);
-        const toLeft = toRect.left - stageRect.left;
-        const toRight = toRect.right - stageRect.left;
-        const toY = toRect.top - stageRect.top + (toRect.height / 2);
-        const x1 = fromLeft < toLeft ? fromRight : fromLeft;
-        const x2 = fromLeft < toLeft ? toLeft : toRight;
-        const mid = (x1 + x2) / 2;
-        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        path.setAttribute("d", `M ${x1} ${fromY} H ${mid} V ${toY} H ${x2}`);
-        path.setAttribute("fill", "none");
-        path.setAttribute("stroke", "rgba(255,255,255,0.32)");
-        path.setAttribute("stroke-width", "1");
-        path.setAttribute("stroke-linecap", "square");
-        path.setAttribute("stroke-linejoin", "miter");
-        svg.appendChild(path);
-      };
-
-      const findSlot = (region, round, slot) => stage.querySelector(`.bracket-slot[data-region="${region}"][data-round="${round}"][data-slot="${slot}"]`);
-
-      REGION_ORDER.forEach((region) => {
-        [["first-round", "second-round", 8], ["second-round", "sweet-16", 4], ["sweet-16", "elite-8", 2]].forEach(([sourceRound, targetRound, count]) => {
-          for (let slot = 1; slot <= count; slot += 1) {
-            const targetSlot = Math.ceil(slot / 2);
-            line(findSlot(region, sourceRound, slot), findSlot(region, targetRound, targetSlot));
-          }
-        });
-      });
-
-      line(findSlot("South", "elite-8", 1), findSlot("finals", "final-four", 1));
-      line(findSlot("East", "elite-8", 1), findSlot("finals", "final-four", 1));
-      line(findSlot("West", "elite-8", 1), findSlot("finals", "final-four", 2));
-      line(findSlot("Midwest", "elite-8", 1), findSlot("finals", "final-four", 2));
-      line(findSlot("finals", "final-four", 1), findSlot("finals", "championship", 1));
-      line(findSlot("finals", "final-four", 2), findSlot("finals", "championship", 1));
-    }
-
-    function renderSchedule() {
-      const groups = scheduleGroups();
-      dom.scheduleStatus.textContent = tournamentStatus.error
-        ? "Fallback schedule active"
-        : tournamentStatus.loaded
-          ? `ESPN updated ${tournamentStatus.updatedAt.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}`
-          : "Loading schedule...";
-
-      // Filter out completed games from the schedule
-      const filteredGroups = groups.map(({ date, games }) => ({
-        date,
-        games: games.filter((game) => !isGameCompleted(game))
-      })).filter(({ games }) => games.length > 0);
-
-      dom.scheduleView.innerHTML = filteredGroups.length ? `
-        <div class="schedule-days">
-          ${filteredGroups.map(({ date, games }) => `
-            <section class="schedule-day-card">
-              <div class="schedule-day-head">
-                <h3>${scheduleDayLabel(date)}</h3>
-                <span class="round-slot-count">${games.length} games</span>
-              </div>
-              <div class="schedule-day-list">
-                ${games.map(scheduleCardMarkup).join("")}
-              </div>
-            </section>
-          `).join("")}
-        </div>
-      ` : `<div class="empty-state">No upcoming games scheduled.</div>`;
-    }
-
-    function renderBracket() {
-      dom.bracketStatus.textContent = tournamentStatus.error
-        ? "Fallback bracket active"
-        : tournamentStatus.loaded
-          ? "Live bracket via ESPN"
-          : "Loading bracket...";
-
-      const finalGames = mainTournamentGames()
-        .filter((game) => ["final-four", "championship"].includes(game.round))
-        .sort((a, b) => ROUND_ORDER.indexOf(a.round) - ROUND_ORDER.indexOf(b.round) || a.slot - b.slot);
-
-      dom.bracketView.innerHTML = `
-        <div class="bracket-shell">
-          <div class="bracket-mobile-tabs">
-            ${["South", "East", "Midwest", "West"].map((region) => `
-              <button type="button" class="${state.activeBracketRegion === region ? "active" : ""}" data-bracket-region="${region}">${region}</button>
-            `).join("")}
-          </div>
-          <div class="bracket-stage">
-            <svg class="bracket-stage-canvas" aria-hidden="true"></svg>
-            <div class="bracket-side">
-              ${BRACKET_SIDE_REGIONS.left.map((region) => regionBoardMarkup(region, "left")).join("")}
-            </div>
-            <section class="bracket-finals-shell">
-              <div class="bracket-finals-head">
-                <h3>Final Four / Championship</h3>
-                <span class="round-slot-count">Center court</span>
-              </div>
-              ${bracketRoundHeadsMarkup(["final-four", "championship"], "center")}
-              <div class="bracket-finals-board" data-board="finals">
-                ${finalGames.map((game) => bracketSlotMarkup({ ...game, region: "finals" })).join("")}
-              </div>
-            </section>
-            <div class="bracket-side">
-              ${BRACKET_SIDE_REGIONS.right.map((region) => regionBoardMarkup(region, "right")).join("")}
-            </div>
-          </div>
-        </div>
-      `;
-
-      requestAnimationFrame(drawBracketConnectors);
-    }
-
-    function renderTournamentViews() {
-      renderBracket();
-      renderSchedule();
+      return [];
     }
 
     function saveState() {
@@ -6124,7 +5354,6 @@
         oddsData = await res.json();
         renderLiveBetsSection();
         renderLiveScoresSection();
-        renderSchedule();
       } catch (error) {
         console.log("Odds fetch error:", error);
       }
@@ -6176,8 +5405,9 @@
         button.classList.toggle("active", button.dataset.tab === state.activeTab);
       });
       dom.dashboardPanel.classList.toggle("hidden", state.activeTab !== "dashboard");
-      dom.bracketPanel.classList.toggle("hidden", state.activeTab !== "bracket");
-      dom.schedulePanel.classList.toggle("hidden", state.activeTab !== "schedule");
+      dom.aiPicksPanel.classList.toggle("hidden", state.activeTab !== "ai-picks");
+      dom.livePanel.classList.toggle("hidden", state.activeTab !== "live");
+      dom.historyPanel.classList.toggle("hidden", state.activeTab !== "history");
     }
 
     function attachEvents() {
@@ -6199,7 +5429,6 @@
         if (!button) return;
         state.activeTab = button.dataset.tab;
         renderTabs();
-        if (state.activeTab === "bracket") requestAnimationFrame(drawBracketConnectors);
       });
 
       document.addEventListener("click", (event) => {
@@ -6297,12 +5526,6 @@
           renderDailyBreakdown();
           return;
         }
-
-        const bracketRegion = event.target.closest("[data-bracket-region]");
-        if (bracketRegion) {
-          state.activeBracketRegion = bracketRegion.dataset.bracketRegion;
-          renderBracket();
-        }
       });
 
       document.addEventListener("submit", (event) => {
@@ -6337,7 +5560,6 @@
       window.addEventListener("resize", () => {
         syncMobileVisibility();
         drawChart();
-        drawBracketConnectors();
         if (state.mobileViewport) {
           renderMobileHeader(summarize());
           renderMobilePicksView();
@@ -6353,6 +5575,7 @@
       renderHeroKpis(summary);
       renderMobileHeader(summary);
       renderApiInvestment(summary);
+      renderDesktopAiPicks();
       renderLiveBetsSection();
       renderLiveScoresSection();
       renderFilters();
@@ -6362,24 +5585,20 @@
       renderMobileAllBets();
       renderDailyBreakdown();
       renderStats();
-      renderTournamentViews();
       renderTabs();
       syncMobileVisibility();
       drawChart();
-      requestAnimationFrame(drawBracketConnectors);
     }
 
     function init() {
       loadState();
       attachEvents();
       render();
-      fetchTournamentSchedule();
       fetchOddsData();
       fetchLiveScores();
       fetchEspnClock();
       setInterval(fetchLiveScores, 180000);
       setInterval(fetchOddsData, 300000);
-      setInterval(fetchTournamentSchedule, 300000);
       setInterval(fetchEspnClock, 30000); // ESPN clock every 30s for real-time updates
     }
 
