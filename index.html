@@ -2095,6 +2095,47 @@
         color: #ff453a;
       }
 
+      /* Player Prop Progress Bars */
+      .prop-leg {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+      }
+      .prop-leg:last-child { border-bottom: none; }
+      .prop-leg-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.82rem;
+      }
+      .prop-leg-player { color: #fff; font-weight: 600; }
+      .prop-leg-count { font-size: 0.78rem; font-weight: 600; }
+      .prop-leg-count.covering { color: #30d158; }
+      .prop-leg-count.not-covering { color: #ff9f0a; }
+      .prop-leg-count.hit { color: #30d158; }
+      .prop-bar-track {
+        width: 100%;
+        height: 6px;
+        border-radius: 3px;
+        background: #1e293b;
+        overflow: hidden;
+      }
+      .prop-bar-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.5s ease;
+      }
+      .prop-bar-fill.covering { background: #30d158; }
+      .prop-bar-fill.not-covering { background: #ff9f0a; }
+      .prop-bar-fill.hit { background: #30d158; }
+      .prop-leg-goal {
+        font-size: 0.7rem;
+        color: #8e8e93;
+        text-align: right;
+      }
+
       .under-track,
       .over-track {
         width: 100%;
@@ -4209,7 +4250,8 @@
             scoreLabel: playerStats.team || playerName,
             compactScoreLabel: playerStats.team || playerName,
             statusText: `${icon} ${current}/${target} ${statLabel}`,
-            summaryText: `${covering ? "Covering" : "Behind"} · ${current}/${target} ${statLabel}`
+            summaryText: `${covering ? "Covering" : "Behind"} · ${current}/${target} ${statLabel}`,
+            propData: { playerName, current, target, statField, statLabel, covering }
           };
         }
         // Player not yet found in live stats — return upcoming state
@@ -4472,8 +4514,46 @@
       return `<span class="live-bet-tag ${evaluation.state}">${evaluation.label}</span>`;
     }
 
+    function propBarMarkup(leg) {
+      const prop = leg.evaluation.propData;
+      if (!prop) return null;
+      const pct = Math.min((prop.current / prop.target) * 100, 100);
+      const cls = prop.covering ? "hit" : "not-covering";
+      return `
+        <div class="prop-leg">
+          <div class="prop-leg-header">
+            <span class="prop-leg-player">${prop.playerName}</span>
+            <span class="prop-leg-count ${cls}">${prop.current}/${prop.target} ${prop.statLabel}</span>
+          </div>
+          <div class="prop-bar-track">
+            <div class="prop-bar-fill ${cls}" style="width: ${pct}%"></div>
+          </div>
+        </div>
+      `;
+    }
+
     function liveBetMobileMarkup(entry) {
       if (entry.isParlay) {
+        const hasPropLegs = entry.legs.some((leg) => leg.evaluation.propData);
+        if (hasPropLegs) {
+          const clockLabel = liveGameClockLabel(entry.game);
+          return `
+            <div class="live-bet-mobile">
+              <div class="live-bet-row">
+                <strong class="live-bet-row-pick">${entry.title}</strong>
+                <span class="mobile-live-meta">${formatUnitsSecondary(entry.units)} · ${formatCurrency(unitToDollars(entry.units), { signed: false })}</span>
+              </div>
+              ${clockLabel ? `<div class="mobile-live-clock" style="text-align:center;padding:2px 0"><span>${clockLabel}</span></div>` : ""}
+              <div style="padding: 4px 0">
+                ${entry.legs.map((leg) => {
+                  const bar = propBarMarkup(leg);
+                  if (bar) return bar;
+                  return `<div class="prop-leg"><div class="prop-leg-header"><span class="prop-leg-player">${compactLegLabel(leg.pick)}</span><span class="prop-leg-count ${mobileStatusClass(leg.evaluation.state)}">${mobileStatusEmoji(leg.evaluation.state)}</span></div></div>`;
+                }).join("")}
+              </div>
+            </div>
+          `;
+        }
         return `
           <div class="live-bet-mobile">
             <div class="live-bet-row">
