@@ -3046,6 +3046,7 @@
       Kansas: ["Kansas Jayhawks", "Kansas"],
       Kentucky: ["Kentucky Wildcats", "Kentucky"],
       "Long Island": ["LIU Sharks", "Long Island University", "LIU", "Long Island"],
+      "Miami": ["Miami Hurricanes", "Miami FL", "Miami (FL)"],
       "Miami OH": ["Miami (OH) RedHawks", "Miami OH", "Miami (OH)"],
       Penn: ["Penn Quakers", "Pennsylvania", "Penn"],
       "Prairie View": ["Prairie View A&M Panthers", "Prairie View A&M", "Prairie View"],
@@ -3218,8 +3219,15 @@
       } catch (e) { /* silent */ }
     }
 
+    function schoolNameOnly(fullName) {
+      // "Prairie View A&M Panthers" → "prairie view a&m"
+      // "California Baptist Lancers" → "california baptist"
+      // Strip last word (mascot) and lowercase
+      const words = fullName.trim().toLowerCase().split(/\s+/);
+      return words.length > 1 ? words.slice(0, -1).join(" ") : words[0] || "";
+    }
+
     function getEspnClockForGame(game) {
-      // Build list of team names to search for
       const searchNames = [];
       if (game?.teams?.length) {
         for (const t of game.teams) { if (t.name) searchNames.push(t.name); }
@@ -3232,9 +3240,16 @@
         const key = name.toLowerCase();
         // Exact match
         if (espnClockData[key]) return espnClockData[key];
-        // Use existing teamMatches() for robust matching
+        // teamMatches
         for (const [espnName, data] of Object.entries(espnClockData)) {
           if (teamMatches(name, espnName)) return data;
+        }
+        // School name match (strip mascot, compare school portion)
+        const school = schoolNameOnly(name);
+        for (const [espnName, data] of Object.entries(espnClockData)) {
+          const espnSchool = schoolNameOnly(espnName);
+          // "cal baptist" in "california baptist" or "prairie view" in "prairie view a&m"
+          if (school && espnSchool && (espnSchool.includes(school) || school.includes(espnSchool))) return data;
         }
       }
       return null;
