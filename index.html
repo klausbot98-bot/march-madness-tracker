@@ -2063,6 +2063,11 @@
         gap: 8px;
       }
 
+      .mobile-live-card.rich-live {
+        padding-top: 12px;
+        padding-bottom: 12px;
+      }
+
       .live-bet-row-pick,
       .live-bet-row-meta,
       .live-bet-row-units,
@@ -2167,6 +2172,90 @@
       .live-bet-parlay-leg {
         font-size: 0.78rem;
         color: var(--ios-text-secondary);
+      }
+
+      .mobile-live-topline,
+      .mobile-live-scoreline,
+      .mobile-live-barline,
+      .mobile-live-bottomline {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .mobile-live-badge,
+      .mobile-live-upcoming {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: var(--ios-text-secondary);
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+      }
+
+      .mobile-live-badge {
+        color: var(--ios-green);
+      }
+
+      .mobile-live-dot {
+        color: var(--ios-green);
+        animation: pulse-live 2s ease infinite;
+      }
+
+      .mobile-live-scoreline,
+      .mobile-live-bottomline,
+      .mobile-live-bar-caption,
+      .mobile-live-score-extra {
+        color: var(--ios-text-secondary);
+        font-size: 0.8rem;
+      }
+
+      .mobile-live-scoreline strong,
+      .mobile-live-bar-caption {
+        font-weight: 600;
+      }
+
+      .mobile-live-bottomline.covering {
+        color: var(--ios-green);
+      }
+
+      .mobile-live-bottomline.not-covering {
+        color: var(--ios-red);
+      }
+
+      .mobile-live-bottomline.upcoming {
+        color: var(--ios-text-secondary);
+      }
+
+      .mobile-margin-bar {
+        width: 100%;
+        height: 6px;
+        border-radius: 3px;
+        background: #2c2c2e;
+        overflow: hidden;
+        margin: 4px 0;
+      }
+
+      .mobile-margin-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.3s ease;
+      }
+
+      .mobile-margin-fill.covering {
+        background: #30d158;
+      }
+
+      .mobile-margin-fill.not-covering {
+        background: #ff453a;
+      }
+
+      @keyframes pulse-live {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.4; }
       }
 
       .mobile-section-head {
@@ -2868,6 +2957,7 @@
     let tournamentGames = buildFallbackTournamentGames();
     let tournamentStatus = { loaded: false, error: null, updatedAt: null };
     let oddsData = [];
+    let liveScoreData = [];
 
     function cloneData(items) {
       return items.map((item) => ({ ...item }));
@@ -2903,6 +2993,11 @@
 
     function isPlaced(result) {
       return result === "placed" || isSettled(result);
+    }
+
+    function isLiveTabEligibleResult(result) {
+      const normalized = normalizeResult(result);
+      return normalized == null || normalized === "placed";
     }
 
     function isMobileViewport() {
@@ -3243,6 +3338,11 @@
       return `${game.teams[0].score ?? "—"}-${game.teams[1].score ?? "—"}`;
     }
 
+    function formatMobileLiveScore(game) {
+      if (!Array.isArray(game?.teams) || game.teams.length < 2) return "—";
+      return `${game.teams[0].name} ${game.teams[0].score ?? "—"} · ${game.teams[1].name} ${game.teams[1].score ?? "—"}`;
+    }
+
     function formatSignedMargin(value) {
       if (!Number.isFinite(value)) return "0";
       const rounded = Math.round(value * 10) / 10;
@@ -3288,6 +3388,36 @@
       return state === "covering" || state === "not-covering" ? state : "upcoming";
     }
 
+    function parseOddsScoreGame(game) {
+      const homeTeam = game?.home_team;
+      const awayTeam = game?.away_team;
+      if (!homeTeam || !awayTeam) return null;
+
+      const scores = Array.isArray(game.scores) ? game.scores : [];
+      const scoreForTeam = (teamName) => {
+        const raw = scores.find((entry) => teamMatches(entry?.name, teamName))?.score;
+        const parsed = raw == null || raw === "" ? NaN : Number(raw);
+        return Number.isFinite(parsed) ? parsed : null;
+      };
+
+      const eventDate = game.commence_time || game.commenceTime || game.start_time || null;
+      const completed = Boolean(game.completed);
+      const status = String(game.status || game.state || (completed ? "post" : "scheduled")).toLowerCase();
+      return {
+        id: game.id || `${awayTeam}-${homeTeam}-${eventDate || ""}`,
+        date: isoDateInEt(eventDate) || currentEtDate(),
+        eventDate,
+        displayTime: completed ? "Final" : formatGameTime(eventDate),
+        teams: [
+          { name: awayTeam, score: scoreForTeam(awayTeam) },
+          { name: homeTeam, score: scoreForTeam(homeTeam) }
+        ],
+        status,
+        completed,
+        source: "odds-scores"
+      };
+    }
+
     function compactLegLabel(pick) {
       const teams = parsePickTeams(pick);
       const suffix = String(pick || "").replace(/^(.+?)\s+/, "").trim();
@@ -3319,6 +3449,9 @@
       if (teams.length < 2) {
         return {
           state: "upcoming",
+          gameState: "upcoming",
+          isLive: false,
+          hasScores: false,
           label: "Upcoming",
           scoreLabel: game?.displayTime || "Today",
           compactScoreLabel: game?.displayTime || "Today",
@@ -3332,6 +3465,9 @@
       if (gameState !== "live") {
         return {
           state: "upcoming",
+          gameState,
+          isLive: false,
+          hasScores: false,
           label: gameState === "completed" ? "Final" : "Upcoming",
           scoreLabel,
           compactScoreLabel,
@@ -3343,6 +3479,9 @@
       if (scores.some((score) => score == null)) {
         return {
           state: "upcoming",
+          gameState,
+          isLive: false,
+          hasScores: false,
           label: "Live",
           scoreLabel,
           compactScoreLabel,
@@ -3351,69 +3490,107 @@
       }
 
       const inferredType = type || inferBetTypeFromPick(pick);
+      const mobileScoreLabel = formatMobileLiveScore(game);
       if (inferredType === "spread") {
         const match = String(pick || "").match(/^(.+?)\s([+-]\d+(?:\.\d+)?)$/);
-        if (!match) return { state: "upcoming", label: "Live", scoreLabel, compactScoreLabel, statusText: "⏳ Upcoming" };
+        if (!match) return { state: "upcoming", gameState, isLive: false, hasScores: false, label: "Live", scoreLabel, compactScoreLabel, statusText: "⏳ Upcoming" };
         const pickTeam = match[1].trim();
         const spread = parseFloat(match[2]);
         const pickTeamEntry = teams.find((team) => teamMatches(team.name, pickTeam));
         const oppTeamEntry = teams.find((team) => !teamMatches(team.name, pickTeam));
-        if (!pickTeamEntry || !oppTeamEntry) return { state: "upcoming", label: "Live", scoreLabel, compactScoreLabel, statusText: "⏳ Upcoming" };
+        if (!pickTeamEntry || !oppTeamEntry) return { state: "upcoming", gameState, isLive: false, hasScores: false, label: "Live", scoreLabel, compactScoreLabel, statusText: "⏳ Upcoming" };
         const margin = pickTeamEntry.score - oppTeamEntry.score + spread;
+        const covering = margin > 0;
         return {
-          state: margin > 0 ? "covering" : "not-covering",
-          label: margin > 0 ? "Covering" : "Not Covering",
+          state: covering ? "covering" : "not-covering",
+          gameState,
+          isLive: true,
+          hasScores: true,
+          label: covering ? "Covering" : "Not Covering",
           scoreLabel,
+          mobileScoreLabel,
           compactScoreLabel,
-          statusText: `${margin > 0 ? "✅ Covering" : "❌ Behind"} ${formatSignedMargin(margin)}`
+          statusText: `${covering ? "✅ Covering" : "❌ Behind"} ${formatSignedMargin(margin)}`,
+          margin,
+          barRatio: Math.min(Math.abs(margin) / 20, 1),
+          summaryText: `${covering ? "Covering" : "Behind"} ${formatSignedMargin(margin)}`
         };
       }
 
       if (inferredType === "total") {
         const totalLine = parseFloat(String(pick || "").match(/(\d+(?:\.\d+)?)/)?.[1] || "");
-        if (!Number.isFinite(totalLine)) return { state: "upcoming", label: "Live", scoreLabel, compactScoreLabel, statusText: "⏳ Upcoming" };
+        if (!Number.isFinite(totalLine)) return { state: "upcoming", gameState, isLive: false, hasScores: false, label: "Live", scoreLabel, compactScoreLabel, statusText: "⏳ Upcoming" };
         const totalPoints = scores.reduce((sum, score) => sum + score, 0);
         const pace = totalPaceProgress(game);
         const projectedLine = pace == null ? totalLine : totalLine * pace;
         const isUnder = /\b(?:under|u)\b/i.test(String(pick || ""));
         const covering = isUnder ? totalPoints < projectedLine : totalPoints > projectedLine;
+        const progress = totalLine > 0 ? Math.max(0, Math.min(totalPoints / totalLine, 1)) : 0;
+        const through = pace == null ? null : Math.round(pace * 100);
         return {
           state: covering ? "covering" : "not-covering",
+          gameState,
+          isLive: true,
+          hasScores: true,
           label: covering ? "On Pace" : "Off Pace",
           scoreLabel,
+          mobileScoreLabel,
           compactScoreLabel,
-          statusText: covering ? "✅ On pace" : "❌ Off pace"
+          statusText: covering ? "✅ On pace" : "❌ Off pace",
+          currentTotal: totalPoints,
+          line: totalLine,
+          barRatio: progress,
+          summaryText: `${covering ? "On pace" : "Off pace"}${through != null ? ` · ${through}% through` : ""}`,
+          throughPercent: through
         };
       }
 
       const pickTeam = parsePickTeams(pick)[0];
       const pickTeamEntry = teams.find((team) => teamMatches(team.name, pickTeam));
       const oppTeamEntry = teams.find((team) => !teamMatches(team.name, pickTeam));
-      if (!pickTeamEntry || !oppTeamEntry) return { state: "upcoming", label: "Live", scoreLabel, compactScoreLabel, statusText: "⏳ Upcoming" };
+      if (!pickTeamEntry || !oppTeamEntry) return { state: "upcoming", gameState, isLive: false, hasScores: false, label: "Live", scoreLabel, compactScoreLabel, statusText: "⏳ Upcoming" };
       const margin = pickTeamEntry.score - oppTeamEntry.score;
       const covering = margin > 0;
       return {
         state: covering ? "covering" : "not-covering",
+        gameState,
+        isLive: true,
+        hasScores: true,
         label: covering ? "Leading" : "Trailing",
         scoreLabel,
+        mobileScoreLabel,
         compactScoreLabel,
-        statusText: `${covering ? "✅ Leading" : "❌ Behind"} ${formatSignedMargin(margin)}`
+        statusText: `${covering ? "✅ Leading" : "❌ Behind"} ${formatSignedMargin(margin)}`,
+        margin,
+        barRatio: Math.min(Math.abs(margin) / 20, 1),
+        summaryText: `${covering ? "Leading" : "Behind"} ${formatSignedMargin(margin)}`
       };
     }
 
     function findTodayLiveGameForTeams(teamNames) {
       if (!teamNames.length) return null;
-      return mainTournamentGames().find((game) => (
-        game.date === currentEtDate()
+      const today = currentEtDate();
+      const matchesTeams = (game) => (
+        game?.date === today
         && !isGameCompleted(game)
-        && teamNames.every((team) => game.teams.some((candidate) => teamMatches(team, candidate.name)))
-      )) || null;
+        && teamNames.every((team) => game.teams?.some((candidate) => teamMatches(team, candidate.name)))
+      );
+
+      const liveScoreMatch = liveScoreData
+        .filter(matchesTeams)
+        .sort((left, right) => {
+          const leftState = liveGameState(left) === "live" ? 0 : 1;
+          const rightState = liveGameState(right) === "live" ? 0 : 1;
+          return leftState - rightState || parseTimeToMinutes(left.displayTime) - parseTimeToMinutes(right.displayTime);
+        })[0];
+
+      return liveScoreMatch || mainTournamentGames().find(matchesTeams) || null;
     }
 
     function liveBetEntries() {
       const today = currentEtDate();
       const singleEntries = bets
-        .filter((bet) => isPlaced(bet.result) && bet.date === today)
+        .filter((bet) => isLiveTabEligibleResult(bet.result) && bet.date === today)
         .map((bet) => {
           const teams = extractBetTeams(bet.game);
           const game = findTodayLiveGameForTeams(teams) || fallbackGameForBet(bet.date, bet.gameTime);
@@ -3433,7 +3610,7 @@
         .filter(Boolean);
 
       const parlayEntries = parlays
-        .filter((parlay) => isPlaced(parlay.result))
+        .filter((parlay) => isLiveTabEligibleResult(parlay.result) && (parlay.date === today || (parlay.legs || []).some((leg) => bets.find((bet) => bet.pick === leg && bet.date === today))))
         .map((parlay) => {
           const legs = (parlay.legs || [])
             .map((leg) => {
@@ -3520,24 +3697,53 @@
         `;
       }
 
-      if (inferBetTypeFromPick(entry.pick) === "total") {
-        const progress = totalPickProgress(entry.pick, entry.game);
+      const isLiveSingle = entry.evaluation.isLive && entry.evaluation.hasScores;
+      const liveBadge = `<span class="mobile-live-badge">LIVE <span class="mobile-live-dot">●</span></span>`;
+
+      if (isLiveSingle && inferBetTypeFromPick(entry.pick) === "total") {
         const statusClass = mobileStatusClass(entry.evaluation.state);
         return `
           <div class="live-bet-mobile">
-            <div class="live-bet-row">
+            <div class="mobile-live-topline">
               <strong class="live-bet-row-pick">${entry.title}</strong>
-              <span class="live-bet-row-meta">${entry.evaluation.state !== "upcoming" ? `● ${entry.evaluation.compactScoreLabel}` : entry.evaluation.compactScoreLabel}</span>
+              ${liveBadge}
             </div>
-            <div class="live-bet-row">
-              <span class="live-bet-row-units">${formatUnitsSecondary(entry.units)}</span>
-              <div class="live-bet-total-status">
-                <span class="live-bet-progress">
-                  <span class="live-bet-progress-fill ${statusClass}" style="width: ${(progress.ratio * 100).toFixed(1)}%"></span>
-                </span>
-                <span class="live-bet-progress-text">${progress.currentTotal}/${progress.line ?? "0"}</span>
-                <span class="live-bet-row-status ${statusClass}">${entry.evaluation.statusText}</span>
+            <div class="mobile-live-scoreline">
+              <span>${entry.evaluation.mobileScoreLabel}</span>
+              <span class="mobile-live-score-extra">Total: ${entry.evaluation.currentTotal}</span>
+            </div>
+            <div class="mobile-live-barline">
+              <div class="mobile-margin-bar">
+                <div class="mobile-margin-fill ${statusClass}" style="width: ${((entry.evaluation.barRatio || 0) * 100).toFixed(1)}%"></div>
               </div>
+              <span class="mobile-live-bar-caption">${entry.evaluation.currentTotal}/${entry.evaluation.line ?? "0"}</span>
+            </div>
+            <div class="mobile-live-bottomline ${statusClass}">
+              <span>${entry.evaluation.state === "covering" ? "On pace" : "Off pace"}</span>
+              <span>${entry.evaluation.throughPercent != null ? `${entry.evaluation.throughPercent}% through` : ""}</span>
+            </div>
+          </div>
+        `;
+      }
+
+      if (isLiveSingle) {
+        const statusClass = mobileStatusClass(entry.evaluation.state);
+        return `
+          <div class="live-bet-mobile">
+            <div class="mobile-live-topline">
+              <strong class="live-bet-row-pick">${entry.title}</strong>
+              ${liveBadge}
+            </div>
+            <div class="mobile-live-scoreline">
+              <span>${entry.evaluation.mobileScoreLabel}</span>
+            </div>
+            <div class="mobile-live-barline">
+              <div class="mobile-margin-bar">
+                <div class="mobile-margin-fill ${statusClass}" style="width: ${((entry.evaluation.barRatio || 0) * 100).toFixed(1)}%"></div>
+              </div>
+            </div>
+            <div class="mobile-live-bottomline ${statusClass}">
+              <span>${entry.evaluation.summaryText}</span>
             </div>
           </div>
         `;
@@ -3547,10 +3753,10 @@
         <div class="live-bet-mobile">
           <div class="live-bet-row">
             <strong class="live-bet-row-pick">${entry.title}</strong>
-            <span class="live-bet-row-meta">${entry.evaluation.state !== "upcoming" ? `● ${entry.evaluation.compactScoreLabel}` : entry.evaluation.compactScoreLabel}</span>
+            <span class="live-bet-row-meta">${entry.evaluation.compactScoreLabel}</span>
           </div>
           <div class="live-bet-row">
-            <span class="live-bet-row-units">${formatUnitsSecondary(entry.units)}</span>
+            <span class="live-bet-row-units">${formatUnitsSecondary(entry.units)} · ${formatCurrency(unitToDollars(entry.units), { signed: false })}</span>
             <span class="live-bet-row-status ${mobileStatusClass(entry.evaluation.state)}">${entry.evaluation.statusText}</span>
           </div>
         </div>
@@ -3562,7 +3768,7 @@
         return `<div class="mobile-empty">No active bets tied to today’s card.</div>`;
       }
       return entries.map((entry) => `
-        <article class="mobile-live-card ${entry.evaluation.state}">
+        <article class="mobile-live-card ${entry.evaluation.state} ${entry.evaluation.isLive && entry.evaluation.hasScores && !entry.isParlay ? "rich-live" : ""}">
           ${liveBetMobileMarkup(entry)}
         </article>
       `).join("");
@@ -4956,6 +5162,7 @@
         const res = await fetch(`${ODDS_API_BASE}/sports/${SPORT}/scores/?apiKey=${ODDS_API_KEY}&daysFrom=1`);
         if (!res.ok) return;
         const games = await res.json();
+        liveScoreData = games.map(parseOddsScoreGame).filter(Boolean);
         let updated = false;
 
         for (const game of games) {
@@ -5011,7 +5218,11 @@
         if (updated) {
           saveState();
           render();
+          return;
         }
+
+        renderLiveBetsSection();
+        renderLiveScoresSection();
       } catch (error) {
         console.log("Score fetch error:", error);
       }
