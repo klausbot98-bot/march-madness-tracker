@@ -3589,17 +3589,44 @@
       const odds = Number(draft.odds);
       const units = Number(draft.units);
       if (!Number.isFinite(odds) || odds === 0 || !Number.isFinite(units) || units <= 0) return;
+
+      // Create a real bet entry so bankroll/stats update
+      const newBet = {
+        id: nextBetId(),
+        date: pick.date,
+        game: pick.game,
+        pick: pick.pick,
+        line: odds,
+        originalLine: pick.line,
+        units,
+        book: BET_BOOK,
+        type: inferBetTypeFromPick(pick.pick),
+        confidence: pick.confidence > 3 ? "high" : "medium",
+        result: "placed",
+        sport: pick.sport || "ncaab",
+        notes: "AI pick placed via app"
+      };
+      bets.push(newBet);
+
       state.pickActions[String(id)] = {
         status: "placed",
         odds,
         units,
-        placedAt: Date.now()
+        placedAt: Date.now(),
+        betId: newBet.id
       };
       state.editingAiPickId = null;
       delete state.aiPickDrafts[String(id)];
-      saveState();
+
+      // Animate out
+      state.fadingPickIds.add(String(id));
       renderMobilePicksView();
       renderDesktopAiPicks();
+      window.setTimeout(() => {
+        state.fadingPickIds.delete(String(id));
+        saveState();
+        render();
+      }, 300);
     }
 
     function passAiPick(id) {
@@ -5484,7 +5511,22 @@
       `;
     }
 
+    function nextBetId() {
+      const maxId = bets.reduce((max, b) => {
+        const n = Number(b.id);
+        return Number.isFinite(n) ? Math.max(max, n) : max;
+      }, 0);
+      return maxId + 1;
+    }
+
     function handlePlaceBet(id) {
+      // Check if it's an AI pick first
+      const pick = aiPicks.find((entry) => String(entry.id) === String(id));
+      if (pick) {
+        placeAiPickAsBet(pick);
+        return;
+      }
+      // Fall back to existing bet behaviour
       const bet = bets.find((entry) => String(entry.id) === String(id));
       if (!bet) return;
       bet.result = "placed";
@@ -5493,11 +5535,53 @@
     }
 
     function handleDeclineBet(id) {
+      // Check if it's an AI pick first
+      const pick = aiPicks.find((entry) => String(entry.id) === String(id));
+      if (pick) {
+        passAiPick(pick.id);
+        return;
+      }
+      // Fall back to existing bet behaviour
       const bet = bets.find((entry) => String(entry.id) === String(id));
       if (!bet) return;
       bet.result = "declined";
       saveState();
       render();
+    }
+
+    function placeAiPickAsBet(pick) {
+      const newBet = {
+        id: nextBetId(),
+        date: pick.date,
+        game: pick.game,
+        pick: pick.pick,
+        line: pick.line,
+        originalLine: pick.line,
+        units: pick.units,
+        book: BET_BOOK,
+        type: inferBetTypeFromPick(pick.pick),
+        confidence: pick.confidence > 3 ? "high" : "medium",
+        result: "placed",
+        sport: pick.sport || "ncaab",
+        notes: "AI pick placed via app"
+      };
+      bets.push(newBet);
+      state.pickActions[String(pick.id)] = {
+        status: "placed",
+        odds: pick.line,
+        units: pick.units,
+        placedAt: Date.now(),
+        betId: newBet.id
+      };
+      // Animate out then refresh
+      state.fadingPickIds.add(String(pick.id));
+      renderMobilePicksView();
+      renderDesktopAiPicks();
+      window.setTimeout(() => {
+        state.fadingPickIds.delete(String(pick.id));
+        saveState();
+        render();
+      }, 300);
     }
 
     function toggleAiPickExpanded(id) {
@@ -5738,9 +5822,16 @@
         state.pickActions = saved.pickActions || {};
         const betMap = new Map((saved.bets || []).map((entry) => [entry.id, entry]));
         const parlayMap = new Map((saved.parlays || []).map((entry) => [entry.id, entry]));
+        const hardcodedBetIds = new Set(BETS.map((b) => b.id));
         bets = cloneData(BETS).map((bet) => {
           const entry = betMap.get(bet.id);
           return entry ? { ...bet, ...entry, result: sanitizeResult(entry.result) } : bet;
+        });
+        // Restore extra bets added from AI picks (numeric IDs not in BETS)
+        (saved.bets || []).forEach((entry) => {
+          if (!hardcodedBetIds.has(entry.id) && Number.isFinite(Number(entry.id))) {
+            bets.push({ ...entry, result: sanitizeResult(entry.result) });
+          }
         });
         parlays = cloneData(PARLAYS).map((parlay) => {
           const entry = parlayMap.get(parlay.id);
