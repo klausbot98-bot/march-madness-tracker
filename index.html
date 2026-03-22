@@ -1063,34 +1063,290 @@
       margin-bottom: 18px;
     }
 
+    /* ── Desktop AI Picks Layout ── */
     .desktop-picks-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
-      gap: 18px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
     }
 
+    .desktop-picks-sport-section {
+      grid-column: 1 / -1;
+      margin: 8px 0 4px;
+    }
+
+    .desktop-picks-sport-header {
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      margin-bottom: 4px;
+    }
+
+    /* ── Desktop Summary Bar ── */
+    .desktop-picks-summary-bar {
+      display: flex;
+      align-items: stretch;
+      gap: 0;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      border-radius: 16px;
+      background: rgba(20, 26, 38, 0.8);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+    }
+
+    .desktop-picks-summary-stat {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 0 20px;
+      border-right: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .desktop-picks-summary-stat:first-child {
+      padding-left: 0;
+    }
+
+    .desktop-picks-summary-stat:last-child {
+      border-right: none;
+    }
+
+    .desktop-picks-summary-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .desktop-picks-summary-value {
+      font-size: 1.35rem;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .desktop-picks-summary-value.green { color: #34c759; }
+    .desktop-picks-summary-value.amber { color: #ffd60a; }
+    .desktop-picks-summary-value.white { color: #ffffff; }
+
+    .desktop-picks-topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    /* ── Desktop Pick Card ── */
     .desktop-pick-card {
-      min-height: 100%;
-      display: grid;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      padding: 0;
+      background: rgba(20, 26, 38, 0.8);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+      overflow: hidden;
+      transition: border-color 200ms ease, box-shadow 200ms ease, opacity 300ms ease, max-height 300ms ease, transform 300ms ease;
+    }
+
+    .desktop-pick-card:hover {
+      border-color: rgba(255,255,255,0.12);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    /* Left accent bar */
+    .desktop-pick-card::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      border-radius: 4px 0 0 4px;
+    }
+
+    .desktop-pick-card.core::before   { background: #34c759; }
+    .desktop-pick-card.value::before  { background: #ffd60a; }
+    .desktop-pick-card.moonshot::before { background: #bf5af2; }
+    .desktop-pick-card.lean::before   { background: #8e8e93; }
+
+    .desktop-pick-card.is-placed {
+      opacity: 0.55;
+      border-color: rgba(34, 197, 94, 0.4);
+    }
+
+    .desktop-pick-card.is-passed {
+      opacity: 0.45;
+    }
+
+    .desktop-pick-card.is-fading-out {
+      opacity: 0;
+      max-height: 0 !important;
+      margin: 0;
+      border-width: 0;
+      transform: translateY(-8px);
+    }
+
+    .desktop-pick-inner {
+      padding: 16px 18px 16px 22px;
+      display: flex;
+      flex-direction: column;
       gap: 12px;
-      align-content: start;
-      padding: 18px;
+      flex: 1;
     }
 
-    .desktop-pick-card.core {
-      border-color: rgba(34, 197, 94, 0.3);
+    .desktop-pick-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .desktop-pick-card.moonshot {
-      border-color: rgba(168, 85, 247, 0.34);
+    .desktop-pick-header .pick-time {
+      margin-left: auto;
+      font-size: 0.75rem;
+      color: var(--muted);
     }
 
-    .desktop-pick-card.value {
-      border-color: rgba(251, 191, 36, 0.3);
+    .desktop-pick-game {
+      font-size: 1.05rem;
+      font-weight: 700;
+      line-height: 1.3;
+      color: #ffffff;
     }
 
-    .desktop-pick-card.lean {
-      border-color: rgba(148, 163, 184, 0.28);
+    .desktop-pick-selection {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #ffffff;
+      line-height: 1.2;
+    }
+
+    .desktop-pick-odds {
+      display: inline-block;
+      margin-left: 6px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #ffd60a;
+    }
+
+    .desktop-pick-stats {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .desktop-pick-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .desktop-pick-stat-label {
+      font-size: 0.64rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .desktop-pick-stat-value {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .desktop-pick-stat-value.stars {
+      color: #ffd60a;
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+    }
+
+    .desktop-pick-analysis-toggle {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--muted);
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      text-align: left;
+      transition: color 150ms;
+    }
+
+    .desktop-pick-analysis-toggle:hover { color: var(--text); }
+
+    .desktop-pick-analysis-toggle .toggle-icon {
+      font-size: 0.65rem;
+      transition: transform 200ms;
+    }
+
+    .desktop-pick-analysis-body {
+      display: none;
+      margin-top: 4px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .desktop-pick-analysis-body.expanded {
+      display: block;
+    }
+
+    .desktop-pick-analysis-toggle.expanded .toggle-icon {
+      transform: rotate(90deg);
+    }
+
+    .desktop-pick-actions {
+      display: flex;
+      gap: 8px;
+      padding-top: 4px;
+    }
+
+    .desktop-pick-btn {
+      flex: 1;
+      min-height: 38px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 150ms, border-color 150ms, opacity 150ms;
+    }
+
+    .desktop-pick-btn.place {
+      background: rgba(52, 199, 89, 0.18);
+      border: 1px solid rgba(52, 199, 89, 0.5);
+      color: #34c759;
+    }
+
+    .desktop-pick-btn.place:hover {
+      background: rgba(52, 199, 89, 0.28);
+    }
+
+    .desktop-pick-btn.pass {
+      background: transparent;
+      border: 1px solid rgba(255,59,48,0.35);
+      color: rgba(255,59,48,0.85);
+    }
+
+    .desktop-pick-btn.pass:hover {
+      background: rgba(255,59,48,0.1);
     }
 
     .desktop-pick-meta {
@@ -5391,40 +5647,95 @@
       const isFading = state.fadingPickIds.has(String(pick.id));
       const actualOdds = Number.isFinite(placedOdds) ? placedOdds : Number(pick.odds);
       const actualUnits = Number.isFinite(placedUnits) ? placedUnits : Number(pick.units);
-      return `
-        <article class="${mobile ? "mobile-pick-card" : "pick-card desktop-pick-card"} pick-card ${category.className} ${isPlaced ? "is-placed" : ""} ${isPassed ? "is-passed" : ""} ${isFading ? "is-fading-out" : ""}">
-          ${isPlaced ? `<div class="pick-placed-overlay">Placed ✓</div>` : ""}
-          <div class="pick-header">
-            <span class="pick-badge ${category.className}">${category.label}</span>
-            ${pick.sport === "soccer" ? `<span class="pick-sport-badge soccer">⚽ ${pick.league || "Soccer"}</span>` : `<span class="pick-sport-badge ncaab">🏀 NCAAB</span>`}
-            <span class="pick-time">${pick.gameTime || "TBD"}</span>
-          </div>
-          <div class="pick-game">${pick.game}</div>
-          <div class="pick-selection">${pick.pick} (${formatLineValue(actualOdds)})</div>
-          ${mobile ? `
+
+      if (mobile) {
+        return `
+          <article class="mobile-pick-card pick-card ${category.className} ${isPlaced ? "is-placed" : ""} ${isPassed ? "is-passed" : ""} ${isFading ? "is-fading-out" : ""}">
+            ${isPlaced ? `<div class="pick-placed-overlay">Placed ✓</div>` : ""}
+            <div class="pick-header">
+              <span class="pick-badge ${category.className}">${category.label}</span>
+              ${pick.sport === "soccer" ? `<span class="pick-sport-badge soccer">⚽ ${pick.league || "Soccer"}</span>` : `<span class="pick-sport-badge ncaab">🏀 NCAAB</span>`}
+              <span class="pick-time">${pick.gameTime || "TBD"}</span>
+            </div>
+            <div class="pick-game">${pick.game}</div>
+            <div class="pick-selection">${pick.pick} (${formatLineValue(actualOdds)})</div>
             <div class="pick-sizing">${formatUnitsSecondary(actualUnits)} · ${formatCurrency(unitToDollars(actualUnits), { signed: false })} · Kelly ${Number(pick.kellyPct || 0).toFixed(1)}%</div>
             <div class="pick-edge">Edge: ${Number(pick.edgePts || 0).toFixed(1)}pts · ${confidenceStars(pick.confidence)}</div>
             <button type="button" class="pick-analysis ${pick.expanded ? "expanded" : ""}" data-ai-pick-expand="${pick.id}">
-              <div class="pick-analysis-preview">${genericBettingCopy(pick.headline)}...</div>
+              <div class="pick-analysis-preview">${genericBettingCopy(pick.analysis).slice(0, 80)}...</div>
               <div class="pick-analysis-full">${genericBettingCopy(pick.analysis)}</div>
             </button>
-          ` : `
-            <div class="desktop-pick-meta">
-              <span class="pick-sizing">${formatUnitsSecondary(actualUnits)} · ${formatCurrency(unitToDollars(actualUnits), { signed: false })}</span>
-              <span class="pick-edge">Edge ${Number(pick.edgePts || 0).toFixed(1)}pts · ${confidenceStars(pick.confidence)}</span>
+            ${isPlaced ? `<div class="pick-actual-line"><span>Actual</span><strong>${formatLineValue(actualOdds)}</strong><span>·</span><span>${formatUnitsSecondary(actualUnits)}</span></div>` : ""}
+            ${aiPickEditorMarkup(pick)}
+            <div class="pick-actions" ${(isPlaced || isPassed || String(state.editingAiPickId) === String(pick.id)) ? "hidden" : ""}>
+              <button type="button" class="pick-btn place" data-ai-pick-place="${pick.id}">✅ Place</button>
+              <button type="button" class="pick-btn pass" data-ai-pick-pass="${pick.id}">❌ Pass</button>
             </div>
-            <div class="desktop-pick-meta">
-              <span class="pick-sizing">Kelly ${Number(pick.kellyPct || 0).toFixed(1)}%</span>
-              <span class="pick-sizing">${pick.gameTime || "TBD"}</span>
+          </article>
+        `;
+      }
+
+      /* ── Desktop card ── */
+      const analysisId = `dpa-${pick.id}`;
+      const sportBadge = pick.sport === "soccer"
+        ? `<span class="pick-sport-badge soccer">⚽ ${pick.league || "Soccer"}</span>`
+        : `<span class="pick-sport-badge ncaab">🏀 March Madness</span>`;
+      const oddsDisplay = Number.isFinite(actualOdds) ? formatLineValue(actualOdds) : "—";
+      const edgePts = Number(pick.edgePts || 0).toFixed(1);
+      const kellyPct = Number(pick.kellyPct || 0).toFixed(1);
+      const stars = confidenceStars(pick.confidence);
+      const dollarAmount = formatCurrency(unitToDollars(actualUnits), { signed: false });
+
+      return `
+        <article class="desktop-pick-card ${category.className} ${isPlaced ? "is-placed" : ""} ${isPassed ? "is-passed" : ""} ${isFading ? "is-fading-out" : ""}">
+          ${isPlaced ? `<div class="pick-placed-overlay">Placed ✓</div>` : ""}
+          <div class="desktop-pick-inner">
+            <!-- Header row -->
+            <div class="desktop-pick-header">
+              <span class="pick-badge ${category.className}">${category.label}</span>
+              ${sportBadge}
+              <span class="pick-time">${pick.gameTime || "TBD"}</span>
             </div>
-            <div class="pick-selection">${genericBettingCopy(pick.headline)}</div>
-            <div class="desktop-pick-analysis">${genericBettingCopy(pick.analysis)}</div>
-          `}
-          ${isPlaced ? `<div class="pick-actual-line"><span>Actual</span><strong>${formatLineValue(actualOdds)}</strong><span>·</span><span>${formatUnitsSecondary(actualUnits)}</span></div>` : ""}
-          ${aiPickEditorMarkup(pick)}
-          <div class="pick-actions" ${(isPlaced || isPassed || String(state.editingAiPickId) === String(pick.id)) ? "hidden" : ""}>
-            <button type="button" class="pick-btn place" data-ai-pick-place="${pick.id}">${mobile ? "✅ Place" : "Place"}</button>
-            <button type="button" class="pick-btn pass" data-ai-pick-pass="${pick.id}">${mobile ? "❌ Pass" : "Pass"}</button>
+            <!-- Game & pick -->
+            <div class="desktop-pick-game">${pick.game}</div>
+            <div class="desktop-pick-selection">
+              ${pick.pick}<span class="desktop-pick-odds">${oddsDisplay}</span>
+            </div>
+            <!-- Stats row -->
+            <div class="desktop-pick-stats">
+              <div class="desktop-pick-stat">
+                <span class="desktop-pick-stat-label">Edge</span>
+                <span class="desktop-pick-stat-value">${edgePts} pts</span>
+              </div>
+              <div class="desktop-pick-stat">
+                <span class="desktop-pick-stat-label">Confidence</span>
+                <span class="desktop-pick-stat-value stars">${stars}</span>
+              </div>
+              <div class="desktop-pick-stat">
+                <span class="desktop-pick-stat-label">Kelly</span>
+                <span class="desktop-pick-stat-value">${kellyPct}%</span>
+              </div>
+              <div class="desktop-pick-stat">
+                <span class="desktop-pick-stat-label">Units</span>
+                <span class="desktop-pick-stat-value">${formatUnitsSecondary(actualUnits)} · ${dollarAmount}</span>
+              </div>
+            </div>
+            <!-- Collapsible analysis -->
+            <div>
+              <button type="button" class="desktop-pick-analysis-toggle" data-desktop-analysis-toggle="${pick.id}" onclick="this.classList.toggle('expanded'); document.getElementById('${analysisId}').classList.toggle('expanded')">
+                <span class="toggle-icon">▶</span> Analysis
+              </button>
+              <div id="${analysisId}" class="desktop-pick-analysis-body">
+                ${genericBettingCopy(pick.analysis)}
+              </div>
+            </div>
+            <!-- Action buttons -->
+            ${isPlaced ? `<div class="pick-actual-line"><span>Placed at</span><strong>${formatLineValue(actualOdds)}</strong><span>·</span><span>${formatUnitsSecondary(actualUnits)}</span></div>` : ""}
+            ${aiPickEditorMarkup(pick)}
+            <div class="desktop-pick-actions" ${(isPlaced || isPassed || String(state.editingAiPickId) === String(pick.id)) ? "hidden" : ""}>
+              <button type="button" class="desktop-pick-btn place" data-ai-pick-place="${pick.id}">✅ Place</button>
+              <button type="button" class="desktop-pick-btn pass" data-ai-pick-pass="${pick.id}">❌ Pass</button>
+            </div>
           </div>
         </article>
       `;
@@ -5435,26 +5746,63 @@
       const summary = summarize();
       const counts = aiPickCounts(today);
       const picks = visibleAiPicksForDate(today);
-      const exposureUnits = picks.reduce((sum, pick) => sum + (Number(pick.units) || 0), 0);
-      const exposureDollars = picks.reduce((sum, pick) => sum + (Number(pick.dollars) || unitToDollars(Number(pick.units) || 0)), 0);
-      const potentialReturn = picks.reduce((sum, pick) => sum + americanProfit(Number(pick.units) || 0, Number(pick.odds) || -110), 0);
+      const allPicksForToday = visibleAiPicksForDate(today);
+      const bankroll = STARTING_BANKROLL + summary.realized;
+      const exposureUnits = allPicksForToday.reduce((sum, p) => sum + (Number(p.units) || 0), 0);
+      const exposureDollars = allPicksForToday.reduce((sum, p) => sum + unitToDollars(Number(p.units) || 0), 0);
+      const potentialReturn = allPicksForToday.reduce((sum, p) => sum + americanProfit(Number(p.units) || 0, Number(p.odds) || -110), 0);
 
+      /* Status pill (just the count — no duplication) */
       dom.desktopAiPicksStatus.textContent = counts.total ? `${counts.remaining} of ${counts.total} remaining` : "No picks";
+
+      /* Summary bar — shown only when there are picks */
       dom.desktopAiPicksSummary.innerHTML = counts.total ? `
-        <div class="pick-topline">
-          <span class="pick-counter">${counts.remaining} of ${counts.total} remaining</span>
+        <div class="desktop-picks-topline">
           <button type="button" class="pick-toggle-link" data-ai-picks-show-all>${state.showAllPassedPicks ? "Hide passed" : "Show all"}</button>
         </div>
-        <div class="pick-bankroll-card">
-          <div class="pick-bankroll-row"><strong>Bankroll</strong><span>${formatCurrency(STARTING_BANKROLL + summary.realized, { signed: false })}</span></div>
-          <div class="pick-bankroll-row"><strong>Today's exposure</strong><span>${formatUnitsSecondary(exposureUnits)} · ${formatCurrency(exposureDollars, { signed: false })} if all placed</span></div>
-          <div class="pick-bankroll-row"><strong>Potential return</strong><span>${formatCurrency(potentialReturn, { signed: false })} if all hit</span></div>
+        <div class="desktop-picks-summary-bar">
+          <div class="desktop-picks-summary-stat">
+            <span class="desktop-picks-summary-label">Bankroll</span>
+            <span class="desktop-picks-summary-value green">${formatCurrency(bankroll, { signed: false })}</span>
+          </div>
+          <div class="desktop-picks-summary-stat">
+            <span class="desktop-picks-summary-label">Today's Exposure</span>
+            <span class="desktop-picks-summary-value amber">${formatCurrency(exposureDollars, { signed: false })}</span>
+          </div>
+          <div class="desktop-picks-summary-stat">
+            <span class="desktop-picks-summary-label">Potential Return</span>
+            <span class="desktop-picks-summary-value white">${formatCurrency(potentialReturn, { signed: false })}</span>
+          </div>
         </div>
       ` : "";
 
-      dom.desktopAiPicksGrid.innerHTML = counts.total
-        ? (picks.length ? picks.map((pick) => aiPickCardMarkup(pick, { mobile: false })).join("") : `<div class="empty-state"><strong>All picks passed. Use Show all to review them.</strong></div>`)
-        : `<div class="empty-state"><strong>No AI picks for today.</strong></div>`;
+      if (!counts.total) {
+        dom.desktopAiPicksGrid.innerHTML = `<div class="empty-state"><strong>No AI picks for today.</strong></div>`;
+        return;
+      }
+
+      if (!picks.length) {
+        dom.desktopAiPicksGrid.innerHTML = `<div class="empty-state"><strong>All picks passed. Use Show all to review them.</strong></div>`;
+        return;
+      }
+
+      /* Group picks by sport: soccer first, then ncaab */
+      const soccerPicks = picks.filter((p) => p.sport === "soccer");
+      const ncaabPicks = picks.filter((p) => p.sport !== "soccer");
+
+      const renderGroup = (label, groupPicks) => {
+        if (!groupPicks.length) return "";
+        return `
+          <div class="desktop-picks-sport-section">
+            <div class="desktop-picks-sport-header">${label}</div>
+          </div>
+          ${groupPicks.map((pick) => aiPickCardMarkup(pick, { mobile: false })).join("")}
+        `;
+      };
+
+      dom.desktopAiPicksGrid.innerHTML =
+        renderGroup("⚽ Soccer", soccerPicks) +
+        renderGroup("🏀 March Madness", ncaabPicks);
     }
 
     function mobileAllBetsItems() {
