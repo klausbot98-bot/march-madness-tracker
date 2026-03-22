@@ -1472,7 +1472,11 @@
       Michigan: ["Michigan Wolverines", "Michigan"],
       "Utah State": ["Utah State Aggies", "Utah State"],
       Villanova: ["Villanova Wildcats", "Villanova"],
-      Virginia: ["Virginia Cavaliers", "Virginia", "UVA"]
+      Virginia: ["Virginia Cavaliers", "Virginia", "UVA"],
+      Arsenal: ["Arsenal"],
+      "Manchester City": ["Manchester City", "Man City"],
+      Strasbourg: ["Strasbourg", "RC Strasbourg"],
+      Nantes: ["Nantes", "FC Nantes"]
     };
 
     const BETS = [
@@ -1514,7 +1518,7 @@
       { id: "P7", date: "2026-03-21", name: "SGP: Texas @ Gonzaga", gameTime: "9:40 PM ET", legs: ["Texas +6.5", "Texas/Gonzaga Over 147.5"], units: 0.5, line: 265, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: true, result: "loss", payout: 0, legStates: { "Texas +6.5": { result: "win", score: "Texas 74 - Gonzaga 68" }, "Texas/Gonzaga Over 147.5": { result: "loss", score: "142 total" } }, notes: "🚀 SGP. Texas won outright but total killed it. 142 vs 147.5." },
       { id: "P8", date: "2026-03-21", name: "SGP: VCU @ Illinois", gameTime: "7:10 PM ET", legs: ["VCU +11.5", "VCU/Illinois Over 151.5"], units: 0.5, line: 257, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: true, result: "loss", payout: 0, legStates: { "VCU +11.5": { result: "loss", score: "VCU 55 - Illinois 76" }, "VCU/Illinois Over 151.5": { result: "loss", score: "131 total" } }, notes: "🚀 SGP. Both legs dead. VCU lost by 21, total only 131." },
       { id: "P9", date: "2026-03-21", name: "Duke Player Props", gameTime: "7:10 PM ET", linkedTeam: "Duke", legs: ["Cameron Boozer 20+ pts", "Cayden Boozer 10+ pts", "Isaiah Evans 2+ threes"], units: 1, line: 125, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: false, result: "loss", payout: 0, legStates: { "Cameron Boozer 20+ pts": { result: "loss", score: "19 pts" }, "Cayden Boozer 10+ pts": { result: "loss", score: "9 pts" }, "Isaiah Evans 2+ threes": { result: "win", score: "2 threes" } }, notes: "Duke blowout parlay. Cam 19 (needed 20), Cayden 9 (needed 10). Evans hit threes but doesn't matter." },
-      { id: "P10", date: "2026-03-22", name: "Carabao Cup Final", gameTime: "TBD", sport: "soccer", legs: ["Saka 2+ shots", "Gyökeres 2+ shots", "Arsenal to lift trophy"], units: 2.1, line: 350, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: false, result: "placed", payout: 0, legStates: { "Saka 2+ shots": { result: "placed" }, "Gyökeres 2+ shots": { result: "placed" }, "Arsenal to lift trophy": { result: "placed" } }, notes: "Carabao Cup Final parlay. $52.50 → $236.25 at +350." }
+      { id: "P10", date: "2026-03-22", name: "Carabao Cup Final", gameTime: "12:30 PM ET", sport: "soccer", linkedTeam: "Arsenal", legs: ["Saka 2+ shots", "Gyökeres 2+ shots", "Arsenal to lift trophy"], units: 2.1, line: 350, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: false, result: "placed", payout: 0, legStates: { "Saka 2+ shots": { result: "placed" }, "Gyökeres 2+ shots": { result: "placed" }, "Arsenal to lift trophy": { result: "placed" } }, notes: "Carabao Cup Final parlay. $52.50 → $236.25 at +350." }
     ];
 
     const AI_PICKS = [
@@ -2588,11 +2592,20 @@
     }
 
     // === LIVE SCORES FETCH ===
+    const EXTRA_SCORE_SPORTS = ["soccer_france_ligue_one", "soccer_england_efl_cup"];
+
     async function fetchLiveScores() {
       try {
-        const res = await fetch(`${ODDS_API_BASE}/sports/${SPORT}/scores/?apiKey=${ODDS_API_KEY}&daysFrom=1`);
-        if (!res.ok) return;
-        const games = await res.json();
+        // Fetch NCAAB + soccer leagues with open bets
+        const allGames = [];
+        const fetches = [SPORT, ...EXTRA_SCORE_SPORTS].map(async sk => {
+          try {
+            const r = await fetch(`${ODDS_API_BASE}/sports/${sk}/scores/?apiKey=${ODDS_API_KEY}&daysFrom=1`);
+            if (r.ok) { const g = await r.json(); allGames.push(...g); }
+          } catch(e) {}
+        });
+        await Promise.all(fetches);
+        const games = allGames;
         liveScoreData = games.map(parseOddsScoreGame).filter(Boolean);
         let updated = false;
         for (const game of games) {
