@@ -6321,11 +6321,12 @@
         aiPicks = cloneData(AI_PICKS).map((pick) => {
           const entry = aiPickMap.get(pick.id);
           if (!entry) return pick;
+          // Force-sync: hardcoded fields always win (gameTime, odds, edgePts, etc.)
+          // Only preserve user state (expanded, result)
           return {
             ...pick,
-            ...entry,
-            result: entry.result === "declined" ? "declined" : sanitizeResult(entry.result),
-            expanded: Boolean(entry.expanded)
+            expanded: Boolean(entry.expanded),
+            result: entry.result === "declined" ? "declined" : sanitizeResult(entry.result)
           };
         });
       } catch (error) {
