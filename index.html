@@ -1189,6 +1189,26 @@
       filter: blur(2px);
       pointer-events: none;
     }
+    .desktop-pick-card.is-placed .desktop-pick-actions { display: none !important; }
+
+    /* Desktop placed overlay — full-card cover */
+    .desktop-pick-card .pick-placed-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(10, 14, 23, 0.65);
+      border-radius: 16px;
+      animation: checkPulse 0.4s ease-out forwards;
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #30d158;
+      letter-spacing: 2px;
+      text-shadow: 0 0 30px rgba(48, 209, 88, 0.6);
+      pointer-events: none;
+    }
 
     .desktop-pick-card.is-passed {
       opacity: 0.45;
@@ -1413,6 +1433,7 @@
       gap: 8px;
       padding-top: 4px;
     }
+    .desktop-pick-actions[hidden] { display: none !important; }
 
     .desktop-pick-btn {
       flex: 1;
@@ -3878,7 +3899,13 @@
     }
 
     function visibleAiPicksForDate(date) {
-      return aiPicks.filter((pick) => pick.date === date && (!pickIsPassed(pick.id) || state.showAllPassedPicks || state.fadingPickIds.has(String(pick.id))));
+      return aiPicks.filter((pick) => {
+        if (pick.date !== date) return false;
+        const fading = state.fadingPickIds.has(String(pick.id));
+        if (pickIsPlaced(pick.id) && !fading) return false;
+        if (pickIsPassed(pick.id) && !state.showAllPassedPicks && !fading) return false;
+        return true;
+      });
     }
 
     function aiPickCounts(date) {
@@ -3975,15 +4002,19 @@
       state.editingAiPickId = null;
       delete state.aiPickDrafts[String(id)];
 
-      // Animate out
-      state.fadingPickIds.add(String(id));
+      // Show PLACED overlay for 1.5s, then collapse/disappear
       renderMobilePicksView();
       renderDesktopAiPicks();
       window.setTimeout(() => {
-        state.fadingPickIds.delete(String(id));
-        saveState();
-        render();
-      }, 300);
+        state.fadingPickIds.add(String(id));
+        renderMobilePicksView();
+        renderDesktopAiPicks();
+        window.setTimeout(() => {
+          state.fadingPickIds.delete(String(id));
+          saveState();
+          render();
+        }, 600);
+      }, 1500);
     }
 
     function passAiPick(id) {
