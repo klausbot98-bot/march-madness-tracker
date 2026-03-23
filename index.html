@@ -2690,6 +2690,19 @@
               else bet.result = "push";
               updated = true;
             }
+            if (bet.type === "moneyline" || bet.type === "ml") {
+              const pickTeamMatch = bet.pick.match(/^(.+?)\s+ML$/i) || bet.pick.match(/^(.+?)$/);
+              if (pickTeamMatch) {
+                const pickTeam = pickTeamMatch[1].trim();
+                const isHome = teamMatches(pickTeam, home);
+                const pickScore = isHome ? homeScore : awayScore;
+                const oppScore = isHome ? awayScore : homeScore;
+                bet.result = pickScore > oppScore ? "win" : pickScore < oppScore ? "loss" : "push";
+                if (bet.result === "win") { bet.payout = unitToDollars(bet.units) + unitToDollars(bet.units) * (bet.line > 0 ? bet.line / 100 : 100 / Math.abs(bet.line)); }
+                else { bet.payout = 0; }
+                updated = true;
+              }
+            }
           }
         }
         for (const parlay of parlays) {
