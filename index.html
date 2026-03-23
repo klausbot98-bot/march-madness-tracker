@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Bet Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
   <style>
     /* === RESET === */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -13,44 +17,64 @@
 
     /* === DESIGN TOKENS === */
     :root {
-      --bg:          #0a0e17;
-      --bg2:         #0f1520;
-      --card:        rgba(20, 26, 38, 0.82);
-      --card-border: rgba(255, 255, 255, 0.06);
-      --card-radius: 16px;
-      --btn-radius:  12px;
-      --green:       #30d158;
-      --green-dim:   rgba(48, 209, 88, 0.14);
-      --green-ring:  rgba(48, 209, 88, 0.35);
-      --red:         #ff453a;
-      --red-dim:     rgba(255, 69, 58, 0.14);
-      --red-ring:    rgba(255, 69, 58, 0.35);
-      --amber:       #ff9f0a;
-      --amber-dim:   rgba(255, 159, 10, 0.14);
-      --amber-ring:  rgba(255, 159, 10, 0.35);
-      --blue:        #0a84ff;
-      --blue-dim:    rgba(10, 132, 255, 0.14);
-      --purple:      #bf5af2;
-      --purple-dim:  rgba(191, 90, 242, 0.14);
-      --text:        #ffffff;
-      --text2:       #8e8e93;
-      --text3:       #636366;
-      --shadow:      0 4px 24px rgba(0, 0, 0, 0.35);
-      --shadow-lg:   0 12px 40px rgba(0, 0, 0, 0.5);
-      --font:        -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
-      --transition:  0.25s ease;
-      --tab-h:       56px;
-      --header-h:    110px;
+      --bg-primary: #08090d;
+      --bg-card: #12141a;
+      --bg-card-hover: #1a1d25;
+      --bg-elevated: #1e2029;
+      --border: rgba(255,255,255,0.06);
+      --border-active: rgba(255,255,255,0.12);
+
+      --text-primary: #f0f0f0;
+      --text-secondary: #8b8d97;
+      --text-tertiary: #55575e;
+
+      --green: #00e676;
+      --green-dim: rgba(0,230,118,0.12);
+      --green-ring: rgba(0,230,118,0.30);
+      --red: #ff3d57;
+      --red-dim: rgba(255,61,87,0.12);
+      --red-ring: rgba(255,61,87,0.30);
+      --amber: #ffab00;
+      --amber-dim: rgba(255,171,0,0.12);
+      --amber-ring: rgba(255,171,0,0.30);
+      --blue: #448aff;
+      --blue-dim: rgba(68,138,255,0.12);
+      --purple: #b388ff;
+      --purple-dim: rgba(179,136,255,0.12);
+      --purple-ring: rgba(179,136,255,0.30);
+
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --radius-xl: 28px;
+
+      --font-display: 'Outfit', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+
+      --tab-h: 60px;
+      --header-h: 64px;
     }
 
-    /* === LAYOUT === */
+    /* === BASE === */
     body {
-      font-family: var(--font);
-      background: var(--bg);
-      color: var(--text);
+      font-family: var(--font-body);
+      background: var(--bg-primary);
+      color: var(--text-primary);
       min-height: 100vh;
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Grain overlay for depth */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.025;
+      pointer-events: none;
+      z-index: 0;
     }
 
     #app {
@@ -59,88 +83,74 @@
       min-height: 100vh;
       max-width: 1200px;
       margin: 0 auto;
+      position: relative;
+      z-index: 1;
     }
 
-    /* === APP HEADER === */
+    /* === HEADER === */
     .app-header {
-      background: rgba(10, 14, 23, 0.88);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border-bottom: 1px solid var(--card-border);
-      padding: 14px 20px 12px;
       position: sticky;
       top: 0;
       z-index: 100;
-    }
-
-    .header-row1 {
+      height: var(--header-h);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 6px;
+      padding: 0 20px;
+      background: rgba(8,9,13,0.85);
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
     }
 
     .header-title {
+      font-family: var(--font-display);
       font-size: 1rem;
       font-weight: 700;
       letter-spacing: -0.01em;
-      color: var(--text2);
+      color: var(--text-primary);
     }
 
-    .header-date-badge {
+    .header-date {
       font-size: 0.72rem;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid var(--card-border);
-      color: var(--text2);
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
     }
 
     .header-bankroll {
-      font-size: 2rem;
+      font-family: var(--font-display);
+      font-size: 1.55rem;
       font-weight: 800;
       letter-spacing: -0.04em;
       line-height: 1;
-      margin-bottom: 4px;
+      font-variant-numeric: tabular-nums;
     }
 
     .header-bankroll.positive { color: var(--green); }
     .header-bankroll.negative { color: var(--red); }
+    .header-bankroll.neutral  { color: var(--text-primary); }
 
     .header-meta {
-      font-size: 0.75rem;
-      color: var(--text2);
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      font-weight: 500;
     }
 
     /* === TAB BARS === */
-    .tab-bar-top {
-      display: none; /* shown on desktop only */
-      background: rgba(15, 21, 32, 0.95);
-      backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--card-border);
-      padding: 0 20px;
-      gap: 4px;
-      position: sticky;
-      top: 0;
-      z-index: 99;
-    }
-
-    .tab-btn-top {
-      background: transparent;
-      color: var(--text2);
-      font-size: 0.9rem;
-      font-weight: 600;
-      padding: 16px 18px;
-      border-bottom: 2px solid transparent;
-      transition: color var(--transition), border-color var(--transition);
-      white-space: nowrap;
-    }
-
-    .tab-btn-top:hover { color: var(--text); }
-    .tab-btn-top.active { color: var(--text); border-bottom-color: var(--blue); }
-
+    /* Mobile: fixed bottom */
     .tab-bar-bottom {
       position: fixed;
       bottom: 0;
@@ -149,10 +159,8 @@
       z-index: 100;
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      background: rgba(10, 14, 23, 0.96);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      border-top: 1px solid var(--card-border);
+      background: var(--bg-primary);
+      border-top: 1px solid var(--border);
       padding-bottom: env(safe-area-inset-bottom);
     }
 
@@ -164,46 +172,95 @@
       justify-content: center;
       gap: 3px;
       padding: 10px 4px;
-      color: var(--text3);
-      transition: color var(--transition);
+      color: var(--text-tertiary);
+      transition: color 0.2s ease;
       -webkit-tap-highlight-color: transparent;
+      position: relative;
     }
 
-    .bottom-tab.active { color: var(--text); }
+    .bottom-tab.active {
+      color: var(--green);
+    }
+
+    .bottom-tab-pip {
+      position: absolute;
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 28px;
+      height: 28px;
+      border-radius: 10px;
+      background: var(--green-dim);
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .bottom-tab.active .bottom-tab-pip { opacity: 1; }
 
     .bottom-tab-icon {
-      font-size: 1.3rem;
+      font-size: 1.25rem;
       line-height: 1;
-      transition: transform var(--transition);
-    }
-
-    .bottom-tab.active .bottom-tab-icon {
-      filter: drop-shadow(0 0 6px rgba(255,255,255,0.3));
+      position: relative;
+      z-index: 1;
     }
 
     .bottom-tab-label {
-      font-size: 0.62rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
+      font-family: var(--font-display);
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
+      position: relative;
+      z-index: 1;
     }
 
     .bottom-tab-badge {
       position: absolute;
-      top: 6px;
-      right: calc(50% - 20px);
-      min-width: 18px;
-      height: 18px;
+      top: 4px;
+      right: calc(50% - 22px);
+      min-width: 16px;
+      height: 16px;
       border-radius: 999px;
       background: var(--red);
       color: #fff;
-      font-size: 0.62rem;
+      font-family: var(--font-display);
+      font-size: 0.58rem;
       font-weight: 800;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 0 4px;
+      padding: 0 3px;
+      z-index: 2;
     }
+
+    /* Desktop: top tabs */
+    .tab-bar-top {
+      display: none;
+      background: rgba(8,9,13,0.85);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      gap: 4px;
+      position: sticky;
+      top: 0;
+      z-index: 99;
+      align-items: center;
+    }
+
+    .tab-btn-top {
+      font-family: var(--font-display);
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 16px 18px;
+      background: transparent;
+      color: var(--text-tertiary);
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+      white-space: nowrap;
+    }
+
+    .tab-btn-top:hover { color: var(--text-secondary); }
+    .tab-btn-top.active { color: var(--green); border-bottom-color: var(--green); }
 
     /* === MAIN CONTENT === */
     .tab-content {
@@ -216,146 +273,159 @@
     .tab-panel.active { display: block; }
 
     .panel-content {
-      padding: 12px 14px;
+      padding: 14px;
       display: grid;
       gap: 10px;
     }
 
-    /* === GLASS CARD === */
-    .glass-card {
-      background: var(--card);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--card-border);
-      border-radius: var(--card-radius);
-      box-shadow: var(--shadow);
+    /* === SECTION LABEL === */
+    .section-label {
+      font-family: var(--font-display);
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      padding: 4px 2px 2px;
+    }
+
+    /* === CARD BASE === */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .card:hover {
+      border-color: var(--border-active);
+      transform: translateY(-1px);
     }
 
     .card-pad { padding: 16px; }
 
-    /* === EMPTY STATES === */
+    /* === EMPTY STATE === */
     .empty-state {
       text-align: center;
-      padding: 48px 24px;
-      color: var(--text2);
+      padding: 52px 24px;
+      color: var(--text-secondary);
     }
 
-    .empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
-    .empty-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
-    .empty-meta { font-size: 0.85rem; color: var(--text2); }
+    .empty-icon { font-size: 2.5rem; margin-bottom: 14px; }
+
+    .empty-title {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+
+    .empty-meta { font-size: 0.85rem; line-height: 1.5; }
 
     /* === LIVE TAB === */
     .live-card {
-      border-radius: var(--card-radius);
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      box-shadow: var(--shadow);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
       overflow: hidden;
-      animation: fadeIn 0.25s ease;
+      animation: fadeUp 0.25s ease;
+      transition: border-color 0.2s;
     }
 
-    .live-card.covering { border-left: 3px solid var(--green); }
+    .live-card.covering    { border-left: 3px solid var(--green); }
     .live-card.not-covering { border-left: 3px solid var(--red); }
-    .live-card.win { border-left: 3px solid var(--green); }
-    .live-card.loss { border-left: 3px solid var(--red); }
-    .live-card.upcoming { border-left: 3px solid var(--amber); }
-    .live-card.push { border-left: 3px solid var(--amber); }
+    .live-card.win         { border-left: 3px solid var(--green); }
+    .live-card.loss        { border-left: 3px solid var(--red); }
+    .live-card.upcoming    { border-left: 3px solid var(--amber); }
+    .live-card.push        { border-left: 3px solid var(--blue); }
 
-    /* Mobile live bet markup (shared) */
-    .live-bet-mobile { padding: 14px; }
+    .live-inner { padding: 14px 16px; }
 
-    .live-bet-row {
+    .live-topline {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
       gap: 10px;
+      margin-bottom: 10px;
     }
 
-    .live-bet-row-pick {
-      font-size: 0.95rem;
+    .live-pick {
+      font-family: var(--font-display);
+      font-size: 0.98rem;
       font-weight: 700;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+      flex: 1;
       min-width: 0;
     }
 
-    .live-bet-row-meta {
-      font-size: 0.78rem;
-      color: var(--text2);
-      white-space: nowrap;
-    }
-
-    .live-bet-row-units {
-      font-size: 0.78rem;
-      color: var(--text2);
-    }
-
-    .live-bet-row-status {
-      font-size: 0.78rem;
-      font-weight: 700;
-    }
-
-    .live-bet-row-status.covering, .live-bet-row-status.win { color: var(--green); }
-    .live-bet-row-status.not-covering, .live-bet-row-status.loss { color: var(--red); }
-    .live-bet-row-status.upcoming, .live-bet-row-status.push { color: var(--amber); }
-
-    .mobile-live-topline {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
-
-    .mobile-live-meta {
-      font-size: 0.72rem;
-      color: var(--text2);
-      white-space: nowrap;
+    .live-meta-right {
+      text-align: right;
       flex-shrink: 0;
     }
 
-    .mobile-live-dot {
-      display: inline-block;
+    .live-units {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .live-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--green);
+    }
+
+    .live-dot-pip {
       width: 6px;
       height: 6px;
       border-radius: 50%;
       background: var(--green);
-      box-shadow: 0 0 6px var(--green);
-      animation: livePulse 1.4s ease infinite;
-      margin-left: 2px;
+      box-shadow: 0 0 8px var(--green);
+      animation: livePulse 1.5s ease infinite;
     }
 
-    .mobile-live-scoreblock {
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 8px 12px;
+    /* Score block */
+    .live-scorebox {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
       margin-bottom: 10px;
     }
 
-    .mobile-live-scoreline {
-      font-size: 0.85rem;
+    .live-scoreline {
+      font-family: var(--font-display);
+      font-size: 0.88rem;
       font-weight: 600;
-      color: var(--text);
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
     }
 
-    .mobile-live-clock {
-      font-size: 0.72rem;
+    .live-clock {
+      font-size: 0.7rem;
       color: var(--amber);
-      font-weight: 700;
+      font-weight: 600;
       margin-top: 3px;
+      letter-spacing: 0.02em;
     }
 
     /* Spread visualization */
-    .mobile-spread-viz { padding: 4px 0; }
+    .spread-viz { padding: 2px 0; }
 
     .spread-track {
       position: relative;
       height: 6px;
       border-radius: 999px;
       background: var(--red-dim);
-      margin-bottom: 6px;
+      margin-bottom: 8px;
     }
 
     .spread-track::after {
@@ -371,10 +441,10 @@
 
     .spread-threshold {
       position: absolute;
-      top: -3px;
+      top: -4px;
       width: 2px;
-      height: 12px;
-      background: rgba(255,255,255,0.5);
+      height: 14px;
+      background: rgba(255,255,255,0.4);
       border-radius: 1px;
       transform: translateX(-50%);
       z-index: 2;
@@ -382,152 +452,127 @@
 
     .spread-marker {
       position: absolute;
-      top: -5px;
-      width: 16px;
-      height: 16px;
+      top: -6px;
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
-      border: 2px solid var(--bg);
+      border: 2px solid var(--bg-primary);
       transform: translateX(-50%);
       z-index: 3;
-      transition: left 0.4s ease;
+      transition: left 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    .spread-marker.covering { background: var(--green); box-shadow: 0 0 8px var(--green); }
-    .spread-marker.not-covering { background: var(--red); box-shadow: 0 0 8px var(--red); }
+    .spread-marker.covering     { background: var(--green); box-shadow: 0 0 10px var(--green); }
+    .spread-marker.not-covering { background: var(--red); box-shadow: 0 0 10px var(--red); }
 
     .spread-labels {
       display: flex;
       justify-content: space-between;
-      font-size: 0.72rem;
-      color: var(--text2);
-      margin-bottom: 4px;
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+      margin-bottom: 5px;
     }
 
     .spread-status {
-      font-size: 0.8rem;
+      font-family: var(--font-display);
+      font-size: 0.82rem;
       font-weight: 700;
       text-align: center;
     }
 
-    .spread-status.covering { color: var(--green); }
+    .spread-status.covering     { color: var(--green); }
     .spread-status.not-covering { color: var(--red); }
 
-    /* Total / Over visualization */
-    .mobile-over-viz { padding: 4px 0; }
+    /* Over/Under visualization */
+    .total-viz { padding: 2px 0; }
 
-    .over-track {
+    .total-track {
       position: relative;
-      height: 8px;
+      height: 7px;
       border-radius: 999px;
       background: rgba(255,255,255,0.06);
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       overflow: hidden;
     }
 
-    .over-fill {
+    .total-fill {
       height: 100%;
       border-radius: 999px;
       transition: width 0.5s ease;
     }
 
-    .over-fill.on-pace { background: linear-gradient(90deg, var(--green), #00ff6a); }
-    .over-fill.behind-pace { background: linear-gradient(90deg, var(--amber), #ff6b00); }
+    .total-fill.on-pace      { background: linear-gradient(90deg, var(--green), #00ff80); }
+    .total-fill.behind-pace  { background: linear-gradient(90deg, var(--amber), #ff9000); }
+    .total-fill.safe         { background: linear-gradient(90deg, var(--green), #00ff80); }
+    .total-fill.warning      { background: linear-gradient(90deg, var(--amber), #ffcc00); }
+    .total-fill.danger       { background: linear-gradient(90deg, var(--red), #ff6b6b); }
 
-    .over-target-line {
+    .total-target-line {
       position: absolute;
       right: 0;
       top: 0;
       width: 2px;
       height: 100%;
-      background: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.35);
     }
 
-    .over-labels {
+    .total-labels {
       display: flex;
       justify-content: space-between;
-      font-size: 0.72rem;
-      color: var(--text2);
-      margin-bottom: 4px;
+      font-size: 0.7rem;
+      color: var(--text-tertiary);
+      margin-bottom: 5px;
     }
 
-    .over-status {
-      font-size: 0.8rem;
+    .total-status {
+      font-family: var(--font-display);
+      font-size: 0.82rem;
       font-weight: 700;
       text-align: center;
     }
 
-    .over-status.on-pace { color: var(--green); }
-    .over-status.behind-pace { color: var(--amber); }
+    .total-status.on-pace     { color: var(--green); }
+    .total-status.behind-pace { color: var(--amber); }
+    .total-status.safe        { color: var(--green); }
+    .total-status.warning     { color: var(--amber); }
+    .total-status.danger      { color: var(--red); }
 
-    /* Under visualization */
-    .mobile-under-viz { padding: 4px 0; }
-
-    .under-track {
-      height: 8px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.06);
-      margin-bottom: 6px;
-      overflow: hidden;
-    }
-
-    .under-fill {
-      height: 100%;
-      border-radius: 999px;
-      transition: width 0.5s ease;
-    }
-
-    .under-fill.safe { background: linear-gradient(90deg, var(--green), #00ff6a); }
-    .under-fill.warning { background: linear-gradient(90deg, var(--amber), #ffcc00); }
-    .under-fill.danger { background: linear-gradient(90deg, var(--red), #ff6b6b); }
-
-    .under-labels {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.72rem;
-      color: var(--text2);
-      margin-bottom: 4px;
-    }
-
-    .under-status {
-      font-size: 0.8rem;
-      font-weight: 700;
-      text-align: center;
-    }
-
-    .under-status.safe { color: var(--green); }
-    .under-status.warning { color: var(--amber); }
-    .under-status.danger { color: var(--red); }
-
-    /* Margin bar (generic) */
-    .mobile-live-barline { margin-bottom: 6px; }
-    .mobile-margin-bar {
+    /* Generic margin bar */
+    .margin-bar-wrap { margin-bottom: 6px; }
+    .margin-bar-track {
       height: 6px;
       border-radius: 999px;
       background: rgba(255,255,255,0.06);
       overflow: hidden;
     }
-    .mobile-margin-fill {
+    .margin-bar-fill {
       height: 100%;
       border-radius: 999px;
       transition: width 0.5s ease;
     }
-    .mobile-margin-fill.covering { background: var(--green); }
-    .mobile-margin-fill.not-covering { background: var(--red); }
-    .mobile-margin-fill.win { background: var(--green); }
-    .mobile-margin-fill.loss { background: var(--red); }
-    .mobile-margin-fill.upcoming { background: var(--amber); }
+    .margin-bar-fill.covering     { background: var(--green); }
+    .margin-bar-fill.not-covering { background: var(--red); }
+    .margin-bar-fill.win          { background: var(--green); }
+    .margin-bar-fill.loss         { background: var(--red); }
+    .margin-bar-fill.upcoming     { background: var(--amber); }
 
-    .mobile-live-bottomline {
+    .margin-status-text {
+      font-family: var(--font-display);
       font-size: 0.82rem;
       font-weight: 700;
       text-align: center;
+      margin-top: 5px;
     }
-    .mobile-live-bottomline.covering { color: var(--green); }
-    .mobile-live-bottomline.not-covering { color: var(--red); }
-    .mobile-live-bottomline.upcoming { color: var(--amber); }
 
-    /* Prop bars */
-    .prop-leg { padding: 6px 0; border-top: 1px solid var(--card-border); }
+    .margin-status-text.covering     { color: var(--green); }
+    .margin-status-text.not-covering { color: var(--red); }
+    .margin-status-text.upcoming     { color: var(--amber); }
+
+    /* Prop progress bars */
+    .prop-leg {
+      padding: 7px 0;
+      border-top: 1px solid var(--border);
+    }
     .prop-leg:first-child { border-top: none; }
 
     .prop-leg-header {
@@ -541,19 +586,20 @@
     .prop-leg-player {
       font-size: 0.82rem;
       font-weight: 600;
-      color: var(--text);
+      color: var(--text-primary);
     }
 
     .prop-leg-count {
-      font-size: 0.75rem;
+      font-family: var(--font-display);
+      font-size: 0.72rem;
       font-weight: 700;
-      padding: 2px 8px;
+      padding: 2px 9px;
       border-radius: 999px;
     }
 
-    .prop-leg-count.hit { background: var(--green-dim); color: var(--green); }
+    .prop-leg-count.hit         { background: var(--green-dim); color: var(--green); }
     .prop-leg-count.not-covering { background: var(--red-dim); color: var(--red); }
-    .prop-leg-count.covering { background: var(--amber-dim); color: var(--amber); }
+    .prop-leg-count.covering    { background: var(--amber-dim); color: var(--amber); }
 
     .prop-bar-track {
       height: 5px;
@@ -568,255 +614,267 @@
       transition: width 0.5s ease;
     }
 
-    .prop-bar-fill.hit { background: var(--green); }
+    .prop-bar-fill.hit         { background: var(--green); }
     .prop-bar-fill.not-covering { background: var(--amber); }
 
-    /* Parlay legs (in live tab) */
-    .live-bet-parlay-legs {
+    /* Parlay legs chips */
+    .parlay-legs-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 6px;
+      gap: 5px;
       margin-top: 8px;
     }
 
-    .live-bet-parlay-leg {
-      font-size: 0.72rem;
+    .parlay-leg-chip {
+      font-size: 0.7rem;
       font-weight: 600;
-      padding: 3px 9px;
+      padding: 3px 10px;
       border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.1);
-      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: var(--text-secondary);
     }
 
-    .live-bet-parlay-leg.covering { border-color: var(--green-ring); color: var(--green); background: var(--green-dim); }
-    .live-bet-parlay-leg.win { border-color: var(--green-ring); color: var(--green); background: var(--green-dim); }
-    .live-bet-parlay-leg.not-covering { border-color: var(--red-ring); color: var(--red); background: var(--red-dim); }
-    .live-bet-parlay-leg.loss { border-color: var(--red-ring); color: var(--red); background: var(--red-dim); }
-    .live-bet-parlay-leg.upcoming { border-color: var(--amber-ring); color: var(--amber); background: var(--amber-dim); }
+    .parlay-leg-chip.covering,
+    .parlay-leg-chip.win  { border-color: var(--green-ring); color: var(--green); background: var(--green-dim); }
+    .parlay-leg-chip.not-covering,
+    .parlay-leg-chip.loss { border-color: var(--red-ring); color: var(--red); background: var(--red-dim); }
+    .parlay-leg-chip.upcoming { border-color: var(--amber-ring); color: var(--amber); background: var(--amber-dim); }
 
-    .mobile-live-upcoming-count {
+    .live-upcoming-note {
       text-align: center;
-      padding: 10px;
-      font-size: 0.8rem;
-      color: var(--text2);
-    }
-
-    .mobile-empty {
-      text-align: center;
-      padding: 48px 20px;
-      color: var(--text2);
-      font-size: 0.9rem;
-      line-height: 1.6;
+      font-size: 0.78rem;
+      color: var(--text-tertiary);
+      padding: 8px 0 4px;
     }
 
     /* === PICKS TAB === */
-    .picks-summary-bar {
+    .date-scroll {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 4px 2px;
+      scrollbar-width: none;
+    }
+    .date-scroll::-webkit-scrollbar { display: none; }
+
+    .date-pill {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+      flex-shrink: 0;
+    }
+
+    .date-pill.active {
+      background: var(--green-dim);
+      border-color: var(--green-ring);
+      color: var(--green);
+    }
+
+    .picks-kpi-row {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 1px;
-      background: var(--card-border);
-      border-radius: var(--card-radius);
+      background: var(--border);
+      border-radius: var(--radius-lg);
       overflow: hidden;
-      margin-bottom: 4px;
     }
 
-    .picks-summary-stat {
-      background: var(--card);
+    .picks-kpi-cell {
+      background: var(--bg-card);
       padding: 12px 14px;
       text-align: center;
     }
 
-    .picks-summary-label {
-      font-size: 0.68rem;
+    .picks-kpi-label {
+      font-family: var(--font-display);
+      font-size: 0.62rem;
       font-weight: 600;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--text2);
+      color: var(--text-tertiary);
       margin-bottom: 4px;
     }
 
-    .picks-summary-value {
+    .picks-kpi-value {
+      font-family: var(--font-display);
       font-size: 1rem;
       font-weight: 800;
-      letter-spacing: -0.02em;
+      color: var(--text-primary);
+      font-variant-numeric: tabular-nums;
     }
 
-    .picks-summary-value.green { color: var(--green); }
-    .picks-summary-value.amber { color: var(--amber); }
+    .picks-kpi-value.green  { color: var(--green); }
+    .picks-kpi-value.amber  { color: var(--amber); }
 
-    .picks-topline {
+    .picks-topbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      padding: 2px 2px 6px;
+      padding: 2px 2px 0;
     }
 
     .picks-counter {
-      font-size: 0.8rem;
-      color: var(--text2);
+      font-size: 0.78rem;
+      color: var(--text-secondary);
     }
 
     .picks-show-all {
-      font-size: 0.8rem;
-      color: var(--blue);
+      font-size: 0.78rem;
       font-weight: 600;
+      color: var(--blue);
       background: transparent;
-    }
-
-    .picks-section-header {
-      font-size: 0.72rem;
-      font-weight: 800;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--text2);
-      padding: 8px 2px 6px;
     }
 
     /* Pick card */
     .pick-card {
       position: relative;
-      border-radius: var(--card-radius);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
       overflow: hidden;
-      border: 1px solid var(--card-border);
-      background: var(--card);
-      box-shadow: var(--shadow);
-      transition: opacity var(--transition), transform var(--transition);
-      animation: fadeIn 0.25s ease;
+      animation: fadeUp 0.25s ease;
+      transition: opacity 0.3s ease, transform 0.3s ease, border-color 0.2s;
     }
+
+    .pick-card:hover { border-color: var(--border-active); }
 
     .pick-card::before {
       content: '';
       position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
+      left: 0; top: 0; bottom: 0;
       width: 3px;
     }
 
-    .pick-card.core::before { background: var(--green); }
-    .pick-card.value::before { background: var(--amber); }
+    .pick-card.core::before     { background: var(--green); }
+    .pick-card.value::before    { background: var(--amber); }
     .pick-card.moonshot::before { background: var(--purple); }
-    .pick-card.lean::before { background: var(--text2); }
+    .pick-card.lean::before     { background: var(--text-secondary); }
 
-    .pick-card.is-passed { opacity: 0.4; }
-    .pick-card.is-fading-out { opacity: 0; transform: scale(0.97); }
+    .pick-card.is-passed   { opacity: 0.38; }
+    .pick-card.is-fading-out { opacity: 0; transform: translateX(12px) scale(0.98); }
 
-    .pick-card-inner { padding: 14px 14px 14px 17px; }
+    .pick-inner { padding: 14px 14px 14px 18px; }
 
     .pick-header {
       display: flex;
       align-items: center;
-      gap: 7px;
+      gap: 6px;
       flex-wrap: wrap;
       margin-bottom: 8px;
     }
 
     .pick-badge {
-      font-size: 0.65rem;
+      font-family: var(--font-display);
+      font-size: 0.62rem;
       font-weight: 800;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      padding: 3px 8px;
+      padding: 3px 9px;
       border-radius: 999px;
     }
 
-    .pick-badge.core { background: var(--green-dim); color: var(--green); border: 1px solid var(--green-ring); }
-    .pick-badge.value { background: var(--amber-dim); color: var(--amber); border: 1px solid var(--amber-ring); }
-    .pick-badge.moonshot { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(191,90,242,0.35); }
-    .pick-badge.lean { background: rgba(255,255,255,0.06); color: var(--text2); border: 1px solid var(--card-border); }
+    .pick-badge.core     { background: var(--green-dim); color: var(--green); border: 1px solid var(--green-ring); }
+    .pick-badge.value    { background: var(--amber-dim); color: var(--amber); border: 1px solid var(--amber-ring); }
+    .pick-badge.moonshot { background: var(--purple-dim); color: var(--purple); border: 1px solid var(--purple-ring); }
+    .pick-badge.lean     { background: rgba(255,255,255,0.06); color: var(--text-secondary); border: 1px solid var(--border); }
 
-    .pick-sport-badge {
-      font-size: 0.65rem;
-      font-weight: 700;
-      padding: 3px 8px;
+    .pick-sport-tag {
+      font-size: 0.62rem;
+      font-weight: 600;
+      padding: 3px 9px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid var(--card-border);
-      color: var(--text2);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
     }
 
     .pick-time {
-      font-size: 0.65rem;
-      color: var(--text3);
+      font-size: 0.62rem;
+      color: var(--text-tertiary);
       margin-left: auto;
     }
 
     .pick-game {
-      font-size: 0.82rem;
-      color: var(--text2);
+      font-size: 0.8rem;
+      color: var(--text-secondary);
       margin-bottom: 4px;
     }
 
     .pick-selection {
+      font-family: var(--font-display);
       font-size: 1.05rem;
       font-weight: 800;
-      letter-spacing: -0.01em;
-      margin-bottom: 6px;
+      letter-spacing: -0.02em;
+      margin-bottom: 5px;
+      color: var(--text-primary);
     }
 
-    .pick-selection .pick-odds-inline {
+    .pick-odds-inline {
       color: var(--amber);
       font-weight: 700;
-      font-size: 0.9rem;
-      margin-left: 5px;
+      font-size: 0.88rem;
+      margin-left: 6px;
     }
 
     .pick-sizing {
-      font-size: 0.75rem;
-      color: var(--text2);
+      font-size: 0.74rem;
+      color: var(--text-secondary);
       margin-bottom: 4px;
     }
 
     .pick-edge {
-      font-size: 0.75rem;
-      color: var(--text2);
+      font-size: 0.74rem;
+      color: var(--text-secondary);
       margin-bottom: 10px;
     }
 
-    /* Pick analysis expand */
-    .pick-analysis {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 10px 12px;
+    .pick-analysis-btn {
       width: 100%;
       text-align: left;
-      margin-bottom: 10px;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
       cursor: pointer;
+      margin-bottom: 10px;
+      transition: background 0.2s;
     }
 
-    .pick-analysis-preview {
-      font-size: 0.8rem;
-      color: var(--text2);
-      line-height: 1.5;
-    }
+    .pick-analysis-btn:hover { background: rgba(255,255,255,0.04); }
 
+    .pick-analysis-preview,
     .pick-analysis-full {
-      display: none;
-      font-size: 0.8rem;
-      color: var(--text2);
-      line-height: 1.6;
-      margin-top: 6px;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
     }
 
-    .pick-analysis.expanded .pick-analysis-preview { display: none; }
-    .pick-analysis.expanded .pick-analysis-full { display: block; }
+    .pick-analysis-full { display: none; }
+    .pick-analysis-btn.expanded .pick-analysis-preview { display: none; }
+    .pick-analysis-btn.expanded .pick-analysis-full { display: block; }
 
-    /* Pick actions */
     .pick-actions {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 8px;
-      margin-top: 4px;
     }
 
     .pick-btn {
-      border-radius: var(--btn-radius);
-      font-size: 0.85rem;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-display);
+      font-size: 0.84rem;
       font-weight: 700;
       padding: 10px;
-      transition: opacity var(--transition), transform var(--transition);
+      transition: opacity 0.2s, transform 0.15s;
       -webkit-tap-highlight-color: transparent;
     }
 
@@ -842,17 +900,17 @@
 
     .pick-btn.cancel {
       background: rgba(255,255,255,0.05);
-      border: 1px solid var(--card-border);
-      color: var(--text2);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
     }
 
     /* Pick editor */
     .pick-editor {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
       padding: 12px;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
 
     .pick-editor[hidden] { display: none; }
@@ -867,32 +925,36 @@
 
     .pick-editor-field label {
       display: block;
-      font-size: 0.7rem;
-      font-weight: 600;
-      color: var(--text2);
+      font-family: var(--font-display);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.07em;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      color: var(--text-secondary);
       margin-bottom: 5px;
     }
 
     .pick-editor-field input {
       width: 100%;
       background: rgba(255,255,255,0.06);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      color: var(--text);
+      border: 1px solid var(--border-active);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
       padding: 8px 10px;
+      font-family: var(--font-display);
       font-size: 0.9rem;
       font-weight: 600;
+      font-variant-numeric: tabular-nums;
     }
 
     .pick-editor-field input:focus {
-      border-color: var(--blue);
+      border-color: var(--green);
+      background: rgba(0,230,118,0.05);
       outline: none;
     }
 
     .pick-editor-payout {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       color: var(--green);
       font-weight: 600;
       padding-bottom: 4px;
@@ -910,116 +972,140 @@
     .pick-placed-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(48, 209, 88, 0.12);
-      border-radius: var(--card-radius);
+      background: rgba(0,230,118,0.1);
+      border-radius: var(--radius-lg);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.4rem;
+      font-family: var(--font-display);
+      font-size: 1.5rem;
       font-weight: 900;
       color: var(--green);
+      letter-spacing: 0.02em;
       z-index: 10;
-      animation: placedPulse 0.4s ease;
+      animation: placedPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
 
-    .pick-actual-line {
+    .pick-placed-info {
       display: flex;
       align-items: center;
       gap: 6px;
-      font-size: 0.8rem;
-      color: var(--text2);
+      font-size: 0.78rem;
+      color: var(--text-secondary);
       margin-top: 8px;
     }
 
-    .pick-actual-line strong {
-      color: var(--green);
-    }
+    .pick-placed-info strong { color: var(--green); }
 
     /* === BETS TAB === */
-    .bets-filter-row {
+    .filter-row {
       display: flex;
       gap: 6px;
-      flex-wrap: wrap;
+      overflow-x: auto;
+      padding: 2px;
+      scrollbar-width: none;
     }
+    .filter-row::-webkit-scrollbar { display: none; }
 
-    .chip {
+    .filter-chip {
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: 700;
       padding: 6px 14px;
       border-radius: 999px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      background: rgba(255,255,255,0.06);
-      border: 1px solid var(--card-border);
-      color: var(--text2);
-      transition: all var(--transition);
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      transition: all 0.2s;
+      flex-shrink: 0;
       -webkit-tap-highlight-color: transparent;
     }
 
-    .chip.active {
-      background: rgba(10, 132, 255, 0.15);
-      border-color: rgba(10, 132, 255, 0.4);
-      color: var(--blue);
+    .filter-chip.active {
+      background: var(--green-dim);
+      border-color: var(--green-ring);
+      color: var(--green);
     }
 
     .bets-list { display: grid; gap: 8px; }
 
+    .day-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 2px;
+    }
+
+    .day-header-label {
+      font-family: var(--font-display);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
+      white-space: nowrap;
+    }
+
+    .day-header-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .day-header-record {
+      font-family: var(--font-display);
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--text-tertiary);
+      white-space: nowrap;
+    }
+
+    /* Bet card */
     .bet-card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: var(--card-radius);
-      box-shadow: var(--shadow);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
       overflow: hidden;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
-      animation: fadeIn 0.25s ease;
+      animation: fadeUp 0.2s ease;
+      transition: border-color 0.2s;
     }
+
+    .bet-card:hover { border-color: var(--border-active); }
 
     .bet-card-main {
       display: flex;
       align-items: center;
       gap: 10px;
-      padding: 12px 14px;
+      padding: 11px 14px;
     }
 
-    .bet-card-left {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      flex-shrink: 0;
-    }
+    .bet-sport-icon { font-size: 1.1rem; flex-shrink: 0; }
 
-    .bet-date-badge {
-      font-size: 0.62rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: var(--text3);
-      white-space: nowrap;
-    }
+    .bet-body { flex: 1; min-width: 0; }
 
-    .bet-sport-icon { font-size: 1rem; }
-
-    .bet-card-body {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .bet-title {
+    .bet-pick {
+      font-family: var(--font-display);
       font-size: 0.88rem;
       font-weight: 700;
+      color: var(--text-primary);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      margin-bottom: 3px;
+      margin-bottom: 2px;
+      letter-spacing: -0.01em;
     }
 
     .bet-meta {
-      font-size: 0.72rem;
-      color: var(--text2);
+      font-size: 0.7rem;
+      color: var(--text-secondary);
     }
 
     .bet-score {
-      font-size: 0.72rem;
-      color: var(--text3);
+      font-size: 0.68rem;
+      color: var(--text-tertiary);
       margin-top: 2px;
     }
 
@@ -1032,16 +1118,18 @@
     }
 
     .bet-pnl {
-      font-size: 0.95rem;
+      font-family: var(--font-display);
+      font-size: 0.92rem;
       font-weight: 800;
-      letter-spacing: -0.01em;
+      font-variant-numeric: tabular-nums;
     }
 
     .bet-pnl.positive { color: var(--green); }
     .bet-pnl.negative { color: var(--red); }
 
-    .bet-result-badge {
-      font-size: 0.62rem;
+    .bet-result-chip {
+      font-family: var(--font-display);
+      font-size: 0.6rem;
       font-weight: 800;
       letter-spacing: 0.06em;
       text-transform: uppercase;
@@ -1049,308 +1137,263 @@
       border-radius: 999px;
     }
 
-    .status-win, .status-won {
-      background: var(--green-dim);
-      color: var(--green);
-      border: 1px solid var(--green-ring);
-    }
-
-    .status-loss, .status-lost {
-      background: var(--red-dim);
-      color: var(--red);
-      border: 1px solid var(--red-ring);
-    }
-
-    .status-placed {
-      background: var(--amber-dim);
-      color: var(--amber);
-      border: 1px solid var(--amber-ring);
-    }
-
-    .status-push {
-      background: var(--blue-dim);
-      color: var(--blue);
-      border: 1px solid rgba(10,132,255,0.35);
-    }
-
-    .status-not-placed, .status-declined {
-      background: rgba(255,255,255,0.06);
-      color: var(--text2);
-      border: 1px solid var(--card-border);
-    }
+    .chip-win   { background: var(--green-dim); color: var(--green); border: 1px solid var(--green-ring); }
+    .chip-loss  { background: var(--red-dim); color: var(--red); border: 1px solid var(--red-ring); }
+    .chip-placed { background: var(--amber-dim); color: var(--amber); border: 1px solid var(--amber-ring); }
+    .chip-push  { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(68,138,255,0.30); }
+    .chip-default { background: rgba(255,255,255,0.06); color: var(--text-secondary); border: 1px solid var(--border); }
 
     .bet-card-details {
-      padding: 0 14px 12px;
-      border-top: 1px solid var(--card-border);
-      margin-top: -1px;
+      border-top: 1px solid var(--border);
+      padding: 10px 14px 12px;
     }
 
     .bet-detail-row {
       display: flex;
       gap: 10px;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--card-border);
-      font-size: 0.8rem;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      font-size: 0.78rem;
       line-height: 1.5;
     }
 
     .bet-detail-row:last-child { border-bottom: none; }
 
-    .bet-detail-row strong {
-      color: var(--text2);
-      min-width: 90px;
+    .bet-detail-key {
+      font-weight: 600;
+      color: var(--text-tertiary);
+      min-width: 80px;
       flex-shrink: 0;
-    }
-
-    .bet-detail-row span { color: var(--text); }
-
-    /* === STATS / DASHBOARD TAB === */
-    .stats-hero {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-      margin-bottom: 4px;
-    }
-
-    .stats-kpi-card {
-      background: var(--card);
-      border: 1px solid var(--card-border);
-      border-radius: var(--card-radius);
-      padding: 14px 16px;
-      box-shadow: var(--shadow);
-    }
-
-    .stats-kpi-label {
-      font-size: 0.68rem;
-      font-weight: 700;
+      font-size: 0.72rem;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text2);
+      letter-spacing: 0.04em;
+      padding-top: 1px;
+    }
+
+    .bet-detail-val { color: var(--text-primary); }
+
+    /* === STATS TAB === */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+    }
+
+    .kpi-label {
+      font-family: var(--font-display);
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--text-tertiary);
       margin-bottom: 6px;
     }
 
-    .stats-kpi-value {
-      font-size: 1.6rem;
+    .kpi-value {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
       font-weight: 800;
-      letter-spacing: -0.03em;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
     }
 
-    .stats-kpi-value.green { color: var(--green); }
-    .stats-kpi-value.red { color: var(--red); }
+    .kpi-value.green { color: var(--green); }
+    .kpi-value.red   { color: var(--red); }
 
     .stats-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
       padding: 16px;
     }
 
     .stats-section-title {
-      font-size: 0.78rem;
-      font-weight: 800;
+      font-family: var(--font-display);
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.09em;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text2);
-      margin-bottom: 12px;
+      color: var(--text-tertiary);
+      margin-bottom: 14px;
     }
 
-    .type-stat-row {
+    .type-row {
       display: grid;
-      grid-template-columns: 80px 60px 1fr 52px;
+      grid-template-columns: 70px 55px 1fr 60px;
       gap: 8px;
       align-items: center;
       padding: 7px 0;
-      border-bottom: 1px solid var(--card-border);
-      font-size: 0.82rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      font-size: 0.8rem;
     }
 
-    .type-stat-row:last-child { border-bottom: none; }
+    .type-row:last-child { border-bottom: none; }
 
-    .type-stat-label { font-weight: 700; }
-    .type-stat-record { color: var(--text2); font-size: 0.75rem; }
+    .type-row-label { font-weight: 700; font-family: var(--font-display); font-size: 0.78rem; }
+    .type-row-record { color: var(--text-secondary); font-size: 0.72rem; }
 
-    .type-stat-bar {
-      height: 5px;
+    .type-bar-track {
+      height: 4px;
       border-radius: 999px;
       background: rgba(255,255,255,0.06);
       overflow: hidden;
     }
 
-    .type-stat-fill {
+    .type-bar-fill {
       height: 100%;
       border-radius: 999px;
-      background: var(--blue);
-      transition: width 0.5s ease;
+      transition: width 0.6s ease;
     }
 
-    .type-stat-pct {
-      font-weight: 700;
-      text-align: right;
-      font-size: 0.8rem;
-    }
+    .type-bar-fill.positive { background: var(--green); }
+    .type-bar-fill.negative { background: var(--red); }
 
-    .type-stat-pct.green { color: var(--green); }
-    .type-stat-pct.red { color: var(--red); }
-
-    /* Streak */
-    .streak-row {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .streak-current {
-      font-size: 2rem;
-      font-weight: 900;
-      letter-spacing: -0.04em;
-    }
-
-    .streak-current.green { color: var(--green); }
-    .streak-current.red { color: var(--red); }
-
-    .streak-best {
-      font-size: 0.82rem;
-      color: var(--text2);
-    }
-
-    /* Daily P&L */
-    .daily-row {
-      display: grid;
-      grid-template-columns: 1fr 60px 80px;
-      gap: 8px;
-      align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px solid var(--card-border);
-      font-size: 0.82rem;
-    }
-
-    .daily-row:last-child { border-bottom: none; }
-
-    .daily-date { font-weight: 600; }
-    .daily-record { color: var(--text2); font-size: 0.75rem; }
-
-    .daily-pnl {
+    .type-row-pnl {
+      font-family: var(--font-display);
       font-weight: 800;
+      font-size: 0.78rem;
       text-align: right;
+      font-variant-numeric: tabular-nums;
     }
 
-    .daily-pnl.green { color: var(--green); }
-    .daily-pnl.red { color: var(--red); }
+    .type-row-pnl.positive { color: var(--green); }
+    .type-row-pnl.negative { color: var(--red); }
 
-    /* Positive / negative helpers */
+    .streak-block { display: flex; flex-direction: column; gap: 8px; }
+
+    .streak-current-big {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      font-weight: 900;
+      letter-spacing: -0.05em;
+      line-height: 1;
+    }
+
+    .streak-current-big.green { color: var(--green); }
+    .streak-current-big.red   { color: var(--red); }
+
+    .streak-sub {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+
+    /* Plotly chart containers */
+    .chart-container {
+      width: 100%;
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+
+    /* === STATUS HELPERS === */
     .positive { color: var(--green); }
     .negative { color: var(--red); }
 
     /* === ANIMATIONS === */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
     @keyframes livePulse {
-      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(48,209,88,0.5); }
-      50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(48,209,88,0); }
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0,230,118,0.6); }
+      50%       { opacity: 0.7; box-shadow: 0 0 0 5px rgba(0,230,118,0); }
     }
 
-    @keyframes placedPulse {
-      0%   { opacity: 0; transform: scale(0.95); }
-      60%  { opacity: 1; transform: scale(1.02); }
+    @keyframes placedPop {
+      0%   { opacity: 0; transform: scale(0.9); }
+      60%  { opacity: 1; transform: scale(1.03); }
       100% { opacity: 1; transform: scale(1); }
     }
 
-    /* === RESPONSIVE — DESKTOP === */
+    /* === DESKTOP === */
     @media (min-width: 768px) {
-      :root {
-        --header-h: 0px;
-      }
-
       .app-header { display: none; }
 
       .tab-bar-top {
         display: flex;
-        position: sticky;
         top: 0;
       }
 
       .tab-bar-bottom { display: none; }
 
-      .tab-content {
-        padding-bottom: 24px;
-      }
-
-      #app {
-        padding-top: 0;
-      }
+      .tab-content { padding-bottom: 32px; }
 
       .panel-content {
         padding: 24px;
-        max-width: 900px;
+        max-width: 960px;
         margin: 0 auto;
       }
 
-      .stats-hero {
+      .kpi-grid {
         grid-template-columns: repeat(4, 1fr);
       }
 
-      .picks-summary-bar {
-        grid-template-columns: repeat(3, 1fr);
-      }
-
-      /* Desktop: two-col bets layout */
       .bets-list {
         grid-template-columns: repeat(2, 1fr);
       }
 
-      /* Desktop: live cards bigger */
-      .live-card { margin-bottom: 0; }
-
-      .tab-bar-top .desktop-header-info {
+      .desktop-header-extras {
         margin-left: auto;
         display: flex;
         align-items: center;
         gap: 20px;
         padding: 0 8px;
-        font-size: 0.85rem;
       }
 
       .desktop-bankroll {
+        font-family: var(--font-display);
         font-weight: 800;
-        font-size: 1rem;
+        font-size: 1.05rem;
+        font-variant-numeric: tabular-nums;
       }
 
-      .desktop-meta { color: var(--text2); }
+      .desktop-meta {
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+      }
     }
 
     @media (min-width: 1024px) {
       .panel-content { max-width: 1100px; }
       .bets-list { grid-template-columns: 1fr; }
     }
-
   </style>
 </head>
 <body>
   <div id="app">
     <!-- Mobile sticky header -->
     <header class="app-header">
-      <div class="header-row1">
-        <div class="header-title">Bet Tracker</div>
-        <div class="header-date-badge" id="headerDate"></div>
+      <div class="header-left">
+        <div class="header-title">🎯 Bet Tracker</div>
+        <div class="header-date" id="headerDate"></div>
       </div>
-      <div class="header-bankroll" id="headerBankroll">$0.00</div>
-      <div class="header-meta" id="headerMeta"></div>
+      <div class="header-right">
+        <div class="header-bankroll" id="headerBankroll">$0.00</div>
+        <div class="header-meta" id="headerMeta"></div>
+      </div>
     </header>
 
     <!-- Desktop top tab bar -->
     <nav class="tab-bar-top" id="tabBarTop">
       <button class="tab-btn-top active" data-tab="live">📡 Live</button>
-      <button class="tab-btn-top" data-tab="picks">🤖 Picks</button>
+      <button class="tab-btn-top" data-tab="picks">🎯 Picks</button>
       <button class="tab-btn-top" data-tab="bets">📋 Bets</button>
       <button class="tab-btn-top" data-tab="stats">📊 Stats</button>
-      <div class="desktop-header-info">
+      <div class="desktop-header-extras">
         <span class="desktop-bankroll" id="desktopBankroll">$0.00</span>
         <span class="desktop-meta" id="desktopMeta"></span>
         <span class="desktop-meta" id="desktopDate"></span>
       </div>
     </nav>
 
-    <!-- Main content -->
     <main class="tab-content" id="tabContent">
       <section id="tab-live" class="tab-panel active">
         <div id="liveContent" class="panel-content"></div>
@@ -1369,20 +1412,24 @@
     <!-- Mobile bottom tab bar -->
     <nav class="tab-bar-bottom" id="tabBarBottom">
       <button class="bottom-tab active" data-tab="live" style="position:relative">
+        <div class="bottom-tab-pip"></div>
         <span class="bottom-tab-icon">📡</span>
         <span class="bottom-tab-label">Live</span>
         <span class="bottom-tab-badge" id="liveBadge" style="display:none"></span>
       </button>
       <button class="bottom-tab" data-tab="picks" style="position:relative">
-        <span class="bottom-tab-icon">🤖</span>
+        <div class="bottom-tab-pip"></div>
+        <span class="bottom-tab-icon">🎯</span>
         <span class="bottom-tab-label">Picks</span>
         <span class="bottom-tab-badge" id="picksBadge" style="display:none"></span>
       </button>
       <button class="bottom-tab" data-tab="bets">
+        <div class="bottom-tab-pip"></div>
         <span class="bottom-tab-icon">📋</span>
         <span class="bottom-tab-label">Bets</span>
       </button>
       <button class="bottom-tab" data-tab="stats">
+        <div class="bottom-tab-pip"></div>
         <span class="bottom-tab-icon">📊</span>
         <span class="bottom-tab-label">Stats</span>
       </button>
@@ -1393,7 +1440,7 @@
     // === CONSTANTS & DATA ===
     const UNIT_SIZE = 25;
     const STARTING_BANKROLL = 212.5;
-    const BANKROLL_CORRECTION = -13.52; // Sync hardcoded payouts to actual bet365 balance
+    const BANKROLL_CORRECTION = -13.52;
     const API_COSTS = {
       kenpomCadYear: 133.91,
       oddsCadMonth: 42.28,
@@ -1528,7 +1575,6 @@
 
     const AI_PICKS = [
       { id: "SP2", date: "2026-03-22", sport: "soccer", league: "Serie A", game: "Inter Milan vs Fiorentina", pick: "Inter Milan ML", odds: -160, edgePts: 20, kellyPct: 7.2, confidence: 3, units: 1.0, gameTime: "3:45 PM ET", analysis: "Model edge 20%. Inter Elo 2013 vs Fiorentina 1807. Title contenders away but still dominant.", category: "core" },
-
       { id: "B2", date: "2026-03-22", sport: "ncaab", game: "Tennessee vs Virginia", pick: "Virginia ML", odds: -102, edgePts: 3, kellyPct: 2.9, confidence: 3, units: 1.0, gameTime: "6:10 PM ET", analysis: "KP 49/51 coin flip. Virginia at home, elite defense (#8 AdjDE), slow pace neutralizes Tennessee's athleticism. Short minus on a true toss-up.", category: "value" },
       { id: "B3", date: "2026-03-26", sport: "ncaab", game: "Illinois vs Houston", pick: "Illinois/Houston Under 139.5", odds: -110, edgePts: 8, kellyPct: 5.8, confidence: 4, units: 1.0, gameTime: "12:00 PM ET", analysis: "Houston #4 defense in the country. KP adj total 132 (7pt deflator). Tournament games go under — yesterday proved it. Rock fight.", category: "core" },
       { id: "B4", date: "2026-03-22", sport: "ncaab", game: "St. Johns vs Kansas", pick: "St. Johns/Kansas Under 144.5", odds: -110, edgePts: 8, kellyPct: 5.8, confidence: 3, units: 0.5, gameTime: "5:15 PM ET", analysis: "KP adj total 137. Biggest under edge on the board. Two physical teams, tournament intensity, defensive battle.", category: "value" },
@@ -1536,7 +1582,7 @@
       { id: "B6", date: "2026-03-22", sport: "ncaab", game: "Kentucky vs Iowa State", pick: "Kentucky/Iowa State Under 146.5", odds: -110, edgePts: 6.5, kellyPct: 4.7, confidence: 4, units: 1.0, gameTime: "2:45 PM ET", analysis: "KP raw total 147, deflated to 140 — 6.5pt edge. Iowa St plays slowest pace in Big 12. Kentucky offense inconsistent in tournament. Two good defenses grinding it out.", category: "core" }
     ];
 
-    // === STATE MANAGEMENT ===
+    // === STATE ===
     let state = {
       activeTab: "live",
       filter: "all",
@@ -1548,7 +1594,8 @@
       aiPickDrafts: {},
       fadingPickIds: new Set(),
       mobileAllBetsFilter: "all",
-      openDays: new Set()
+      openDays: new Set(),
+      selectedPickDate: null
     };
 
     let bets = cloneData(BETS);
@@ -1818,20 +1865,22 @@
       return ["placed","win","loss","push"].includes(normalized) ? normalized : null;
     }
 
-    function statusClass(result) {
-      if (result === "declined") return "status-not-placed";
-      const key = normalizeResult(result) || "not-placed";
-      return `status-${key}`;
+    function statusChipClass(result) {
+      if (isWin(result)) return "chip-win";
+      if (isLoss(result)) return "chip-loss";
+      if (result === "placed") return "chip-placed";
+      if (result === "push") return "chip-push";
+      return "chip-default";
     }
 
     function statusLabel(result) {
       if (result === "declined") return "Declined";
-      if (!result) return "Not Placed";
-      if (result === "placed") return "Placed";
+      if (!result) return "—";
+      if (result === "placed") return "Open";
       if (isWin(result)) return "Won";
       if (isLoss(result)) return "Lost";
       const key = normalizeResult(result);
-      return key ? key.charAt(0).toUpperCase() + key.slice(1) : "Not Placed";
+      return key ? key.charAt(0).toUpperCase() + key.slice(1) : "—";
     }
 
     function mobileResultEmoji(result) {
@@ -1848,15 +1897,15 @@
       return "";
     }
 
-    function mobileStatusEmoji(state) {
-      if (state === "covering" || state === "win") return "✅";
-      if (state === "not-covering" || state === "loss") return "❌";
+    function mobileStatusEmoji(st) {
+      if (st === "covering" || st === "win") return "✅";
+      if (st === "not-covering" || st === "loss") return "❌";
       return "⏳";
     }
 
-    function mobileStatusClass(state) {
-      if (state === "win" || state === "loss" || state === "push") return state;
-      return state === "covering" || state === "not-covering" ? state : "upcoming";
+    function mobileStatusClass(st) {
+      if (st === "win" || st === "loss" || st === "push") return st;
+      return st === "covering" || st === "not-covering" ? st : "upcoming";
     }
 
     function allTickets() {
@@ -2227,7 +2276,7 @@
         spreadLine: parsed.spread > 0 ? `+${parsed.spread}` : `${parsed.spread}`,
         currentMargin: scoreDiff > 0 ? `Winning by ${Math.abs(scoreDiff)}` : scoreDiff < 0 ? `Losing by ${Math.abs(scoreDiff)}` : "Tied",
         scoreDiff, coverMargin, covering: coverMargin > 0, thresholdPos: 50, markerPos,
-        statusText: coverMargin > 0 ? `✅ Cover +${Math.abs(coverMargin).toFixed(1)}` : coverMargin < 0 ? `❌ Behind ${coverMargin.toFixed(1)}` : "⚠️ On the number"
+        statusText: coverMargin > 0 ? `✅ Covering +${Math.abs(coverMargin).toFixed(1)}` : coverMargin < 0 ? `❌ Behind ${coverMargin.toFixed(1)}` : "⚠️ On the number"
       };
     }
 
@@ -2316,10 +2365,6 @@
       if (!Number.isFinite(value)) return "0";
       const rounded = Math.round(value * 10) / 10;
       return Number.isInteger(rounded) ? rounded.toFixed(0) : rounded.toFixed(1);
-    }
-
-    function mobileLiveHeaderMeta(entry) {
-      return `${formatUnitsSecondary(entry.units)} · ${formatCurrency(unitToDollars(entry.units), { signed: false })} · LIVE <span class="mobile-live-dot">●</span>`;
     }
 
     function extractBetTeams(gameLabel) {
@@ -2490,7 +2535,7 @@
       return [...singleEntries, ...parlayEntries].sort((a, b) => a.sortTime - b.sortTime || a.label.localeCompare(b.label));
     }
 
-    // === LIVE BET MARKUP (shared mobile/desktop) ===
+    // === LIVE CARD MARKUP ===
     function propBarMarkup(leg) {
       const prop = leg.evaluation.propData;
       if (!prop) return null;
@@ -2499,51 +2544,51 @@
       return `<div class="prop-leg"><div class="prop-leg-header"><span class="prop-leg-player">${prop.playerName}</span><span class="prop-leg-count ${cls}">${prop.current}/${prop.target} ${prop.statLabel}</span></div><div class="prop-bar-track"><div class="prop-bar-fill ${cls}" style="width:${pct}%"></div></div></div>`;
     }
 
-    function liveBetMobileMarkup(entry) {
+    function liveBetCardMarkup(entry) {
       if (entry.isParlay) {
         const hasPropLegs = entry.legs.some(l => l.evaluation.propData);
         if (hasPropLegs) {
           const clockLabel = liveGameClockLabel(entry.game);
-          return `<div class="live-bet-mobile"><div class="live-bet-row"><strong class="live-bet-row-pick">${entry.title}</strong><span class="mobile-live-meta">${formatUnitsSecondary(entry.units)} · ${formatCurrency(unitToDollars(entry.units), { signed: false })}</span></div>${clockLabel ? `<div class="mobile-live-clock" style="text-align:center;padding:4px 0">${clockLabel}</div>` : ""}<div style="padding:4px 0">${entry.legs.map(leg => { const bar = propBarMarkup(leg); if (bar) return bar; return `<div class="prop-leg"><div class="prop-leg-header"><span class="prop-leg-player">${compactLegLabel(leg.pick)}</span><span class="prop-leg-count ${mobileStatusClass(leg.evaluation.state)}">${mobileStatusEmoji(leg.evaluation.state)}</span></div></div>`; }).join("")}</div></div>`;
+          return `<div class="live-inner"><div class="live-topline"><strong class="live-pick">${entry.title}</strong><div class="live-meta-right"><div class="live-units">${formatUnitsSecondary(entry.units)} · ${formatCurrency(unitToDollars(entry.units), { signed: false })}</div></div></div>${clockLabel ? `<div class="live-scorebox"><div class="live-clock">${clockLabel}</div></div>` : ""}<div style="padding:4px 0">${entry.legs.map(leg => { const bar = propBarMarkup(leg); if (bar) return bar; return `<div class="prop-leg"><div class="prop-leg-header"><span class="prop-leg-player">${compactLegLabel(leg.pick)}</span><span class="prop-leg-count ${mobileStatusClass(leg.evaluation.state)}">${mobileStatusEmoji(leg.evaluation.state)}</span></div></div>`; }).join("")}</div></div>`;
         }
-        return `<div class="live-bet-mobile"><div class="live-bet-row"><strong class="live-bet-row-pick">${entry.title}</strong><span class="mobile-live-meta">${formatUnitsSecondary(entry.units)} · ${formatCurrency(unitToDollars(entry.units), { signed: false })}</span></div><div class="live-bet-parlay-legs">${entry.legs.map(leg => `<span class="live-bet-parlay-leg ${mobileStatusClass(leg.evaluation.state)}">${mobileStatusEmoji(leg.evaluation.state)} ${compactLegLabel(leg.pick)}</span>`).join("")}</div></div>`;
+        return `<div class="live-inner"><div class="live-topline"><strong class="live-pick">${entry.title}</strong><div class="live-meta-right"><div class="live-units">${formatUnitsSecondary(entry.units)} · ${formatCurrency(unitToDollars(entry.units), { signed: false })}</div></div></div><div class="parlay-legs-row">${entry.legs.map(leg => `<span class="parlay-leg-chip ${mobileStatusClass(leg.evaluation.state)}">${mobileStatusEmoji(leg.evaluation.state)} ${compactLegLabel(leg.pick)}</span>`).join("")}</div></div>`;
       }
 
       const isLiveSingle = entry.evaluation.isLive && entry.evaluation.hasScores;
-      const liveMeta = `<span class="mobile-live-meta">${mobileLiveHeaderMeta(entry)}</span>`;
       const clockLabel = liveGameClockLabel(entry.game);
       const betType = inferBetTypeFromPick(entry.pick);
+      const liveDot = `<div class="live-dot"><div class="live-dot-pip"></div>LIVE</div>`;
 
       if (isLiveSingle && betType === "spread") {
         const spreadData = spreadVisualizationData(entry.pick, entry.game);
         if (spreadData) {
-          return `<div class="live-bet-mobile"><div class="mobile-live-topline"><strong class="live-bet-row-pick">${entry.title}</strong>${liveMeta}</div><div class="mobile-live-scoreblock"><div class="mobile-live-scoreline">${entry.evaluation.mobileScoreLabel}</div>${clockLabel ? `<div class="mobile-live-clock">${clockLabel}</div>` : ""}</div><div class="mobile-spread-viz"><div class="spread-track"><div class="spread-threshold" style="left:${spreadData.thresholdPos}%"></div><div class="spread-marker ${spreadData.covering ? "covering" : "not-covering"}" style="left:${spreadData.markerPos}%"></div></div><div class="spread-labels"><span>${spreadData.spreadLine}</span><span>${spreadData.currentMargin}</span></div><div class="spread-status ${spreadData.covering ? "covering" : "not-covering"}">${spreadData.statusText}</div></div></div>`;
+          return `<div class="live-inner"><div class="live-topline"><strong class="live-pick">${entry.title}</strong><div class="live-meta-right">${liveDot}<div class="live-units">${formatUnitsSecondary(entry.units)} · ${formatCurrency(unitToDollars(entry.units), { signed: false })}</div></div></div><div class="live-scorebox"><div class="live-scoreline">${entry.evaluation.mobileScoreLabel}</div>${clockLabel ? `<div class="live-clock">${clockLabel}</div>` : ""}</div><div class="spread-viz"><div class="spread-track"><div class="spread-threshold" style="left:${spreadData.thresholdPos}%"></div><div class="spread-marker ${spreadData.covering ? "covering" : "not-covering"}" style="left:${spreadData.markerPos}%"></div></div><div class="spread-labels"><span>${spreadData.spreadLine}</span><span>${spreadData.currentMargin}</span></div><div class="spread-status ${spreadData.covering ? "covering" : "not-covering"}">${spreadData.statusText}</div></div></div>`;
         }
       }
 
       if (isLiveSingle && betType === "total") {
         const totalData = totalVisualizationData(entry.pick, entry.game);
         if (totalData?.kind === "under") {
-          return `<div class="live-bet-mobile"><div class="mobile-live-topline"><strong class="live-bet-row-pick">${entry.title}</strong>${liveMeta}</div><div class="mobile-live-scoreblock"><div class="mobile-live-scoreline">${entry.evaluation.mobileScoreLabel}</div>${clockLabel ? `<div class="mobile-live-clock">${clockLabel}</div>` : ""}</div><div class="mobile-under-viz"><div class="under-track"><div class="under-fill ${totalData.state}" style="width:${totalData.remainingPct.toFixed(1)}%"></div></div><div class="under-labels"><span>${totalData.currentTotal} scored</span><span>${totalData.remaining > 0 ? `${totalData.remaining.toFixed(1).replace(/\.0$/,"")} remaining` : "0 remaining"}</span></div><div class="under-status ${totalData.state}">${totalData.statusText}</div></div></div>`;
+          return `<div class="live-inner"><div class="live-topline"><strong class="live-pick">${entry.title}</strong><div class="live-meta-right">${liveDot}<div class="live-units">${formatUnitsSecondary(entry.units)} · ${formatCurrency(unitToDollars(entry.units), { signed: false })}</div></div></div><div class="live-scorebox"><div class="live-scoreline">${entry.evaluation.mobileScoreLabel}</div>${clockLabel ? `<div class="live-clock">${clockLabel}</div>` : ""}</div><div class="total-viz"><div class="total-track"><div class="total-fill ${totalData.state}" style="width:${totalData.remainingPct.toFixed(1)}%"></div></div><div class="total-labels"><span>${totalData.currentTotal} scored</span><span>${totalData.remaining > 0 ? `${totalData.remaining.toFixed(1).replace(/\.0$/,"")} remaining` : "0 remaining"}</span></div><div class="total-status ${totalData.state}">${totalData.statusText}</div></div></div>`;
         }
         if (totalData?.kind === "over") {
-          return `<div class="live-bet-mobile"><div class="mobile-live-topline"><strong class="live-bet-row-pick">${entry.title}</strong>${liveMeta}</div><div class="mobile-live-scoreblock"><div class="mobile-live-scoreline">${entry.evaluation.mobileScoreLabel}</div>${clockLabel ? `<div class="mobile-live-clock">${clockLabel}</div>` : ""}</div><div class="mobile-over-viz"><div class="over-track"><div class="over-fill ${totalData.state}" style="width:${totalData.filledPct.toFixed(1)}%"></div><div class="over-target-line"></div></div><div class="over-labels"><span>${totalData.currentTotal} scored</span><span>${totalData.needed > 0 ? `Need ${totalData.needed.toFixed(1).replace(/\.0$/,"")} more` : "Target hit"}</span></div><div class="over-status ${totalData.state}">${totalData.statusText}</div></div></div>`;
+          return `<div class="live-inner"><div class="live-topline"><strong class="live-pick">${entry.title}</strong><div class="live-meta-right">${liveDot}<div class="live-units">${formatUnitsSecondary(entry.units)} · ${formatCurrency(unitToDollars(entry.units), { signed: false })}</div></div></div><div class="live-scorebox"><div class="live-scoreline">${entry.evaluation.mobileScoreLabel}</div>${clockLabel ? `<div class="live-clock">${clockLabel}</div>` : ""}</div><div class="total-viz"><div class="total-track"><div class="total-fill ${totalData.state}" style="width:${totalData.filledPct.toFixed(1)}%"></div><div class="total-target-line"></div></div><div class="total-labels"><span>${totalData.currentTotal} scored</span><span>${totalData.needed > 0 ? `Need ${totalData.needed.toFixed(1).replace(/\.0$/,"")} more` : "Target hit!"}</span></div><div class="total-status ${totalData.state}">${totalData.statusText}</div></div></div>`;
         }
       }
 
       if (isLiveSingle) {
         const statusCls = mobileStatusClass(entry.evaluation.state);
-        return `<div class="live-bet-mobile"><div class="mobile-live-topline"><strong class="live-bet-row-pick">${entry.title}</strong>${liveMeta}</div><div class="mobile-live-scoreblock"><div class="mobile-live-scoreline">${entry.evaluation.mobileScoreLabel}</div>${clockLabel ? `<div class="mobile-live-clock">${clockLabel}</div>` : ""}</div><div class="mobile-live-barline"><div class="mobile-margin-bar"><div class="mobile-margin-fill ${statusCls}" style="width:${((entry.evaluation.barRatio||0)*100).toFixed(1)}%"></div></div></div><div class="mobile-live-bottomline ${statusCls}">${entry.evaluation.summaryText}</div></div>`;
+        return `<div class="live-inner"><div class="live-topline"><strong class="live-pick">${entry.title}</strong><div class="live-meta-right">${liveDot}<div class="live-units">${formatUnitsSecondary(entry.units)} · ${formatCurrency(unitToDollars(entry.units), { signed: false })}</div></div></div><div class="live-scorebox"><div class="live-scoreline">${entry.evaluation.mobileScoreLabel}</div>${clockLabel ? `<div class="live-clock">${clockLabel}</div>` : ""}</div><div class="margin-bar-wrap"><div class="margin-bar-track"><div class="margin-bar-fill ${statusCls}" style="width:${((entry.evaluation.barRatio||0)*100).toFixed(1)}%"></div></div></div><div class="margin-status-text ${statusCls}">${entry.evaluation.summaryText}</div></div>`;
       }
 
-      return `<div class="live-bet-mobile"><div class="live-bet-row"><strong class="live-bet-row-pick">${entry.title}</strong><span class="live-bet-row-meta">${entry.evaluation.compactScoreLabel}</span></div><div class="live-bet-row"><span class="live-bet-row-units">${formatUnitsSecondary(entry.units)} · ${formatCurrency(unitToDollars(entry.units), { signed: false })}</span><span class="live-bet-row-status ${mobileStatusClass(entry.evaluation.state)}">${entry.evaluation.statusText}</span></div></div>`;
+      return `<div class="live-inner"><div class="live-topline"><strong class="live-pick">${entry.title}</strong><div class="live-meta-right"><div class="live-units">${formatUnitsSecondary(entry.units)} · ${formatCurrency(unitToDollars(entry.units), { signed: false })}</div></div></div><div class="live-topline" style="margin-top:4px"><span style="font-size:0.78rem;color:var(--text-secondary)">${entry.evaluation.compactScoreLabel}</span><span style="font-size:0.78rem;font-weight:700;color:var(--amber)">${entry.evaluation.statusText}</span></div></div>`;
     }
 
     // === AI PICK CARD MARKUP ===
     function aiPickEditorMarkup(pick) {
       const draft = aiPickDraftFor(pick);
       const isEditing = String(state.editingAiPickId) === String(pick.id);
-      return `<div class="pick-editor" ${isEditing ? "" : "hidden"}><div class="pick-editor-row"><div class="pick-editor-field"><label for="pick-odds-${pick.id}">Odds</label><input id="pick-odds-${pick.id}" type="number" inputmode="numeric" value="${draft.odds}" data-ai-pick-input="${pick.id}" data-ai-pick-field="odds"></div><div class="pick-editor-field"><label for="pick-units-${pick.id}">Units</label><input id="pick-units-${pick.id}" type="number" min="0.1" step="0.1" inputmode="decimal" value="${draft.units}" data-ai-pick-input="${pick.id}" data-ai-pick-field="units"></div><div class="pick-editor-payout" data-ai-pick-payout="${pick.id}">${potentialPayoutForDraft(draft)}</div></div><div class="pick-editor-actions"><button type="button" class="pick-btn confirm" data-ai-pick-confirm="${pick.id}">Confirm</button><button type="button" class="pick-btn cancel" data-ai-pick-cancel="${pick.id}">Cancel</button></div></div>`;
+      return `<div class="pick-editor" ${isEditing ? "" : "hidden"}><div class="pick-editor-row"><div class="pick-editor-field"><label for="pe-odds-${pick.id}">Odds</label><input id="pe-odds-${pick.id}" type="number" inputmode="numeric" value="${draft.odds}" data-ai-pick-input="${pick.id}" data-ai-pick-field="odds"></div><div class="pick-editor-field"><label for="pe-units-${pick.id}">Units</label><input id="pe-units-${pick.id}" type="number" min="0.1" step="0.1" inputmode="decimal" value="${draft.units}" data-ai-pick-input="${pick.id}" data-ai-pick-field="units"></div><div class="pick-editor-payout" data-ai-pick-payout="${pick.id}">${potentialPayoutForDraft(draft)}</div></div><div class="pick-editor-actions"><button type="button" class="pick-btn confirm" data-ai-pick-confirm="${pick.id}">Confirm</button><button type="button" class="pick-btn cancel" data-ai-pick-cancel="${pick.id}">Cancel</button></div></div>`;
     }
 
     function aiPickCardMarkup(pick) {
@@ -2558,10 +2603,10 @@
       const actualUnits = Number.isFinite(placedUnits) ? placedUnits : Number(pick.units);
       const cat = pick.category || "value";
       const catLabel = cat === "core" ? "🎯 CORE" : cat === "moonshot" ? "🚀 MOONSHOT" : cat === "lean" ? "⚠️ LEAN" : "⚡ VALUE";
-      const sportBadge = pick.sport === "soccer" ? `<span class="pick-sport-badge soccer">⚽ ${pick.league || "Soccer"}</span>` : `<span class="pick-sport-badge ncaab">🏀 NCAAB</span>`;
+      const sportBadge = pick.sport === "soccer" ? `<span class="pick-sport-tag">⚽ ${pick.league || "Soccer"}</span>` : `<span class="pick-sport-tag">🏀 NCAAB</span>`;
       const isEditing = String(state.editingAiPickId) === String(pick.id);
 
-      return `<article class="pick-card ${cat} ${isPlacedPick ? "is-placed" : ""} ${isPassedPick ? "is-passed" : ""} ${isFading ? "is-fading-out" : ""}">${isPlacedPick ? `<div class="pick-placed-overlay">✅ PLACED</div>` : ""}<div class="pick-card-inner"><div class="pick-header"><span class="pick-badge ${cat}">${catLabel}</span>${sportBadge}<span class="pick-time">${pick.gameTime || "TBD"}</span></div><div class="pick-game">${pick.game}</div><div class="pick-selection">${pick.pick}<span class="pick-odds-inline">${formatLineValue(actualOdds)}</span></div><div class="pick-sizing">${formatUnitsSecondary(actualUnits)} · ${formatCurrency(unitToDollars(actualUnits), { signed: false })} · Kelly ${Number(pick.kellyPct||0).toFixed(1)}%</div><div class="pick-edge">Edge: ${Number(pick.edgePts||0).toFixed(1)}pts · ${confidenceStars(pick.confidence)}</div><button type="button" class="pick-analysis ${pick.expanded ? "expanded" : ""}" data-ai-pick-expand="${pick.id}"><div class="pick-analysis-preview">${String(pick.analysis||"").slice(0,90)}...</div><div class="pick-analysis-full">${pick.analysis||""}</div></button>${isPlacedPick ? `<div class="pick-actual-line"><span>Placed at</span><strong>${formatLineValue(actualOdds)}</strong><span>·</span><span>${formatUnitsSecondary(actualUnits)}</span></div>` : ""}${aiPickEditorMarkup(pick)}<div class="pick-actions" ${(isPlacedPick || isPassedPick || isEditing) ? "hidden" : ""}><button type="button" class="pick-btn place" data-ai-pick-place="${pick.id}">✅ Place</button><button type="button" class="pick-btn pass" data-ai-pick-pass="${pick.id}">❌ Pass</button></div></div></article>`;
+      return `<article class="pick-card ${cat} ${isPlacedPick ? "is-placed" : ""} ${isPassedPick ? "is-passed" : ""} ${isFading ? "is-fading-out" : ""}">${isPlacedPick ? `<div class="pick-placed-overlay">✅ PLACED</div>` : ""}<div class="pick-inner"><div class="pick-header"><span class="pick-badge ${cat}">${catLabel}</span>${sportBadge}<span class="pick-time">${pick.gameTime || "TBD"}</span></div><div class="pick-game">${pick.game}</div><div class="pick-selection">${pick.pick}<span class="pick-odds-inline">${formatLineValue(actualOdds)}</span></div><div class="pick-sizing">${formatUnitsSecondary(actualUnits)} · ${formatCurrency(unitToDollars(actualUnits), { signed: false })} · Kelly ${Number(pick.kellyPct||0).toFixed(1)}%</div><div class="pick-edge">Edge: ${Number(pick.edgePts||0).toFixed(1)}pts · ${confidenceStars(pick.confidence)}</div><button type="button" class="pick-analysis-btn ${pick.expanded ? "expanded" : ""}" data-ai-pick-expand="${pick.id}"><div class="pick-analysis-preview">${String(pick.analysis||"").slice(0,90)}...</div><div class="pick-analysis-full">${pick.analysis||""}</div></button>${isPlacedPick ? `<div class="pick-placed-info"><span>Placed at</span><strong>${formatLineValue(actualOdds)}</strong><span>·</span><span>${formatUnitsSecondary(actualUnits)}</span></div>` : ""}${aiPickEditorMarkup(pick)}<div class="pick-actions" ${(isPlacedPick || isPassedPick || isEditing) ? "hidden" : ""}><button type="button" class="pick-btn place" data-ai-pick-place="${pick.id}">✅ Place</button><button type="button" class="pick-btn pass" data-ai-pick-pass="${pick.id}">❌ Pass</button></div></div></article>`;
     }
 
     // === STATE PERSISTENCE ===
@@ -2602,7 +2647,6 @@
 
     async function fetchLiveScores() {
       try {
-        // Fetch NCAAB + soccer leagues with open bets
         const allGames = [];
         const fetches = [SPORT, ...EXTRA_SCORE_SPORTS].map(async sk => {
           try {
@@ -2662,13 +2706,12 @@
       } catch(e) {}
     }
 
-    function mainTournamentGames() { return []; }
-
-    // === RENDER: TAB ROUTING ===
+    // === TAB SWITCHING ===
     function switchTab(tab) {
       state.activeTab = tab;
       document.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === `tab-${tab}`));
       document.querySelectorAll("[data-tab]").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+      if (tab === "stats") { requestAnimationFrame(() => renderStatsCharts()); }
     }
 
     // === RENDER: HEADER ===
@@ -2679,8 +2722,9 @@
       const isUp = bankroll > STARTING_BANKROLL;
       const isDown = bankroll < STARTING_BANKROLL;
       const bankrollStr = formatCurrency(bankroll, { signed: false });
-      const metaStr = `${formatCurrency(today.pnl)} today · ${today.record.wins}-${today.record.losses}`;
+      const metaStr = `${formatCurrency(today.pnl)} today · ${today.record.wins}W-${today.record.losses}L`;
       const dateStr = formatHeaderDate();
+      const polarity = isUp ? "positive" : isDown ? "negative" : "neutral";
 
       const hb = document.getElementById("headerBankroll");
       const hm = document.getElementById("headerMeta");
@@ -2689,20 +2733,18 @@
       const dm = document.getElementById("desktopMeta");
       const dd = document.getElementById("desktopDate");
 
-      if (hb) { hb.textContent = bankrollStr; hb.className = `header-bankroll ${isUp ? "positive" : isDown ? "negative" : ""}`; }
+      if (hb) { hb.textContent = bankrollStr; hb.className = `header-bankroll ${polarity}`; }
       if (hm) hm.textContent = metaStr;
       if (hd) hd.textContent = dateStr;
-      if (db) { db.textContent = bankrollStr; db.className = `desktop-bankroll ${isUp ? "positive" : isDown ? "negative" : ""}`; }
+      if (db) { db.textContent = bankrollStr; db.className = `desktop-bankroll ${polarity}`; }
       if (dm) dm.textContent = metaStr;
       if (dd) dd.textContent = dateStr;
 
-      // Update live badge
       const liveEntries = liveBetEntries();
       const liveCount = liveEntries.filter(e => e.evaluation.state !== "upcoming").length;
       const liveBadge = document.getElementById("liveBadge");
       if (liveBadge) { liveBadge.textContent = liveCount || ""; liveBadge.style.display = liveCount ? "" : "none"; }
 
-      // Update picks badge
       const counts = aiPickCounts(currentEtDate());
       const picksBadge = document.getElementById("picksBadge");
       if (picksBadge) { picksBadge.textContent = counts.remaining || ""; picksBadge.style.display = counts.remaining ? "" : "none"; }
@@ -2718,29 +2760,36 @@
 
       let html = "";
       if (!entries.length) {
-        html = `<div class="empty-state"><div class="empty-icon">🏀</div><div class="empty-title">No active bets today</div><div class="empty-meta">Check Picks tab for today's recommendations</div></div>`;
+        html = `<div class="empty-state"><div class="empty-icon">🏀</div><div class="empty-title">No active bets today</div><div class="empty-meta">Check the Picks tab for today's recommendations</div></div>`;
       } else if (!liveEntries.length) {
         const nextGame = upcomingEntries[0];
         const nextTime = nextGame?.game?.displayTime || "";
         html = `<div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-title">No games in progress</div><div class="empty-meta">${upcomingEntries.length} bet${upcomingEntries.length !== 1 ? "s" : ""} upcoming${nextTime ? " · Next: " + nextTime : ""}</div></div>`;
       } else {
-        html = liveEntries.map(entry => `<article class="live-card ${entry.evaluation.state}">${liveBetMobileMarkup(entry)}</article>`).join("");
-        if (upcomingEntries.length) html += `<div class="mobile-live-upcoming-count">${upcomingEntries.length} more bet${upcomingEntries.length !== 1 ? "s" : ""} upcoming</div>`;
+        html = liveEntries.map(entry => `<article class="live-card ${entry.evaluation.state}">${liveBetCardMarkup(entry)}</article>`).join("");
+        if (upcomingEntries.length) html += `<div class="live-upcoming-note">${upcomingEntries.length} more bet${upcomingEntries.length !== 1 ? "s" : ""} upcoming</div>`;
       }
       container.innerHTML = html;
     }
 
-    // Alias for backward compat (called by ESPN fetchers)
     function renderLiveBetsSection() { renderLiveTab(); }
 
     // === RENDER: PICKS TAB ===
     function renderPicksTab() {
       const container = document.getElementById("picksContent");
       if (!container) return;
+
+      // Get all unique dates that have picks
+      const pickDates = [...new Set(aiPicks.map(p => p.date))].sort();
       const today = currentEtDate();
+      if (!state.selectedPickDate) {
+        state.selectedPickDate = pickDates.includes(today) ? today : pickDates[pickDates.length - 1] || today;
+      }
+      const selectedDate = state.selectedPickDate;
+
       const summary = summarize();
-      const counts = aiPickCounts(today);
-      const picks = visibleAiPicksForDate(today);
+      const counts = aiPickCounts(selectedDate);
+      const picks = visibleAiPicksForDate(selectedDate);
       const bankroll = STARTING_BANKROLL + summary.realized + BANKROLL_CORRECTION;
       const exposureDollars = picks.reduce((sum, p) => sum + unitToDollars(Number(p.units)||0), 0);
       const potentialReturn = picks.reduce((sum, p) => sum + americanProfit(Number(p.units)||0, Number(p.odds)||-110), 0);
@@ -2750,25 +2799,31 @@
 
       const renderGroup = (label, groupPicks) => {
         if (!groupPicks.length) return "";
-        return `<div class="picks-section-header">${label}</div>${groupPicks.map(aiPickCardMarkup).join("")}`;
+        return `<div class="section-label">${label}</div>${groupPicks.map(aiPickCardMarkup).join("")}`;
       };
 
+      const datePillsHtml = pickDates.map(d => {
+        const label = new Date(`${d}T12:00:00`).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+        return `<button type="button" class="date-pill ${d === selectedDate ? "active" : ""}" data-pick-date="${d}">${label}${d === today ? " ●" : ""}</button>`;
+      }).join("");
+
       if (!counts.total) {
-        container.innerHTML = `<div class="empty-state"><div class="empty-icon">🤖</div><div class="empty-title">No picks today</div><div class="empty-meta">Next card at 6 AM</div></div>`;
+        container.innerHTML = `<div class="date-scroll">${datePillsHtml}</div><div class="empty-state"><div class="empty-icon">🤖</div><div class="empty-title">No picks for this date</div><div class="empty-meta">Next card at 6 AM</div></div>`;
         return;
       }
 
       container.innerHTML = `
-        <div class="picks-summary-bar glass-card">
-          <div class="picks-summary-stat"><div class="picks-summary-label">Bankroll</div><div class="picks-summary-value">${formatCurrency(bankroll, { signed: false })}</div></div>
-          <div class="picks-summary-stat"><div class="picks-summary-label">Exposure</div><div class="picks-summary-value amber">${formatCurrency(exposureDollars, { signed: false })}</div></div>
-          <div class="picks-summary-stat"><div class="picks-summary-label">Potential</div><div class="picks-summary-value green">${formatCurrency(potentialReturn, { signed: false })}</div></div>
+        <div class="date-scroll">${datePillsHtml}</div>
+        <div class="picks-kpi-row">
+          <div class="picks-kpi-cell"><div class="picks-kpi-label">Bankroll</div><div class="picks-kpi-value">${formatCurrency(bankroll, { signed: false })}</div></div>
+          <div class="picks-kpi-cell"><div class="picks-kpi-label">Exposure</div><div class="picks-kpi-value amber">${formatCurrency(exposureDollars, { signed: false })}</div></div>
+          <div class="picks-kpi-cell"><div class="picks-kpi-label">Potential</div><div class="picks-kpi-value green">${formatCurrency(potentialReturn, { signed: false })}</div></div>
         </div>
-        <div class="picks-topline">
+        <div class="picks-topbar">
           <span class="picks-counter">${counts.remaining} of ${counts.total} remaining</span>
           <button type="button" class="picks-show-all" data-ai-picks-show-all>${state.showAllPassedPicks ? "Hide passed" : "Show all"}</button>
         </div>
-        ${picks.length ? renderGroup("⚽ Soccer", soccerPicks) + renderGroup("🏀 March Madness", ncaabPicks) : `<div class="empty-state"><div class="empty-title">All picks passed</div><div class="empty-meta">Use "Show all" to review them</div></div>`}
+        ${picks.length ? renderGroup("⚽ Soccer", soccerPicks) + renderGroup("🏀 March Madness", ncaabPicks) : `<div class="empty-state"><div class="empty-title">All picks resolved</div><div class="empty-meta">Tap "Show all" to review passed picks</div></div>`}
       `;
     }
 
@@ -2776,11 +2831,18 @@
     function renderBetsTab() {
       const container = document.getElementById("betsContent");
       if (!container) return;
+
       const filterOpts = [
-        { key: "all", label: "All" }, { key: "wins", label: "Wins" }, { key: "losses", label: "Losses" },
-        { key: "placed", label: "Placed" }, { key: "parlays", label: "Parlays" }
+        { key: "all", label: "All" },
+        { key: "wins", label: "Won" },
+        { key: "losses", label: "Lost" },
+        { key: "placed", label: "Open" },
+        { key: "parlays", label: "Parlays" }
       ];
-      const items = allTickets().map(tableTicket).filter(item => {
+
+      const allItems = allTickets().map(tableTicket);
+
+      const filteredItems = allItems.filter(item => {
         if (state.mobileAllBetsFilter === "all") return true;
         if (state.mobileAllBetsFilter === "wins") return isWin(item.result);
         if (state.mobileAllBetsFilter === "losses") return isLoss(item.result);
@@ -2789,41 +2851,188 @@
         return true;
       }).sort((a, b) => b.date.localeCompare(a.date) || String(b.id).localeCompare(String(a.id), undefined, { numeric: true }));
 
-      container.innerHTML = `
-        <div class="bets-filter-row">
-          ${filterOpts.map(f => `<button type="button" class="chip ${state.mobileAllBetsFilter === f.key ? "active" : ""}" data-mobile-filter="${f.key}">${f.label}</button>`).join("")}
-        </div>
-        ${items.length ? `<div class="bets-list">${items.map(bet => {
+      // Count for chips
+      const counts = {
+        all: allItems.length,
+        wins: allItems.filter(i => isWin(i.result)).length,
+        losses: allItems.filter(i => isLoss(i.result)).length,
+        placed: allItems.filter(i => i.result === "placed").length,
+        parlays: allItems.filter(i => i.ticketType === "parlay").length
+      };
+
+      // Group by date
+      const grouped = new Map();
+      filteredItems.forEach(item => {
+        if (!grouped.has(item.date)) grouped.set(item.date, []);
+        grouped.get(item.date).push(item);
+      });
+
+      const betCardsHtml = [...grouped.entries()].sort((a,b) => b[0].localeCompare(a[0])).map(([date, items]) => {
+        const wins = items.filter(i => isWin(i.result)).length;
+        const losses = items.filter(i => isLoss(i.result)).length;
+        const dateLabel = new Date(`${date}T12:00:00`).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+
+        const cards = items.map(bet => {
           const expanded = state.expandedBets.has(String(bet.id));
           const profit = ticketProfit(bet);
           const isParlay = bet.ticketType === "parlay";
           const sport = bet.sport;
           return `<article class="bet-card" data-expand-id="${bet.id}">
             <div class="bet-card-main">
-              <div class="bet-card-left">
-                <div class="bet-date-badge">${new Date(bet.date + "T12:00:00").toLocaleDateString(undefined, { month: "short", day: "numeric" })}</div>
-                <div class="bet-sport-icon">${sport === "soccer" ? "⚽" : "🏀"}</div>
-              </div>
-              <div class="bet-card-body">
-                <div class="bet-title">${mobileResultEmoji(bet.result)} ${isParlay ? bet.label : bet.pick}</div>
+              <span class="bet-sport-icon">${sport === "soccer" ? "⚽" : "🏀"}</span>
+              <div class="bet-body">
+                <div class="bet-pick">${mobileResultEmoji(bet.result)} ${isParlay ? bet.label : bet.pick}</div>
                 <div class="bet-meta">${[bet.gameTime, formatUnitsSecondary(bet.units), formatLineValue(bet.line)].filter(Boolean).join(" · ")}</div>
                 ${bet.score && !isParlay ? `<div class="bet-score">${bet.score}</div>` : ""}
               </div>
               <div class="bet-card-right">
                 <div class="bet-pnl ${mobileStatusClassForResult(bet.result)}">${formatCurrency(profit)}</div>
-                <div class="bet-result-badge ${statusClass(bet.result)}">${statusLabel(bet.result)}</div>
+                <div class="bet-result-chip ${statusChipClass(bet.result)}">${statusLabel(bet.result)}</div>
               </div>
             </div>
             ${expanded ? `<div class="bet-card-details">
-              ${isParlay ? `<div class="bet-detail-row"><strong>Legs</strong><span>${bet.legs.map(leg => { const ls = parlayLegState(bet, leg); return ls.icon + " " + leg; }).join(" · ")}</span></div>` : ""}
-              <div class="bet-detail-row"><strong>Notes</strong><span>${bet.notes || "—"}</span></div>
-              <div class="bet-detail-row"><strong>Confidence</strong><span>${capitalize(bet.confidence)}</span></div>
-              ${!isParlay && bet.kenpomGap != null ? `<div class="bet-detail-row"><strong>KenPom Gap</strong><span>${bet.kenpomGap.toFixed(1)}</span></div>` : ""}
-              ${bet.score ? `<div class="bet-detail-row"><strong>Score</strong><span>${bet.score}</span></div>` : ""}
+              ${isParlay ? `<div class="bet-detail-row"><div class="bet-detail-key">Legs</div><div class="bet-detail-val">${bet.legs.map(leg => { const ls = parlayLegState(bet, leg); return ls.icon + " " + leg; }).join(" · ")}</div></div>` : ""}
+              <div class="bet-detail-row"><div class="bet-detail-key">Notes</div><div class="bet-detail-val">${bet.notes || "—"}</div></div>
+              <div class="bet-detail-row"><div class="bet-detail-key">Confidence</div><div class="bet-detail-val">${capitalize(bet.confidence || "—")}</div></div>
+              ${!isParlay && bet.kenpomGap != null ? `<div class="bet-detail-row"><div class="bet-detail-key">KP Gap</div><div class="bet-detail-val">${bet.kenpomGap.toFixed(1)} pts</div></div>` : ""}
+              ${bet.score ? `<div class="bet-detail-row"><div class="bet-detail-key">Score</div><div class="bet-detail-val">${bet.score}</div></div>` : ""}
             </div>` : ""}
           </article>`;
-        }).join("")}</div>` : `<div class="empty-state"><div class="empty-title">No bets match this filter</div></div>`}
+        }).join("");
+
+        return `<div class="day-header"><div class="day-header-label">${dateLabel}</div><div class="day-header-line"></div><div class="day-header-record">${wins}W-${losses}L</div></div>${cards}`;
+      }).join("");
+
+      container.innerHTML = `
+        <div class="filter-row">
+          ${filterOpts.map(f => `<button type="button" class="filter-chip ${state.mobileAllBetsFilter === f.key ? "active" : ""}" data-mobile-filter="${f.key}">${f.label} <span style="opacity:0.6">${counts[f.key]}</span></button>`).join("")}
+        </div>
+        <div class="bets-list">${betCardsHtml || `<div class="empty-state"><div class="empty-title">No bets match this filter</div></div>`}</div>
       `;
+    }
+
+    // === PLOTLY CHART HELPERS ===
+    const PLOTLY_BASE_LAYOUT = {
+      paper_bgcolor: 'transparent',
+      plot_bgcolor: 'transparent',
+      font: { family: 'DM Sans, sans-serif', color: '#8b8d97', size: 11 },
+      margin: { l: 48, r: 16, t: 24, b: 44 },
+      xaxis: { gridcolor: 'rgba(255,255,255,0.04)', linecolor: 'rgba(255,255,255,0.06)', tickcolor: 'rgba(255,255,255,0.06)', zerolinecolor: 'rgba(255,255,255,0.08)' },
+      yaxis: { gridcolor: 'rgba(255,255,255,0.04)', linecolor: 'rgba(255,255,255,0.06)', tickcolor: 'rgba(255,255,255,0.06)', zerolinecolor: 'rgba(255,255,255,0.08)' }
+    };
+
+    const PLOTLY_CONFIG = { displayModeBar: false, responsive: true };
+
+    function calcDailyPnl() {
+      const grouped = new Map();
+      allTickets().forEach(t => {
+        if (!grouped.has(t.date)) grouped.set(t.date, []);
+        grouped.get(t.date).push(t);
+      });
+      return [...grouped.entries()]
+        .sort((a,b) => a[0].localeCompare(b[0]))
+        .map(([date, items]) => ({
+          date,
+          label: new Date(`${date}T12:00:00`).toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+          pnl: items.reduce((sum, t) => sum + ticketProfit(t), 0),
+          wins: items.filter(i => isWin(i.result)).length,
+          losses: items.filter(i => isLoss(i.result)).length
+        }));
+    }
+
+    function calcBankrollByDay() {
+      const daily = calcDailyPnl();
+      let running = STARTING_BANKROLL + BANKROLL_CORRECTION;
+      return daily.map(d => {
+        running += d.pnl;
+        return { label: d.label, bankroll: running };
+      });
+    }
+
+    function renderBankrollChart(containerId) {
+      const el = document.getElementById(containerId);
+      if (!el || typeof Plotly === 'undefined') return;
+      const data = calcBankrollByDay();
+      if (!data.length) return;
+      const x = data.map(d => d.label);
+      const y = data.map(d => d.bankroll);
+      Plotly.newPlot(el, [{
+        x, y,
+        type: 'scatter',
+        mode: 'lines+markers',
+        line: { color: '#00e676', width: 2.5, shape: 'spline' },
+        marker: { color: '#00e676', size: 7, line: { color: '#08090d', width: 2 } },
+        fill: 'tozeroy',
+        fillcolor: 'rgba(0,230,118,0.07)',
+        hovertemplate: '<b>%{x}</b><br>$%{y:.2f}<extra></extra>'
+      }], {
+        ...PLOTLY_BASE_LAYOUT,
+        height: 200,
+        yaxis: { ...PLOTLY_BASE_LAYOUT.yaxis, tickprefix: '$', tickformat: '.0f' },
+        shapes: [{
+          type: 'line',
+          x0: 0, x1: 1, xref: 'paper',
+          y0: STARTING_BANKROLL + BANKROLL_CORRECTION,
+          y1: STARTING_BANKROLL + BANKROLL_CORRECTION,
+          line: { color: 'rgba(255,255,255,0.15)', width: 1, dash: 'dot' }
+        }]
+      }, PLOTLY_CONFIG);
+    }
+
+    function renderDailyPnlChart(containerId) {
+      const el = document.getElementById(containerId);
+      if (!el || typeof Plotly === 'undefined') return;
+      const daily = calcDailyPnl();
+      if (!daily.length) return;
+      const x = daily.map(d => d.label);
+      const y = daily.map(d => d.pnl);
+      const colors = y.map(v => v >= 0 ? '#00e676' : '#ff3d57');
+      Plotly.newPlot(el, [{
+        x, y,
+        type: 'bar',
+        marker: { color: colors, opacity: 0.85 },
+        hovertemplate: '<b>%{x}</b><br>%{y:+.2f}<extra></extra>'
+      }], {
+        ...PLOTLY_BASE_LAYOUT,
+        height: 180,
+        yaxis: { ...PLOTLY_BASE_LAYOUT.yaxis, tickprefix: '$', zeroline: true, zerolinecolor: 'rgba(255,255,255,0.15)', zerolinewidth: 1 }
+      }, PLOTLY_CONFIG);
+    }
+
+    function renderRoiByTypeChart(containerId) {
+      const el = document.getElementById(containerId);
+      if (!el || typeof Plotly === 'undefined') return;
+      const typeStats = groupedStats(allTickets(), t => t.type, ["spread", "total", "ml", "parlay"]);
+      const filtered = typeStats.filter(s => s.count > 0);
+      if (!filtered.length) return;
+      const labels = filtered.map(s => s.label);
+      const values = filtered.map(s => {
+        const settled = allTickets().filter(t => t.type === s.key && isSettled(t.result));
+        const risked = settled.reduce((sum, t) => sum + unitToDollars(t.units), 0);
+        const profit = settled.reduce((sum, t) => sum + ticketProfit(t), 0);
+        return risked > 0 ? (profit / risked) * 100 : 0;
+      });
+      const colors = values.map(v => v >= 0 ? '#00e676' : '#ff3d57');
+      Plotly.newPlot(el, [{
+        x: values,
+        y: labels,
+        type: 'bar',
+        orientation: 'h',
+        marker: { color: colors, opacity: 0.85 },
+        hovertemplate: '<b>%{y}</b><br>ROI: %{x:.1f}%<extra></extra>'
+      }], {
+        ...PLOTLY_BASE_LAYOUT,
+        height: 180,
+        margin: { ...PLOTLY_BASE_LAYOUT.margin, l: 72 },
+        xaxis: { ...PLOTLY_BASE_LAYOUT.xaxis, ticksuffix: '%', zeroline: true, zerolinecolor: 'rgba(255,255,255,0.15)', zerolinewidth: 1 },
+        yaxis: { ...PLOTLY_BASE_LAYOUT.yaxis }
+      }, PLOTLY_CONFIG);
+    }
+
+    function renderStatsCharts() {
+      renderBankrollChart('chart-bankroll');
+      renderDailyPnlChart('chart-daily-pnl');
+      renderRoiByTypeChart('chart-roi-type');
     }
 
     // === RENDER: STATS TAB ===
@@ -2836,74 +3045,82 @@
       const isUp = bankroll > STARTING_BANKROLL;
       const isDown = bankroll < STARTING_BANKROLL;
 
-      // Streak calculation
+      // Streak
       const settled = allTickets().filter(t => isSettled(t.result)).sort((a, b) => `${a.date}${a.gameTime||""}`.localeCompare(`${b.date}${b.gameTime||""}`));
-      let currentStreak = 0, currentStreakType = null, bestWinStreak = 0, tmpWin = 0;
+      let currentStreak = 0, currentStreakType = null, bestWinStreak = 0, tmpWin = 0, worstLossStreak = 0, tmpLoss = 0;
       for (const t of settled) {
         const w = isWin(t.result);
         if (currentStreakType === null) { currentStreakType = w; currentStreak = 1; }
         else if (w === currentStreakType) { currentStreak++; }
         else { currentStreakType = w; currentStreak = 1; }
-        if (w) { tmpWin++; bestWinStreak = Math.max(bestWinStreak, tmpWin); } else { tmpWin = 0; }
+        if (w) { tmpWin++; tmpLoss = 0; bestWinStreak = Math.max(bestWinStreak, tmpWin); }
+        else { tmpLoss++; tmpWin = 0; worstLossStreak = Math.max(worstLossStreak, tmpLoss); }
       }
       const streakLabel = settled.length ? `${currentStreakType ? "W" : "L"}${currentStreak}` : "—";
 
-      // Daily P&L
-      const grouped = new Map();
-      allTickets().forEach(t => { if (!grouped.has(t.date)) grouped.set(t.date, []); grouped.get(t.date).push(t); });
-      const dailyRows = [...grouped.entries()].sort((a, b) => b[0].localeCompare(a[0])).map(([date, items]) => {
-        const pnl = items.reduce((sum, t) => sum + ticketProfit(t), 0);
-        const wins = items.filter(t => isWin(t.result)).length;
-        const losses = items.filter(t => isLoss(t.result)).length;
-        return { date, pnl, wins, losses, count: items.length };
-      });
-
       // Type stats
-      const tickets = allTickets();
-      const typeStats = groupedStats(tickets, t => t.type, ["spread", "total", "ml", "parlay"]);
+      const typeStats = groupedStats(allTickets(), t => t.type, ["spread", "total", "ml", "parlay"]);
+      const maxAbsProfit = Math.max(...typeStats.map(s => Math.abs(s.profit)), 1);
 
       container.innerHTML = `
-        <div class="stats-hero">
-          <div class="stats-kpi-card"><div class="stats-kpi-label">Bankroll</div><div class="stats-kpi-value ${isUp ? "green" : isDown ? "red" : ""}">${formatCurrency(bankroll, { signed: false })}</div></div>
-          <div class="stats-kpi-card"><div class="stats-kpi-label">Record</div><div class="stats-kpi-value">${overall.wins}-${overall.losses}</div></div>
-          <div class="stats-kpi-card"><div class="stats-kpi-label">ROI</div><div class="stats-kpi-value ${summary.roi >= 0 ? "green" : "red"}">${formatPercent(summary.roi)}</div></div>
-          <div class="stats-kpi-card"><div class="stats-kpi-label">Win Rate</div><div class="stats-kpi-value">${formatPercent(summary.winRate)}</div></div>
-        </div>
-
-        <div class="stats-section glass-card">
-          <div class="stats-section-title">ROI by Bet Type</div>
-          ${typeStats.map(stat => `
-            <div class="type-stat-row">
-              <div class="type-stat-label">${stat.label}</div>
-              <div class="type-stat-record">${stat.record}</div>
-              <div class="type-stat-bar"><div class="type-stat-fill" style="width:${Math.max(stat.hitRate,0).toFixed(1)}%"></div></div>
-              <div class="type-stat-pct ${stat.profit >= 0 ? "green" : "red"}">${formatPercent(stat.hitRate)}</div>
-            </div>
-          `).join("")}
-        </div>
-
-        <div class="stats-section glass-card">
-          <div class="stats-section-title">Streak Tracker</div>
-          <div class="streak-row">
-            <div class="streak-current ${currentStreakType ? "green" : "red"}">${streakLabel}</div>
-            <div class="streak-best">Best win streak: W${bestWinStreak} · ${summary.settledCount} settled</div>
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">Bankroll</div>
+            <div class="kpi-value ${isUp ? "green" : isDown ? "red" : ""}">${formatCurrency(bankroll, { signed: false })}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Record</div>
+            <div class="kpi-value">${overall.wins}–${overall.losses}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">ROI</div>
+            <div class="kpi-value ${summary.roi >= 0 ? "green" : "red"}">${formatPercent(summary.roi)}</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Win Rate</div>
+            <div class="kpi-value">${formatPercent(summary.winRate)}</div>
           </div>
         </div>
 
-        <div class="stats-section glass-card">
+        <div class="stats-section">
+          <div class="stats-section-title">Bankroll Curve</div>
+          <div class="chart-container" id="chart-bankroll"></div>
+        </div>
+
+        <div class="stats-section">
           <div class="stats-section-title">Daily P&amp;L</div>
-          ${dailyRows.map(row => `
-            <div class="daily-row">
-              <div class="daily-date">${new Date(row.date + "T12:00:00").toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" })}</div>
-              <div class="daily-record">${row.wins}W-${row.losses}L</div>
-              <div class="daily-pnl ${row.pnl >= 0 ? "green" : "red"}">${formatCurrency(row.pnl)}</div>
-            </div>
-          `).join("")}
+          <div class="chart-container" id="chart-daily-pnl"></div>
+        </div>
+
+        <div class="stats-section">
+          <div class="stats-section-title">ROI by Bet Type</div>
+          <div class="chart-container" id="chart-roi-type"></div>
+          <div style="margin-top:14px">
+            ${typeStats.filter(s => s.count > 0).map(stat => `
+              <div class="type-row">
+                <div class="type-row-label">${stat.label}</div>
+                <div class="type-row-record">${stat.record}</div>
+                <div class="type-bar-track"><div class="type-bar-fill ${stat.profit >= 0 ? "positive" : "negative"}" style="width:${Math.min((Math.abs(stat.profit)/maxAbsProfit)*100,100).toFixed(1)}%"></div></div>
+                <div class="type-row-pnl ${stat.profit >= 0 ? "positive" : "negative"}">${formatCurrency(stat.profit)}</div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+
+        <div class="stats-section">
+          <div class="stats-section-title">Streak Tracker</div>
+          <div class="streak-block">
+            <div class="streak-current-big ${currentStreakType ? "green" : "red"}">${streakLabel}</div>
+            <div class="streak-sub">Best: W${bestWinStreak} · Worst: L${worstLossStreak} · ${summary.settledCount} settled</div>
+          </div>
         </div>
       `;
+
+      // Render Plotly charts after DOM is ready
+      requestAnimationFrame(() => renderStatsCharts());
     }
 
-    // === RENDER: FULL ===
+    // === FULL RENDER ===
     function render() {
       renderHeader();
       renderLiveTab();
@@ -2914,12 +3131,12 @@
 
     // === EVENT HANDLERS ===
     function attachEvents() {
-      // Tab switching (all [data-tab] buttons)
       document.addEventListener("click", e => {
+        // Tab switching
         const tabBtn = e.target.closest("[data-tab]");
         if (tabBtn) { switchTab(tabBtn.dataset.tab); renderHeader(); return; }
 
-        // Bets filter chips
+        // Bets filter
         const filterBtn = e.target.closest("[data-mobile-filter]");
         if (filterBtn) { state.mobileAllBetsFilter = filterBtn.dataset.mobileFilter; renderBetsTab(); return; }
 
@@ -2927,11 +3144,13 @@
         const expandBtn = e.target.closest("[data-expand-id]");
         if (expandBtn) {
           const id = String(expandBtn.dataset.expandId);
-          if (state.expandedBets.has(id)) state.expandedBets.delete(id);
-          else state.expandedBets.add(id);
-          renderBetsTab();
-          return;
+          if (state.expandedBets.has(id)) state.expandedBets.delete(id); else state.expandedBets.add(id);
+          renderBetsTab(); return;
         }
+
+        // Date pill in picks
+        const datePillBtn = e.target.closest("[data-pick-date]");
+        if (datePillBtn) { state.selectedPickDate = datePillBtn.dataset.pickDate; renderPicksTab(); return; }
 
         // AI pick actions
         const aiPickExpandBtn = e.target.closest("[data-ai-pick-expand]");
@@ -2960,11 +3179,9 @@
         updateAiPickDraft(input.dataset.aiPickInput, input.dataset.aiPickField, input.value);
       });
 
-      // Keyboard shortcuts
+      // Keyboard
       document.addEventListener("keydown", e => {
-        if (e.key === "Escape") {
-          if (state.editingAiPickId != null) { cancelAiPickEditor(state.editingAiPickId); return; }
-        }
+        if (e.key === "Escape" && state.editingAiPickId != null) { cancelAiPickEditor(state.editingAiPickId); return; }
         if (e.key === "Enter") {
           const input = e.target.closest("[data-ai-pick-input]");
           if (!input) return;
@@ -2974,7 +3191,7 @@
       });
     }
 
-    // === INITIALIZATION ===
+    // === INIT ===
     function init() {
       loadState();
       attachEvents();
@@ -2983,10 +3200,10 @@
       fetchLiveScores();
       fetchEspnClock();
       fetchEspnPlayerStats();
-      setInterval(fetchLiveScores, 180000);    // 3 minutes
-      setInterval(fetchOddsData, 300000);       // 5 minutes
-      setInterval(fetchEspnClock, 30000);       // 30 seconds
-      setInterval(fetchEspnPlayerStats, 30000); // 30 seconds
+      setInterval(fetchLiveScores, 180000);
+      setInterval(fetchOddsData, 300000);
+      setInterval(fetchEspnClock, 30000);
+      setInterval(fetchEspnPlayerStats, 30000);
     }
 
     init();
