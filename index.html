@@ -1576,8 +1576,8 @@
       { id: "P8", date: "2026-03-21", name: "SGP: VCU @ Illinois", gameTime: "7:10 PM ET", legs: ["VCU +11.5", "VCU/Illinois Over 151.5"], units: 0.5, line: 257, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: true, result: "loss", payout: 0, legStates: { "VCU +11.5": { result: "loss", score: "VCU 55 - Illinois 76" }, "VCU/Illinois Over 151.5": { result: "loss", score: "131 total" } }, notes: "🚀 SGP. Both legs dead. VCU lost by 21, total only 131." },
       { id: "P9", date: "2026-03-21", name: "Duke Player Props", gameTime: "7:10 PM ET", linkedTeam: "Duke", legs: ["Cameron Boozer 20+ pts", "Cayden Boozer 10+ pts", "Isaiah Evans 2+ threes"], units: 1, line: 125, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: false, result: "loss", payout: 0, legStates: { "Cameron Boozer 20+ pts": { result: "loss", score: "19 pts" }, "Cayden Boozer 10+ pts": { result: "loss", score: "9 pts" }, "Isaiah Evans 2+ threes": { result: "win", score: "2 threes" } }, notes: "Duke blowout parlay. Cam 19 (needed 20), Cayden 9 (needed 10). Evans hit threes but doesn't matter." },
       { id: "P10", date: "2026-03-22", name: "Carabao Cup Final", gameTime: "12:30 PM ET", sport: "soccer", linkedTeam: "Arsenal", legs: ["Saka 2+ shots", "Gyökeres 2+ shots", "Arsenal to lift trophy"], units: 2.1, line: 350, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: false, result: "loss", payout: 0, legStates: { "Saka 2+ shots": { result: "placed" }, "Gyökeres 2+ shots": { result: "placed" }, "Arsenal to lift trophy": { result: "loss" } }, notes: "Carabao Cup Final. Arsenal didn't win — parlay dead." },
-      { id: "P11", date: "2026-03-22", name: "Florida ML + Virginia +6.5", gameTime: "7:10 PM ET", sport: "ncaab", legs: ["Florida ML", "Virginia +6.5"], units: 1, line: 147, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: false, result: "placed", payout: 0, legStates: { "Florida ML": { result: "placed" }, "Virginia +6.5": { result: "placed" } }, notes: "2-leg parlay boost +147 (incl 2.5% boost). $25 → $62.73." },
-      { id: "P12", date: "2026-03-22", name: "UConn + Texas Tech + Florida ML", gameTime: "9:45 PM ET", sport: "ncaab", legs: ["Connecticut ML", "Texas Tech ML", "Florida ML"], units: 1, line: 227, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: false, result: "placed", payout: 0, legStates: { "Connecticut ML": { result: "placed" }, "Texas Tech ML": { result: "placed" }, "Florida ML": { result: "placed" } }, notes: "3-leg ML parlay +227 (5% boost, +$2.84). $25 → $84.81. Early payout legs." }
+      { id: "P11", date: "2026-03-22", name: "Florida ML + Virginia +6.5", gameTime: "7:10 PM ET", sport: "ncaab", legs: ["Florida ML", "Virginia +6.5"], units: 1, line: 147, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: false, result: "loss", payout: 0, legStates: { "Florida ML": { result: "loss", score: "Iowa 73 - Florida 72" }, "Virginia +6.5": { result: "loss", score: "Tennessee 79 - Virginia 72" } }, notes: "Both legs dead. Florida upset by Iowa 72-73. Virginia lost by 7 (needed +6.5)." },
+      { id: "P12", date: "2026-03-22", name: "UConn + Texas Tech + Florida ML", gameTime: "9:45 PM ET", sport: "ncaab", legs: ["Connecticut ML", "Texas Tech ML", "Florida ML"], units: 1, line: 227, book: BET_BOOK, type: "parlay", confidence: "high", sharpSignal: false, result: "loss", payout: 0, legStates: { "Connecticut ML": { result: "win", score: "UCLA 57 - UConn 73" }, "Texas Tech ML": { result: "loss", score: "Texas Tech 65 - Alabama 90" }, "Florida ML": { result: "loss", score: "Iowa 73 - Florida 72" } }, notes: "UConn won but Texas Tech and Florida both lost. Dead parlay." }
     ];
 
     const AI_PICKS = [
@@ -2694,10 +2694,69 @@
         }
         for (const parlay of parlays) {
           if (parlay.result !== "placed") continue;
-          const legResults = parlay.legs.map(leg => bets.find(b => b.pick === leg)?.result ?? null);
-          if (legResults.some(r => r === "loss")) { parlay.result = "loss"; updated = true; }
-          else if (legResults.length && legResults.every(r => r === "win")) { parlay.result = "win"; updated = true; }
-          else if (legResults.length && legResults.every(r => ["win","won","push"].includes(normalizeResult(r)))) { parlay.result = "push"; updated = true; }
+          let parlayUpdated = false;
+          for (const leg of parlay.legs) {
+            const currentLegState = parlay.legStates?.[leg]?.result;
+            if (currentLegState === "win" || currentLegState === "loss" || currentLegState === "push" || currentLegState === "won" || currentLegState === "lost") continue;
+            // First check if there's a matching individual bet
+            const matchingBet = bets.find(b => b.pick === leg);
+            if (matchingBet && (matchingBet.result === "win" || matchingBet.result === "won" || matchingBet.result === "loss" || matchingBet.result === "lost" || matchingBet.result === "push")) {
+              if (!parlay.legStates) parlay.legStates = {};
+              parlay.legStates[leg] = { result: normalizeResult(matchingBet.result), score: matchingBet.score || "" };
+              parlayUpdated = true;
+              continue;
+            }
+            // Direct evaluation against completed games
+            for (const game of games) {
+              if (!game.completed) continue;
+              const scores = game.scores;
+              if (!scores || scores.length < 2) continue;
+              const home = game.home_team, away = game.away_team;
+              const homeScore = parseInt(scores.find(s => s.name === home)?.score || 0, 10);
+              const awayScore = parseInt(scores.find(s => s.name === away)?.score || 0, 10);
+              const gameTeams = [away, home];
+              // Parse leg: "Team ML", "Team +/-X.X", "Team1/Team2 Over/Under X.X"
+              const mlMatch = leg.match(/^(.+?)\s+ML$/i);
+              const spreadMatch = leg.match(/^(.+?)\s+([+-][\d.]+)$/);
+              const totalMatch = leg.match(/^(.+?)\s+(Over|Under)\s+([\d.]+)$/i);
+              const teamFromLeg = mlMatch?.[1]?.trim() || spreadMatch?.[1]?.trim() || null;
+              const teamsFromTotal = totalMatch ? totalMatch[1].split("/").map(t => t.trim()) : [];
+              // Check if this game matches this leg
+              const legTeams = teamFromLeg ? [teamFromLeg] : teamsFromTotal;
+              if (!legTeams.length || !legTeams.some(t => gameTeams.some(gt => teamMatches(t, gt)))) continue;
+              const scoreStr = `${away} ${awayScore} - ${home} ${homeScore}`;
+              if (!parlay.legStates) parlay.legStates = {};
+              if (mlMatch) {
+                const pickTeam = mlMatch[1].trim();
+                const isHome = teamMatches(pickTeam, home);
+                const pickScore = isHome ? homeScore : awayScore;
+                const oppScore = isHome ? awayScore : homeScore;
+                parlay.legStates[leg] = { result: pickScore > oppScore ? "win" : pickScore < oppScore ? "loss" : "push", score: scoreStr };
+              } else if (spreadMatch) {
+                const pickTeam = spreadMatch[1].trim();
+                const spread = parseFloat(spreadMatch[2]);
+                const isHome = teamMatches(pickTeam, home);
+                const pickScore = isHome ? homeScore : awayScore;
+                const oppScore = isHome ? awayScore : homeScore;
+                const margin = pickScore - oppScore + spread;
+                parlay.legStates[leg] = { result: margin > 0 ? "win" : margin < 0 ? "loss" : "push", score: scoreStr };
+              } else if (totalMatch) {
+                const totalPts = homeScore + awayScore;
+                const line = parseFloat(totalMatch[3]);
+                const isUnder = /under/i.test(totalMatch[2]);
+                const legResult = totalPts < line ? (isUnder ? "win" : "loss") : totalPts > line ? (isUnder ? "loss" : "win") : "push";
+                parlay.legStates[leg] = { result: legResult, score: scoreStr };
+              }
+              parlayUpdated = true;
+              break;
+            }
+          }
+          if (parlayUpdated) {
+            const allLegResults = parlay.legs.map(leg => parlay.legStates?.[leg]?.result || null);
+            if (allLegResults.some(r => r === "loss" || r === "lost")) { parlay.result = "loss"; parlay.payout = 0; updated = true; }
+            else if (allLegResults.every(r => r === "win" || r === "won")) { parlay.result = "win"; parlay.payout = unitToDollars(parlay.units) + unitToDollars(parlay.units) * (parlay.line / 100); updated = true; }
+            else if (allLegResults.every(r => ["win","won","push"].includes(r))) { parlay.result = "push"; updated = true; }
+          }
         }
         if (updated) { saveState(); render(); return; }
         renderLiveTab();
