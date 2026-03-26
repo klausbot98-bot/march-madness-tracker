@@ -618,6 +618,25 @@
       "sport": "soccer",
       "notes": "WCQ Europe \u2014 Albania bus-parkers. $12.50 to win $45.00.",
       "status": "placed"
+    },
+    {
+      "id": 34,
+      "date": "2026-03-26",
+      "gameTime": "7:10 PM ET",
+      "game": "Texas vs Purdue",
+      "pick": "Texas/Purdue Over 147.5",
+      "line": -110,
+      "originalLine": -110,
+      "units": 0.88,
+      "amount": 22,
+      "book": "draftkings",
+      "type": "total",
+      "confidence": "high",
+      "result": "placed",
+      "status": "placed",
+      "payout": 0,
+      "sport": "ncaab",
+      "notes": "KenPom total 155.4 vs line 147.5 \u2014 7.9pt edge. Both teams elite offense, Texas pushes pace."
     }
   ],
   "parlays": [
