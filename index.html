@@ -1147,6 +1147,7 @@
             <div class="ticket-copy">${kelly ? `Kelly ${kelly.toFixed(1)}%` : "Use the edit sheet to tune the stake."}</div>
             <div class="ticket-actions">
               <button class="btn btn-primary" data-action="place-pick" data-pick-id="${escapeHtmlAttr(pick.id)}">Place Bet</button>
+              <button class="pick-pass-btn" data-action="pass-pick" data-pick-id="${escapeHtmlAttr(pick.id)}">Pass</button>
             </div>
           </div>
         </article>
@@ -1629,6 +1630,16 @@
         return;
       }
 
+      if (action === "pass-pick") {
+        const pickId = target.dataset.pickId;
+        if (pickId) {
+          aiPicks = aiPicks.filter(p => String(p.id) !== String(pickId));
+          saveLocalData();
+          renderTab();
+          renderHeader();
+        }
+        return;
+      }
       if (action === "place-pick") {
         openPlacePickSheet(target.dataset.pickId);
         return;
