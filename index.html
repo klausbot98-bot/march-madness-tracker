@@ -1927,9 +1927,8 @@
       if (game.completed === true) return true;
       if (String(game.status || "").toLowerCase() === "post") return true;
       if (String(game.displayTime || "").toLowerCase() === "final") return true;
-      const start = parseGameStartDate(game);
-      if (!start) return false;
-      return currentEtNow().getTime() >= start.getTime() + (3 * 60 * 60 * 1000);
+      // Removed 3-hour timeout — only trust API completed flag, never assume
+      return false;
     }
 
     function formatGameTime(dateValue) {
