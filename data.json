@@ -1146,6 +1146,21 @@
       "kellyPct": 3.0,
       "gameTime": "7:07 PM ET",
       "date": "2026-03-27"
+    },
+    {
+      "id": "mlb-2026-03-27-yankees-rl",
+      "date": "2026-03-27",
+      "sport": "mlb",
+      "game": "San Francisco Giants vs New York Yankees",
+      "pick": "New York Yankees -1.5",
+      "odds": 140,
+      "edgePts": 40.9,
+      "kellyPct": 3.0,
+      "confidence": 4,
+      "units": 3.0,
+      "gameTime": "4:36 PM ET",
+      "analysis": "Opening day core play. Model probability 82.6% vs market implied 41.7%. Main drivers: bullpen gap +6.0, split offense gap +1.2, projected margin Yankees by ~2.6 runs.",
+      "category": "core"
     }
   ]
 }
