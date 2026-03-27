@@ -1633,7 +1633,7 @@
       if (action === "pass-pick") {
         const pickId = target.dataset.pickId;
         if (pickId) {
-          aiPicks = aiPicks.filter(p => String(p.id) !== String(pickId));
+          state.data.aiPicks = state.data.aiPicks.filter(p => String(p.id) !== String(pickId));
           render();
         }
         return;
