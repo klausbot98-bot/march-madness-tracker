@@ -2812,25 +2812,48 @@
 
     async function loadState() {
       try {
+        // Always fetch fresh data.json first, then merge localStorage on top
+        const response = await fetch(DATA_URL + "?t=" + Date.now());
+        if (!response.ok) throw new Error("Failed to fetch " + DATA_URL);
+        const data = await response.json();
+        const serverBets = cloneData(data.bets).map(bet => ({ ...bet, result: sanitizeResult(bet.result) || (bet.status === "placed" ? "placed" : null) }));
+        const serverParlays = cloneData(data.parlays).map(parlay => ({ ...parlay, result: sanitizeResult(parlay.result) || (parlay.status === "placed" ? "placed" : null) }));
+        const serverPicks = cloneData(data.aiPicks).map(pick => ({ ...pick, expanded: Boolean(pick.expanded), status: pick.status || null }));
+
+        // Merge localStorage results on top (preserves live settling)
         const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
-        if (saved?.bets || saved?.parlays || saved?.aiPicks) {
-          bets = cloneData(saved.bets).map(bet => ({ ...bet, result: sanitizeResult(bet.result) || (bet.status === "placed" ? "placed" : null) }));
-          parlays = cloneData(saved.parlays).map(parlay => ({ ...parlay, result: sanitizeResult(parlay.result) || (parlay.status === "placed" ? "placed" : null) }));
-          aiPicks = cloneData(saved.aiPicks).map(pick => ({ ...pick, expanded: Boolean(pick.expanded), status: pick.status || null }));
-          return;
+        if (saved?.bets) {
+          const localBetMap = new Map(saved.bets.map(b => [b.id, b]));
+          serverBets.forEach(bet => {
+            const local = localBetMap.get(bet.id);
+            if (local && local.result && local.result !== "placed" && bet.result === "placed") {
+              bet.result = local.result;
+              bet.score = local.score || bet.score;
+              bet.payout = local.payout || bet.payout;
+            }
+          });
+          // Add any localStorage-only bets (added via Add Bet form)
+          saved.bets.forEach(lb => {
+            if (!serverBets.find(sb => sb.id === lb.id)) serverBets.push(lb);
+          });
         }
 
-        const response = await fetch(DATA_URL);
-        if (!response.ok) throw new Error(`Failed to fetch ${DATA_URL}`);
-        const data = await response.json();
-        bets = cloneData(data.bets).map(bet => ({ ...bet, result: sanitizeResult(bet.result), status: bet.status || null }));
-        parlays = cloneData(data.parlays).map(parlay => ({ ...parlay, result: sanitizeResult(parlay.result), status: parlay.status || null }));
-        aiPicks = cloneData(data.aiPicks).map(pick => ({ ...pick, expanded: Boolean(pick.expanded), status: pick.status || null }));
+        bets = serverBets;
+        parlays = serverParlays;
+        aiPicks = serverPicks;
         saveState();
       } catch(err) {
-        bets = [];
-        parlays = [];
-        aiPicks = [];
+        // Fallback to localStorage only if fetch fails
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+        if (saved?.bets) {
+          bets = cloneData(saved.bets);
+          parlays = cloneData(saved.parlays || []);
+          aiPicks = cloneData(saved.aiPicks || []);
+        } else {
+          bets = [];
+          parlays = [];
+          aiPicks = [];
+        }
       }
     }
 
