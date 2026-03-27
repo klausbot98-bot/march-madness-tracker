@@ -1,7 +1,7 @@
-const { updateData } = require("../../lib/data-store");
-const { readBody, sendJson, sendMethodNotAllowed } = require("../../lib/api-response");
+import { updateData } from "../../lib/data-store.js";
+import { readBody, sendJson, sendMethodNotAllowed } from "../../lib/api-response.js";
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== "PATCH") return sendMethodNotAllowed(req, res, ["PATCH"]);
 
   try {
@@ -32,4 +32,4 @@ module.exports = async function handler(req, res) {
   } catch (error) {
     sendJson(res, error.statusCode || 500, { error: error.message });
   }
-};
+}

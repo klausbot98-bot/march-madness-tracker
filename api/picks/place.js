@@ -1,7 +1,7 @@
-const { inferBetTypeFromPick, nextBetId, updateData } = require("../../lib/data-store");
-const { readBody, sendJson, sendMethodNotAllowed } = require("../../lib/api-response");
+import { inferBetTypeFromPick, nextBetId, updateData } from "../../lib/data-store.js";
+import { readBody, sendJson, sendMethodNotAllowed } from "../../lib/api-response.js";
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== "POST") return sendMethodNotAllowed(req, res, ["POST"]);
 
   try {
@@ -49,4 +49,4 @@ module.exports = async function handler(req, res) {
   } catch (error) {
     sendJson(res, error.statusCode || 500, { error: error.message });
   }
-};
+}

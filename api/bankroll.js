@@ -1,8 +1,8 @@
-const { readData } = require("../lib/data-store");
-const { summarizeData } = require("../lib/bankroll");
-const { sendJson, sendMethodNotAllowed } = require("../lib/api-response");
+import { summarizeData } from "../lib/bankroll.js";
+import { readData } from "../lib/data-store.js";
+import { sendJson, sendMethodNotAllowed } from "../lib/api-response.js";
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== "GET") return sendMethodNotAllowed(req, res, ["GET"]);
 
   try {
@@ -11,4 +11,4 @@ module.exports = async function handler(req, res) {
   } catch (error) {
     sendJson(res, 500, { error: error.message });
   }
-};
+}

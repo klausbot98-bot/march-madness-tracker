@@ -1615,8 +1615,7 @@
   <script>
     // === CONSTANTS & DATA ===
     const UNIT_SIZE = 25;
-    const STARTING_BANKROLL = 212.5;
-    const BANKROLL_CORRECTION = -13.58;
+    const DEFAULT_OPENING_CASH = 199.88;
     const API_COSTS = {
       kenpomCadYear: 133.91,
       oddsCadMonth: 42.28,
@@ -1635,10 +1634,12 @@
     const UI_STATE_KEY = "march-madness-2026-ui-v1";
     const API_ROUTES = {
       data: "/api/data",
+      bankroll: "/api/bankroll",
       bets: "/api/bets",
       picksPlace: "/api/picks/place",
       picks: "/api/picks",
-      parlays: "/api/parlays"
+      parlays: "/api/parlays",
+      settle: "/api/settle"
     };
 
     const TEAM_ALIASES = {
@@ -1729,6 +1730,7 @@
     let bets = [];
     let parlays = [];
     let aiPicks = [];
+    let bankrollMeta = { openingCash: DEFAULT_OPENING_CASH };
     let oddsData = [];
     let liveScoreData = [];
     let livePlayerStats = {};
@@ -1783,6 +1785,9 @@
       return response.json();
     }
     function applyServerData(data) {
+      bankrollMeta = {
+        openingCash: Number(data?.meta?.openingCash ?? DEFAULT_OPENING_CASH)
+      };
       bets = cloneData(data?.bets).map(bet => ({
         ...bet,
         result: sanitizeResult(bet.result) || (bet.status === "placed" ? "placed" : null)
@@ -1805,10 +1810,19 @@
         .replace(/'/g, "&#39;");
     }
     function unitToDollars(units) { return units * UNIT_SIZE; }
+    function ticketStake(item) {
+      const amount = Number(item?.amount);
+      if (Number.isFinite(amount) && amount > 0) return amount;
+      return Math.round(unitToDollars(Number(item?.units || 0)) * 100) / 100;
+    }
     function americanProfit(units, odds) {
       const stake = unitToDollars(units);
       if (odds > 0) return stake * (odds / 100);
       return stake * (100 / Math.abs(odds));
+    }
+    function openingCash() {
+      const value = Number(bankrollMeta?.openingCash);
+      return Number.isFinite(value) ? value : DEFAULT_OPENING_CASH;
     }
 
     function normalizeName(value) {
@@ -2023,22 +2037,24 @@
     function isLiveTabEligibleResult(result) { const n = normalizeResult(result); return n == null || n === "placed"; }
 
     function ticketProfit(item) {
-      if (item.result === "placed") return -unitToDollars(item.units);
+      const stake = ticketStake(item);
+      if (item.result === "placed") return -stake;
       if (isWin(item.result)) {
-        if (item.payout) return item.payout - unitToDollars(item.units);
+        if (item.payout) return item.payout - stake;
         return americanProfit(item.units, item.line);
       }
-      if (isLoss(item.result)) return -unitToDollars(item.units);
+      if (isLoss(item.result)) return -stake;
       return 0;
     }
 
     function ticketReturn(item) {
+      const stake = ticketStake(item);
       if (!item.result || item.result === "placed") return 0;
       if (isWin(item.result)) {
         if (item.payout != null) return item.payout;
-        return unitToDollars(item.units) + americanProfit(item.units, item.line);
+        return stake + americanProfit(item.units, item.line);
       }
-      if (normalizeResult(item.result) === "push") return unitToDollars(item.units);
+      if (normalizeResult(item.result) === "push") return stake;
       return 0;
     }
 
@@ -2122,21 +2138,22 @@
       const settledTickets = tickets.filter(item => isSettled(item.result));
       const placedTickets = tickets.filter(item => item.result === "placed");
       const activeTickets = tickets.filter(item => isPlaced(item.result));
-      const totalWagered = activeTickets.reduce((sum, item) => sum + unitToDollars(item.units), 0);
+      const totalWagered = activeTickets.reduce((sum, item) => sum + ticketStake(item), 0);
       const totalReturned = settledTickets.reduce((sum, item) => sum + ticketReturn(item), 0);
       const realized = tickets.reduce((sum, item) => sum + ticketProfit(item), 0);
-      const settledRisked = settledTickets.reduce((sum, item) => sum + unitToDollars(item.units), 0);
+      const settledRisked = settledTickets.reduce((sum, item) => sum + ticketStake(item), 0);
       const wins = settledTickets.filter(item => isWin(item.result)).length;
       const losses = settledTickets.filter(item => isLoss(item.result)).length;
       const pushes = settledTickets.filter(item => item.result === "push").length;
       const placedCount = placedTickets.length;
       const notPlaced = tickets.filter(item => !item.result).length;
-      const atRisk = placedTickets.reduce((sum, item) => sum + unitToDollars(item.units), 0);
+      const atRisk = placedTickets.reduce((sum, item) => sum + ticketStake(item), 0);
       const roi = settledRisked ? (realized / settledRisked) * 100 : 0;
       const winRate = (wins + losses) ? (wins / (wins + losses)) * 100 : 0;
       const totalWon = settledTickets.filter(item => isWin(item.result)).reduce((sum, item) => sum + ticketProfit(item), 0);
       const totalLost = Math.abs(settledTickets.filter(item => isLoss(item.result)).reduce((sum, item) => sum + ticketProfit(item), 0));
-      return { totalWagered, totalReturned, realized, roi, winRate, wins, losses, pushes, placedCount, atRisk, notPlaced, settledCount: settledTickets.length, totalWon, totalLost };
+      const bankroll = openingCash() - totalWagered + totalReturned;
+      return { totalWagered, totalReturned, realized, roi, winRate, wins, losses, pushes, placedCount, atRisk, notPlaced, settledCount: settledTickets.length, totalWon, totalLost, bankroll };
     }
 
     function overallRecord(items) {
@@ -2327,8 +2344,7 @@
     }
 
     function getLiveBankroll() {
-      const summary = summarize();
-      return STARTING_BANKROLL + summary.realized + BANKROLL_CORRECTION;
+      return summarize().bankroll;
     }
 
     function kellyDollarAmount(kellyPct, bankroll) {
@@ -2878,8 +2894,7 @@
     }
 
     function getLiveBankroll() {
-      const summary = summarize();
-      return STARTING_BANKROLL + summary.realized + BANKROLL_CORRECTION;
+      return summarize().bankroll;
     }
 
     function kellyDollarAmount(kellyPct, bankroll) {
@@ -2893,8 +2908,6 @@
     async function fetchLiveScores() {
       try {
         const allGames = [];
-        const betPatches = new Map();
-        const parlayPatches = new Map();
         const fetches = [SPORT, ...EXTRA_SCORE_SPORTS].map(async sk => {
           try {
             const r = await fetch(`${ODDS_API_BASE}/sports/${sk}/scores/?apiKey=${ODDS_API_KEY}&daysFrom=1`);
@@ -2904,152 +2917,13 @@
         await Promise.all(fetches);
         const games = allGames;
         liveScoreData = games.map(parseOddsScoreGame).filter(Boolean);
-        let updated = false;
-        for (const game of games) {
-          if (!game.completed) continue;
-          const scores = game.scores;
-          if (!scores || scores.length < 2) continue;
-          const home = game.home_team, away = game.away_team;
-          const homeScore = parseInt(scores.find(s => s.name === home)?.score || 0, 10);
-          const awayScore = parseInt(scores.find(s => s.name === away)?.score || 0, 10);
-          const totalPoints = homeScore + awayScore;
-          const scoreStr = `${away} ${awayScore} - ${home} ${homeScore}`;
-          for (const bet of bets) {
-            if (bet.result !== "placed") continue;
-            const gameTeams = [away, home];
-            if (!betMatchesGame(bet, gameTeams)) continue;
-            let betUpdated = false;
-            bet.score = scoreStr;
-            if (bet.type === "spread") {
-              const pickParts = bet.pick.match(/(.+?)\s([+-][\d.]+)/);
-              if (pickParts) { const pickTeam = pickParts[1].trim(), spread = parseFloat(pickParts[2]); const isHome = teamMatches(pickTeam, home); const pickScore = isHome ? homeScore : awayScore, oppScore = isHome ? awayScore : homeScore; const margin = pickScore - oppScore + spread; bet.result = margin > 0 ? "win" : margin < 0 ? "loss" : "push"; betUpdated = true; updated = true; }
-            }
-            if (bet.type === "total") {
-              const isUnder = /under|u/i.test(bet.pick), totalLine = parseFloat(bet.pick.match(/[\d.]+/)?.[0] || 0);
-              if (totalPoints < totalLine) bet.result = isUnder ? "win" : "loss";
-              else if (totalPoints > totalLine) bet.result = isUnder ? "loss" : "win";
-              else bet.result = "push";
-              betUpdated = true;
-              updated = true;
-            }
-            if (bet.type === "moneyline" || bet.type === "ml") {
-              const pickTeamMatch = bet.pick.match(/^(.+?)\s+ML$/i) || bet.pick.match(/^(.+?)$/);
-              if (pickTeamMatch) {
-                const pickTeam = pickTeamMatch[1].trim();
-                const isHome = teamMatches(pickTeam, home);
-                const pickScore = isHome ? homeScore : awayScore;
-                const oppScore = isHome ? awayScore : homeScore;
-                bet.result = pickScore > oppScore ? "win" : pickScore < oppScore ? "loss" : "push";
-                if (bet.result === "win") { bet.payout = unitToDollars(bet.units) + unitToDollars(bet.units) * (bet.line > 0 ? bet.line / 100 : 100 / Math.abs(bet.line)); }
-                else { bet.payout = 0; }
-                betUpdated = true;
-                updated = true;
-              }
-            }
-            if (betUpdated && bet.result !== "placed") {
-              bet.status = bet.result;
-              betPatches.set(String(bet.id), {
-                result: bet.result,
-                status: bet.status,
-                score: bet.score,
-                payout: bet.payout ?? 0
-              });
-            }
-          }
-        }
-        for (const parlay of parlays) {
-          if (parlay.result !== "placed") continue;
-          let parlayUpdated = false;
-          for (const leg of parlay.legs) {
-            const currentLegState = parlay.legStates?.[leg]?.result;
-            if (currentLegState === "win" || currentLegState === "loss" || currentLegState === "push" || currentLegState === "won" || currentLegState === "lost") continue;
-            // First check if there's a matching individual bet
-            const matchingBet = bets.find(b => b.pick === leg);
-            if (matchingBet && (matchingBet.result === "win" || matchingBet.result === "won" || matchingBet.result === "loss" || matchingBet.result === "lost" || matchingBet.result === "push")) {
-              if (!parlay.legStates) parlay.legStates = {};
-              parlay.legStates[leg] = { result: normalizeResult(matchingBet.result), score: matchingBet.score || "" };
-              parlayUpdated = true;
-              continue;
-            }
-            // Direct evaluation against completed games
-            for (const game of games) {
-              if (!game.completed) continue;
-              const scores = game.scores;
-              if (!scores || scores.length < 2) continue;
-              const home = game.home_team, away = game.away_team;
-              const homeScore = parseInt(scores.find(s => s.name === home)?.score || 0, 10);
-              const awayScore = parseInt(scores.find(s => s.name === away)?.score || 0, 10);
-              const gameTeams = [away, home];
-              // Parse leg: "Team ML", "Team +/-X.X", "Team1/Team2 Over/Under X.X"
-              const mlMatch = leg.match(/^(.+?)\s+ML$/i);
-              const spreadMatch = leg.match(/^(.+?)\s+([+-][\d.]+)$/);
-              const totalMatch = leg.match(/^(.+?)\s+(Over|Under)\s+([\d.]+)$/i);
-              const teamFromLeg = mlMatch?.[1]?.trim() || spreadMatch?.[1]?.trim() || null;
-              const teamsFromTotal = totalMatch ? totalMatch[1].split("/").map(t => t.trim()) : [];
-              // Check if this game matches this leg
-              const legTeams = teamFromLeg ? [teamFromLeg] : teamsFromTotal;
-              if (!legTeams.length || !legTeams.some(t => gameTeams.some(gt => teamMatches(t, gt)))) continue;
-              const scoreStr = `${away} ${awayScore} - ${home} ${homeScore}`;
-              if (!parlay.legStates) parlay.legStates = {};
-              if (mlMatch) {
-                const pickTeam = mlMatch[1].trim();
-                const isHome = teamMatches(pickTeam, home);
-                const pickScore = isHome ? homeScore : awayScore;
-                const oppScore = isHome ? awayScore : homeScore;
-                parlay.legStates[leg] = { result: pickScore > oppScore ? "win" : pickScore < oppScore ? "loss" : "push", score: scoreStr };
-              } else if (spreadMatch) {
-                const pickTeam = spreadMatch[1].trim();
-                const spread = parseFloat(spreadMatch[2]);
-                const isHome = teamMatches(pickTeam, home);
-                const pickScore = isHome ? homeScore : awayScore;
-                const oppScore = isHome ? awayScore : homeScore;
-                const margin = pickScore - oppScore + spread;
-                parlay.legStates[leg] = { result: margin > 0 ? "win" : margin < 0 ? "loss" : "push", score: scoreStr };
-              } else if (totalMatch) {
-                const totalPts = homeScore + awayScore;
-                const line = parseFloat(totalMatch[3]);
-                const isUnder = /under/i.test(totalMatch[2]);
-                const legResult = totalPts < line ? (isUnder ? "win" : "loss") : totalPts > line ? (isUnder ? "loss" : "win") : "push";
-                parlay.legStates[leg] = { result: legResult, score: scoreStr };
-              }
-              parlayUpdated = true;
-              break;
-            }
-          }
-          if (parlayUpdated) {
-            const allLegResults = parlay.legs.map(leg => parlay.legStates?.[leg]?.result || null);
-            if (allLegResults.some(r => r === "loss" || r === "lost")) { parlay.result = "loss"; parlay.payout = 0; updated = true; }
-            else if (allLegResults.every(r => r === "win" || r === "won")) { parlay.result = "win"; parlay.payout = unitToDollars(parlay.units) + unitToDollars(parlay.units) * (parlay.line / 100); updated = true; }
-            else if (allLegResults.every(r => ["win","won","push"].includes(r))) { parlay.result = "push"; updated = true; }
-            if (parlay.result !== "placed") {
-              parlay.status = parlay.result;
-              parlayPatches.set(String(parlay.id), {
-                result: parlay.result,
-                status: parlay.status,
-                payout: parlay.payout ?? 0,
-                legStates: parlay.legStates || {}
-              });
-            }
-          }
-        }
-        if (updated) {
-          await Promise.all([
-            ...[...betPatches.entries()].map(([id, payload]) =>
-              apiFetchJson(`${API_ROUTES.bets}/${encodeURIComponent(id)}`, {
-                method: "PATCH",
-                body: JSON.stringify(payload)
-              })
-            ),
-            ...[...parlayPatches.entries()].map(([id, payload]) =>
-              apiFetchJson(`${API_ROUTES.parlays}/${encodeURIComponent(id)}`, {
-                method: "PATCH",
-                body: JSON.stringify(payload)
-              })
-            )
-          ]);
-          await loadState();
+        try {
+          const data = await apiFetchJson(API_ROUTES.settle, { method: "POST" });
+          applyServerData(data);
           render();
           return;
+        } catch (error) {
+          console.log("Settlement sync error:", error);
         }
         renderLiveTab();
       } catch(e) { console.log("Score fetch error:", e); }
@@ -3076,10 +2950,10 @@
     // === RENDER: HEADER ===
     function renderHeader() {
       const summary = summarize();
-      const bankroll = STARTING_BANKROLL + summary.realized + BANKROLL_CORRECTION;
+      const bankroll = summary.bankroll;
       const today = todayMetrics();
-      const isUp = bankroll > STARTING_BANKROLL;
-      const isDown = bankroll < STARTING_BANKROLL;
+      const isUp = bankroll > openingCash();
+      const isDown = bankroll < openingCash();
       const bankrollStr = formatCurrency(bankroll, { signed: false });
       const metaStr = `${formatCurrency(today.pnl)} today · ${today.record.wins}W-${today.record.losses}L`;
       const dateStr = formatHeaderDate();
@@ -3149,7 +3023,7 @@
       const summary = summarize();
       const counts = aiPickCounts(selectedDate);
       const picks = visibleAiPicksForDate(selectedDate);
-      const bankroll = STARTING_BANKROLL + summary.realized + BANKROLL_CORRECTION;
+      const bankroll = summary.bankroll;
       const exposureDollars = picks.reduce((sum, p) => sum + unitToDollars(Number(p.units)||0), 0);
       const potentialReturn = picks.reduce((sum, p) => sum + americanProfit(Number(p.units)||0, Number(p.odds)||-110), 0);
 
@@ -3300,12 +3174,21 @@
     }
 
     function calcBankrollByDay() {
-      const daily = calcDailyPnl();
-      let running = STARTING_BANKROLL + BANKROLL_CORRECTION;
-      return daily.map(d => {
-        running += d.pnl;
-        return { label: d.label, bankroll: running };
+      const grouped = new Map();
+      allTickets().forEach(t => {
+        if (!grouped.has(t.date)) grouped.set(t.date, []);
+        grouped.get(t.date).push(t);
       });
+      let running = openingCash();
+      return [...grouped.entries()]
+        .sort((a, b) => a[0].localeCompare(b[0]))
+        .map(([date, items]) => {
+          running += items.reduce((sum, item) => sum - ticketStake(item) + ticketReturn(item), 0);
+          return {
+            label: new Date(`${date}T12:00:00`).toLocaleDateString(undefined, { month: "short", day: "numeric" }),
+            bankroll: running
+          };
+        });
     }
 
     function renderBankrollChart(containerId) {
@@ -3331,8 +3214,8 @@
         shapes: [{
           type: 'line',
           x0: 0, x1: 1, xref: 'paper',
-          y0: STARTING_BANKROLL + BANKROLL_CORRECTION,
-          y1: STARTING_BANKROLL + BANKROLL_CORRECTION,
+          y0: openingCash(),
+          y1: openingCash(),
           line: { color: 'rgba(255,255,255,0.15)', width: 1, dash: 'dot' }
         }]
       }, PLOTLY_CONFIG);
@@ -3399,10 +3282,10 @@
       const container = document.getElementById("statsContent");
       if (!container) return;
       const summary = summarize();
-      const bankroll = STARTING_BANKROLL + summary.realized + BANKROLL_CORRECTION;
+      const bankroll = summary.bankroll;
       const overall = overallRecord(allTickets());
-      const isUp = bankroll > STARTING_BANKROLL;
-      const isDown = bankroll < STARTING_BANKROLL;
+      const isUp = bankroll > openingCash();
+      const isDown = bankroll < openingCash();
 
       // Streak
       const settled = allTickets().filter(t => isSettled(t.result)).sort((a, b) => `${a.date}${a.gameTime||""}`.localeCompare(`${b.date}${b.gameTime||""}`));
