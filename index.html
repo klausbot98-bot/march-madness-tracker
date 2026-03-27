@@ -1634,9 +1634,6 @@
         const pickId = target.dataset.pickId;
         if (pickId) {
           aiPicks = aiPicks.filter(p => String(p.id) !== String(pickId));
-          try {
-            apiFetch(API_ROUTES.picks + "/" + encodeURIComponent(pickId), { method: "DELETE" });
-          } catch (e) {}
           render();
         }
         return;
