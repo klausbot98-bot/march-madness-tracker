@@ -2196,22 +2196,21 @@
     }
 
     function passAiPick(id) {
-      const pick = aiPicks.find(entry => String(entry.id) === String(id));
-      if (!pick) return;
+      const index = aiPicks.findIndex(entry => String(entry.id) === String(id));
+      if (index === -1) return;
       const key = String(id);
       state.fadingPickIds.add(key);
       renderPicksTab();
       window.setTimeout(() => {
         state.fadingPickIds.delete(key);
-        pick.status = "passed";
+        aiPicks.splice(index, 1);
         saveState();
         renderPicksTab();
       }, 300);
     }
 
     function toggleShowAllPassedPicks() {
-      state.showAllPassedPicks = !state.showAllPassedPicks;
-      renderPicksTab();
+      return;
     }
 
     function toggleAiPickExpanded(id) {
@@ -3077,9 +3076,9 @@
         </div>
         <div class="picks-topbar">
           <span class="picks-counter">${counts.remaining} of ${counts.total} remaining</span>
-          <button type="button" class="picks-show-all" data-ai-picks-show-all>${state.showAllPassedPicks ? "Hide passed" : "Show all"}</button>
+          <button type="button" class="picks-show-all" data-ai-picks-show-all></button>
         </div>
-        ${picks.length ? renderGroup("⚽ Soccer", soccerPicks) + renderGroup("🏀 March Madness", ncaabPicks) : `<div class="empty-state"><div class="empty-title">All picks resolved</div><div class="empty-meta">Tap "Show all" to review passed picks</div></div>`}
+        ${picks.length ? renderGroup("⚽ Soccer", soccerPicks) + renderGroup("🏀 March Madness", ncaabPicks) : `<div class="empty-state"><div class="empty-title">All picks resolved</div><div class="empty-meta">No picks available</div></div>`}
       `;
     }
 
