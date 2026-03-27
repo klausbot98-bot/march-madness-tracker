@@ -20,6 +20,7 @@ export default async function handler(req, res) {
       const pick = current.aiPicks[index];
       const units = Number.isFinite(Number(body.units)) ? Number(body.units) : Number(pick.units) || 1;
       const line = Number.isFinite(Number(body.line ?? body.odds)) ? Number(body.line ?? body.odds) : Number(pick.odds) || -110;
+      const sourceLine = Number.isFinite(Number(body.sourceLine)) ? Number(body.sourceLine) : Number(pick.line ?? pick.odds ?? line) || line;
 
       current.bets.push({
         id: nextBetId(current),
@@ -38,7 +39,21 @@ export default async function handler(req, res) {
         status: body.status || "placed",
         payout: Number.isFinite(Number(body.payout)) ? Number(body.payout) : 0,
         sport: body.sport || pick.sport || "ncaab",
-        notes: body.notes || pick.analysis || "AI pick placed via app",
+        notes: body.notes || pick.notes || pick.analysis || "AI pick placed via app",
+        sourcePickId: pick.id || null,
+        sourceGame: body.sourceGame || pick.game,
+        sourcePick: body.sourcePick || pick.pick,
+        sourceLine,
+        sourceType: body.sourceType || pick.type || inferBetTypeFromPick(pick.pick),
+        sourceDate: body.sourceDate || pick.date || null,
+        sourceGameTime: body.sourceGameTime || pick.gameTime || null,
+        sourceBook: body.sourceBook || pick.book || body.book || "draftkings",
+        sourceSport: body.sourceSport || pick.sport || body.sport || "ncaab",
+        sourceAnalysis: body.sourceAnalysis || pick.analysis || pick.notes || "",
+        sourceConfidence: body.sourceConfidence ?? pick.confidence ?? null,
+        sourceCategory: body.sourceCategory || pick.category || null,
+        sourceKellyPct: Number.isFinite(Number(body.sourceKellyPct)) ? Number(body.sourceKellyPct) : Number.isFinite(Number(pick.kellyPct)) ? Number(pick.kellyPct) : null,
+        sourceEdgePts: Number.isFinite(Number(body.sourceEdgePts)) ? Number(body.sourceEdgePts) : Number.isFinite(Number(pick.edgePts)) ? Number(pick.edgePts) : null,
       });
 
       current.aiPicks.splice(index, 1);

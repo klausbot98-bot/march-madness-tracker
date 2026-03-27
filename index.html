@@ -1202,6 +1202,56 @@
       padding-top: 2px;
     }
 
+    .ai-place-summary {
+      display: grid;
+      gap: 8px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--border);
+    }
+
+    .ai-place-summary-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      color: var(--text-secondary);
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .ai-place-summary-game {
+      font-family: var(--font-display);
+      font-size: 0.98rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .ai-place-summary-pick {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+
+    .ai-place-toggle {
+      justify-self: flex-start;
+      background: transparent;
+      color: var(--green);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0;
+    }
+
+    .ai-place-hint {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      margin-top: -2px;
+    }
+
     .add-bet-btn {
       border-radius: 14px;
       padding: 12px 14px;
@@ -1619,6 +1669,7 @@
     </main>
 
     <div id="floatingBetControls"></div>
+    <div id="aiPickPlacementModal"></div>
 
     <!-- Mobile bottom tab bar -->
     <nav class="tab-bar-bottom" id="tabBarBottom">
@@ -1762,6 +1813,8 @@
       selectedPickDate: null,
       isAddBetModalOpen: false,
       addBetForm: { game: "", pick: "", odds: "", amount: "", sport: "ncaab", notes: "" },
+      isAiPickPlacementModalOpen: false,
+      aiPickPlacementForm: null,
       statusBanner: null
     };
 
@@ -1779,6 +1832,25 @@
     // === UTILITIES ===
     function cloneData(items) { return (items || []).map(item => ({ ...item })); }
     function createEmptyAddBetForm() { return { game: "", pick: "", odds: "", amount: "", sport: "ncaab", notes: "" }; }
+    function createAiPickPlacementForm(pick) {
+      if (!pick) return null;
+      const recommendedAmount = Math.round(kellyDollarAmount(pick.kellyPct, getLiveBankroll()) * 100) / 100;
+      const fallbackAmount = Number(pick.amount ?? pick.recommendedAmount ?? pick.stake);
+      const rawLine = Number(pick.line ?? pick.odds ?? pick.originalLine);
+      const amount = Number.isFinite(recommendedAmount) && recommendedAmount > 0
+        ? recommendedAmount
+        : Number.isFinite(fallbackAmount) && fallbackAmount > 0
+          ? Math.round(fallbackAmount * 100) / 100
+          : UNIT_SIZE;
+      return {
+        id: String(pick.id),
+        game: String(pick.game || "").trim(),
+        pick: String(pick.pick || "").trim(),
+        line: Number.isFinite(rawLine) && rawLine !== 0 ? String(rawLine) : "-110",
+        amount: String(amount),
+        revealDetails: false
+      };
+    }
     function serializeUiState() {
       return {
         activeTab: state.activeTab,
@@ -2149,6 +2221,10 @@
       return aiPicks.find(entry => String(entry.id) === String(id)) || null;
     }
 
+    function currentAiPickPlacementPick() {
+      return findAiPickById(state.aiPickPlacementForm?.id);
+    }
+
     function removeAiPickLocally(id) {
       const key = String(id);
       aiPicks = aiPicks.filter(entry => String(entry.id) !== key);
@@ -2177,16 +2253,57 @@
         sport: pick.sport || "ncaab",
         type: inferBetTypeFromPick(pick.pick),
         result: "placed",
-        notes: pick.notes || "",
+        notes: pick.notes || pick.analysis || "",
         confidence: pick.confidence || null,
-        kenpomGap: Number.isFinite(Number(pick.edgePts)) ? Number(pick.edgePts) : null
+        kenpomGap: Number.isFinite(Number(pick.edgePts)) ? Number(pick.edgePts) : null,
+        book: pick.book || "draftkings",
+        sourcePickId: pick.id || null,
+        sourceGame: pick.game || "TBD",
+        sourcePick: pick.pick || "",
+        sourceLine: line,
+        sourceType: pick.type || inferBetTypeFromPick(pick.pick),
+        sourceDate: pick.date || currentEtDate(),
+        sourceGameTime: pick.gameTime || "TBD",
+        sourceBook: pick.book || "draftkings",
+        sourceSport: pick.sport || "ncaab",
+        sourceAnalysis: pick.analysis || pick.notes || "",
+        sourceConfidence: pick.confidence || null,
+        sourceCategory: pick.category || null,
+        sourceKellyPct: Number.isFinite(Number(pick.kellyPct)) ? Number(pick.kellyPct) : null,
+        sourceEdgePts: Number.isFinite(Number(pick.edgePts)) ? Number(pick.edgePts) : null
       };
     }
 
-    function placeAiPickLocally(id) {
+    function buildPlacedBetFromAiPickForm(pick, form) {
+      if (!pick || !form) return null;
+      const line = Number(form.line);
+      const amount = Math.round(Number(form.amount) * 100) / 100;
+      if (!Number.isFinite(line) || line === 0 || !Number.isFinite(amount) || amount <= 0) return null;
+      const sourceRawLine = Number(pick.line ?? pick.odds ?? pick.originalLine);
+      const sourceLine = Number.isFinite(sourceRawLine) && sourceRawLine !== 0 ? sourceRawLine : line;
+      const baseBet = buildBetFromAiPick(pick);
+      const placedPick = String(form.pick || pick.pick || "").trim() || pick.pick || "";
+      return {
+        ...baseBet,
+        game: String(form.game || pick.game || "TBD").trim() || pick.game || "TBD",
+        pick: placedPick,
+        line,
+        odds: line,
+        originalLine: line,
+        amount,
+        units: amountToUnits(amount),
+        type: inferBetTypeFromPick(placedPick),
+        sourceLine,
+        sourceType: pick.type || inferBetTypeFromPick(pick.pick)
+      };
+    }
+
+    function placeAiPickLocally(id, form) {
       const pick = findAiPickById(id);
       if (!pick) return false;
-      bets = [buildBetFromAiPick(pick), ...bets];
+      const createdBet = buildPlacedBetFromAiPickForm(pick, form || createAiPickPlacementForm(pick));
+      if (!createdBet) return false;
+      bets = [createdBet, ...bets];
       removeAiPickLocally(id);
       render();
       return true;
@@ -2405,20 +2522,8 @@
       return { picks, remaining, total: picks.length };
     }
 
-    async function placeAiPick(id) {
-      try {
-        const data = await apiFetchJson(API_ROUTES.picksPlace, {
-          method: "POST",
-          body: JSON.stringify({ id })
-        });
-        state.expandedAiPickIds.delete(String(id));
-        applyServerData(data);
-        saveUiState();
-        render();
-      } catch (error) {
-        console.error("Failed to place AI pick:", error);
-        if (placeAiPickLocally(id)) showStatusBanner("Saved locally. API persistence is unavailable.", "warning");
-      }
+    function placeAiPick(id) {
+      openAiPickPlacementModal(id);
     }
 
     function passAiPick(id) {
@@ -2472,8 +2577,81 @@
       renderFloatingBetControls();
     }
 
+    function openAiPickPlacementModal(id) {
+      const pick = findAiPickById(id);
+      if (!pick) return;
+      state.aiPickPlacementForm = createAiPickPlacementForm(pick);
+      state.isAiPickPlacementModalOpen = true;
+      renderAiPickPlacementModal();
+      requestAnimationFrame(() => {
+        document.querySelector('[data-ai-place-field="line"]')?.focus();
+      });
+    }
+
+    function closeAiPickPlacementModal() {
+      state.isAiPickPlacementModalOpen = false;
+      state.aiPickPlacementForm = null;
+      renderAiPickPlacementModal();
+    }
+
+    function updateAiPickPlacementField(field, value) {
+      if (!state.aiPickPlacementForm) return;
+      state.aiPickPlacementForm[field] = value;
+    }
+
     function updateAddBetField(field, value) {
       state.addBetForm[field] = value;
+    }
+
+    async function confirmAiPickPlacement() {
+      const form = state.aiPickPlacementForm;
+      const pick = currentAiPickPlacementPick();
+      if (!form || !pick) return;
+      const payload = buildPlacedBetFromAiPickForm(pick, form);
+      if (!payload) return;
+      try {
+        const data = await apiFetchJson(API_ROUTES.picksPlace, {
+          method: "POST",
+          body: JSON.stringify({
+            id: pick.id,
+            game: payload.game,
+            pick: payload.pick,
+            line: payload.line,
+            originalLine: payload.originalLine,
+            amount: payload.amount,
+            units: payload.units,
+            type: payload.type,
+            sport: payload.sport,
+            book: payload.book,
+            notes: payload.notes,
+            confidence: payload.confidence,
+            sourceGame: payload.sourceGame,
+            sourcePick: payload.sourcePick,
+            sourceLine: payload.sourceLine,
+            sourceType: payload.sourceType,
+            sourceDate: payload.sourceDate,
+            sourceGameTime: payload.sourceGameTime,
+            sourceBook: payload.sourceBook,
+            sourceSport: payload.sourceSport,
+            sourceAnalysis: payload.sourceAnalysis,
+            sourceConfidence: payload.sourceConfidence,
+            sourceCategory: payload.sourceCategory,
+            sourceKellyPct: payload.sourceKellyPct,
+            sourceEdgePts: payload.sourceEdgePts
+          })
+        });
+        state.expandedAiPickIds.delete(String(pick.id));
+        applyServerData(data);
+        closeAiPickPlacementModal();
+        saveUiState();
+        render();
+      } catch (error) {
+        console.error("Failed to place AI pick:", error);
+        if (placeAiPickLocally(pick.id, form)) {
+          closeAiPickPlacementModal();
+          showStatusBanner("Saved locally. API persistence is unavailable.", "warning");
+        }
+      }
     }
 
     async function submitAddBetForm() {
@@ -2886,9 +3064,9 @@
       const singleEntries = bets
         .filter(bet => isLiveTabEligibleResult(bet.result))
         .map(bet => {
-          const teams = extractBetTeams(bet.game);
+          const teams = extractBetTeams(bet.sourceGame || bet.game);
           const game = findTodayLiveGameForTeams(teams) || fallbackGameForBet(bet.date, bet.gameTime);
-          const evaluation = evaluateLivePick(bet.pick, bet.type, game);
+          const evaluation = evaluateLivePick(bet.sourcePick || bet.pick, bet.sourceType || bet.type, game);
           return { sortTime: parseTimeToMinutes(game.displayTime), label: bet.game, title: bet.pick, pick: bet.pick, units: bet.units, game, evaluation, legs: [], isParlay: false };
         }).filter(Boolean);
 
@@ -3045,6 +3223,67 @@
       const container = document.getElementById("floatingBetControls");
       if (!container) return;
       container.innerHTML = floatingBetControlsMarkup();
+    }
+
+    function aiPickPlacementModalMarkup() {
+      const form = state.aiPickPlacementForm;
+      const pick = currentAiPickPlacementPick();
+      if (!state.isAiPickPlacementModalOpen || !form || !pick) return "";
+      const sportLabel = pick.sport === "mlb" ? "MLB pick" : pick.sport === "soccer" ? "Soccer pick" : "AI pick";
+      return `
+        <div class="add-bet-modal" data-ai-place-overlay>
+          <div class="add-bet-sheet" role="dialog" aria-modal="true" aria-labelledby="aiPlaceTitle">
+            <div class="add-bet-header">
+              <div class="add-bet-title" id="aiPlaceTitle">Place Bet</div>
+              <button type="button" class="add-bet-close" data-ai-place-close aria-label="Close place bet form">✕</button>
+            </div>
+            <form class="add-bet-form" data-ai-place-form>
+              <div class="ai-place-summary">
+                <div class="ai-place-summary-top">
+                  <span>${escapeHtml(sportLabel)}</span>
+                  <span>${escapeHtml(pick.gameTime || "TBD")}</span>
+                </div>
+                <div class="ai-place-summary-game">${escapeHtml(form.game || pick.game || "TBD")}</div>
+                <div class="ai-place-summary-pick">${escapeHtml(form.pick || pick.pick || "")}</div>
+              </div>
+              <div class="add-bet-grid">
+                <div class="add-bet-field">
+                  <label for="ai-place-line">Line / Odds</label>
+                  <input id="ai-place-line" type="number" inputmode="numeric" value="${escapeHtml(form.line)}" data-ai-place-field="line" placeholder="-110">
+                </div>
+                <div class="add-bet-field">
+                  <label for="ai-place-amount">Amount</label>
+                  <input id="ai-place-amount" type="number" min="0.01" step="0.01" inputmode="decimal" value="${escapeHtml(form.amount)}" data-ai-place-field="amount" placeholder="25">
+                </div>
+                <div class="add-bet-field full">
+                  <button type="button" class="ai-place-toggle" data-ai-place-toggle>${form.revealDetails ? "Keep game/pick locked" : "Edit game/pick text if needed"}</button>
+                </div>
+                ${form.revealDetails ? `
+                  <div class="add-bet-field full">
+                    <label for="ai-place-game">Game</label>
+                    <input id="ai-place-game" type="text" value="${escapeHtml(form.game)}" data-ai-place-field="game" placeholder="Illinois vs Houston">
+                  </div>
+                  <div class="add-bet-field full">
+                    <label for="ai-place-pick">Pick</label>
+                    <input id="ai-place-pick" type="text" value="${escapeHtml(form.pick)}" data-ai-place-field="pick" placeholder="Illinois/Houston Under 139.5">
+                  </div>
+                ` : ""}
+              </div>
+              <div class="ai-place-hint">The tracked bet uses these placed values and still keeps the original AI pick for settlement.</div>
+              <div class="add-bet-actions">
+                <button type="button" class="add-bet-btn secondary" data-ai-place-close>Cancel</button>
+                <button type="submit" class="add-bet-btn primary">Confirm Bet</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderAiPickPlacementModal() {
+      const container = document.getElementById("aiPickPlacementModal");
+      if (!container) return;
+      container.innerHTML = aiPickPlacementModalMarkup();
     }
 
     // === STATE PERSISTENCE ===
@@ -3543,6 +3782,7 @@
       renderBetsTab();
       renderStatsTab();
       renderFloatingBetControls();
+      renderAiPickPlacementModal();
     }
 
     function renderStatusBanner() {
@@ -3602,27 +3842,53 @@
 
         const addBetOverlay = e.target.closest("[data-add-bet-overlay]");
         if (addBetOverlay && e.target === addBetOverlay) { closeAddBetModal(); return; }
+
+        const aiPlaceToggleBtn = e.target.closest("[data-ai-place-toggle]");
+        if (aiPlaceToggleBtn) {
+          if (!state.aiPickPlacementForm) return;
+          state.aiPickPlacementForm.revealDetails = !state.aiPickPlacementForm.revealDetails;
+          renderAiPickPlacementModal();
+          return;
+        }
+
+        const aiPlaceCloseBtn = e.target.closest("[data-ai-place-close]");
+        if (aiPlaceCloseBtn) { closeAiPickPlacementModal(); return; }
+
+        const aiPlaceOverlay = e.target.closest("[data-ai-place-overlay]");
+        if (aiPlaceOverlay && e.target === aiPlaceOverlay) { closeAiPickPlacementModal(); return; }
       });
 
       document.addEventListener("input", e => {
         const addBetField = e.target.closest("[data-add-bet-field]");
         if (addBetField) updateAddBetField(addBetField.dataset.addBetField, addBetField.value);
+        const aiPlaceField = e.target.closest("[data-ai-place-field]");
+        if (aiPlaceField) updateAiPickPlacementField(aiPlaceField.dataset.aiPlaceField, aiPlaceField.value);
       });
 
       document.addEventListener("change", e => {
         const addBetField = e.target.closest("[data-add-bet-field]");
         if (addBetField) updateAddBetField(addBetField.dataset.addBetField, addBetField.value);
+        const aiPlaceField = e.target.closest("[data-ai-place-field]");
+        if (aiPlaceField) updateAiPickPlacementField(aiPlaceField.dataset.aiPlaceField, aiPlaceField.value);
       });
 
       document.addEventListener("submit", e => {
         const addBetForm = e.target.closest("[data-add-bet-form]");
-        if (!addBetForm) return;
-        e.preventDefault();
-        submitAddBetForm();
+        if (addBetForm) {
+          e.preventDefault();
+          submitAddBetForm();
+          return;
+        }
+        const aiPlaceForm = e.target.closest("[data-ai-place-form]");
+        if (aiPlaceForm) {
+          e.preventDefault();
+          confirmAiPickPlacement();
+        }
       });
 
       // Keyboard
       document.addEventListener("keydown", e => {
+        if (e.key === "Escape" && state.isAiPickPlacementModalOpen) { closeAiPickPlacementModal(); return; }
         if (e.key === "Escape" && state.isAddBetModalOpen) { closeAddBetModal(); }
       });
     }
