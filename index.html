@@ -1852,67 +1852,33 @@
       if (!isPositiveNumber(form.amount)) return toast("Stake amount must be positive.", "error");
       if (!isNumber(form.line)) return toast("Odds / line must be valid.", "error");
 
-      try {
-        await apiJson(API.picksPlace, {
-          method: "POST",
-          body: JSON.stringify({
-            id: pick.id,
-            game: pick.game,
-            pick: form.pick.trim(),
-            line: coerceNumber(form.line),
-            originalLine: coerceNumber(form.line),
-            amount: roundMoney(form.amount),
-            units: roundUnits(form.amount),
-            book: form.book.trim() || pick.book || "DraftKings",
-            gameTime: form.gameTime.trim() || pick.gameTime || "TBD",
-            notes: form.notes.trim() || pick.analysis || "",
-            sport: pick.sport || "ncaab",
-            type: pick.type || inferType(form.pick)
-          })
-        });
-        toast("Bet confirmed and moved to Open Bets.", "success");
-        state.activeTab = "open";
-        closeSheet();
-        await loadData();
-        // Strip any previously passed picks
-        const passedIds = getPassedIds();
-        if (passedIds.size) {
-          state.data.aiPicks = state.data.aiPicks.filter(p => !passedIds.has(String(p.id)));
-          saveLocal();
-        }
-      } catch (error) {
-        // Fall back to local placement using state.data
-        if (pick) {
-          const line = coerceNumber(form.line) || coerceNumber(pick.line ?? pick.odds);
-          const amount = coerceNumber(form.amount) || UNIT_SIZE;
-          const maxId = state.data.bets.reduce((m, b) => Math.max(m, Number(b.id) || 0), 0);
-          state.data.bets.unshift({
-            id: maxId + 1,
-            date: pick.date || todayString(),
-            gameTime: form.gameTime.trim() || pick.gameTime || "TBD",
-            game: form.game.trim() || pick.game || "TBD",
-            pick: form.pick.trim() || pick.pick || "",
-            line, originalLine: line, odds: line,
-            amount, units: roundUnits(amount),
-            sport: pick.sport || "ncaab",
-            type: inferType(form.pick || pick.pick),
-            result: "placed",
-            book: form.book.trim() || pick.book || "draftkings",
-            notes: form.notes.trim() || pick.analysis || "",
-            confidence: pick.confidence || null,
-            sourcePickId: pick.id
-          });
-          addPassedId(pick.id);
-          state.data.aiPicks = state.data.aiPicks.filter(p => String(p.id) !== String(pick.id));
-          saveLocal();
-          toast("Bet confirmed locally.", "success");
-          state.activeTab = "open";
-          closeSheet();
-          render();
-        } else {
-          toast("Could not place this pick.", "error");
-        }
-      }
+      // Place directly into local state (no backend dependency)
+      const line = coerceNumber(form.line) || coerceNumber(pick.line ?? pick.odds);
+      const amount = coerceNumber(form.amount) || UNIT_SIZE;
+      const maxId = state.data.bets.reduce((m, b) => Math.max(m, Number(b.id) || 0), 0);
+      state.data.bets.unshift({
+        id: maxId + 1,
+        date: pick.date || todayString(),
+        gameTime: form.gameTime.trim() || pick.gameTime || "TBD",
+        game: pick.game || "TBD",
+        pick: form.pick.trim() || pick.pick || "",
+        line, originalLine: line, odds: line,
+        amount, units: roundUnits(amount),
+        sport: pick.sport || "ncaab",
+        type: inferType(form.pick || pick.pick),
+        result: "placed",
+        book: form.book.trim() || pick.book || "draftkings",
+        notes: form.notes.trim() || pick.analysis || "",
+        confidence: pick.confidence || null,
+        sourcePickId: pick.id
+      });
+      addPassedId(pick.id);
+      state.data.aiPicks = state.data.aiPicks.filter(p => String(p.id) !== String(pick.id));
+      saveLocal();
+      toast("Bet confirmed and moved to Open Bets.", "success");
+      state.activeTab = "open";
+      closeSheet();
+      render();
     }
 
     async function submitManualBet() {
