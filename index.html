@@ -878,6 +878,7 @@
     };
 
     const LOCAL_KEY = "bet-tracker-state-v2";
+    const PASSED_KEY = "bet-tracker-passed-v1";
     const UNIT_SIZE = 25;
     const DEFAULT_DATA = { meta: { openingCash: 199.88 }, bets: [], parlays: [], aiPicks: [] };
 
@@ -945,7 +946,12 @@
         } else {
           state.data = normalizeData(serverData);
         }
-        saveLocal();
+        // Strip any previously passed picks
+        const passedIds = getPassedIds();
+        if (passedIds.size) {
+          state.data.aiPicks = state.data.aiPicks.filter(p => !passedIds.has(String(p.id)));
+          saveLocal();
+        }
       } catch (error) {
         // Try localStorage as pure fallback
         const localData = loadLocal();
@@ -980,6 +986,20 @@
         if (raw) return JSON.parse(raw);
       } catch(e) {}
       return null;
+    }
+
+    function getPassedIds() {
+      try {
+        const raw = localStorage.getItem(PASSED_KEY);
+        if (raw) return new Set(JSON.parse(raw));
+      } catch(e) {}
+      return new Set();
+    }
+
+    function addPassedId(id) {
+      const ids = getPassedIds();
+      ids.add(String(id));
+      try { localStorage.setItem(PASSED_KEY, JSON.stringify([...ids])); } catch(e) {}
     }
 
     async function apiJson(url, options = {}) {
@@ -1670,6 +1690,7 @@
       if (action === "pass-pick") {
         const pickId = target.dataset.pickId;
         if (pickId) {
+          addPassedId(pickId);
           state.data.aiPicks = state.data.aiPicks.filter(p => String(p.id) !== String(pickId));
           saveLocal();
           render();
@@ -1853,7 +1874,12 @@
         state.activeTab = "open";
         closeSheet();
         await loadData();
-        saveLocal();
+        // Strip any previously passed picks
+        const passedIds = getPassedIds();
+        if (passedIds.size) {
+          state.data.aiPicks = state.data.aiPicks.filter(p => !passedIds.has(String(p.id)));
+          saveLocal();
+        }
       } catch (error) {
         // Fall back to local placement using state.data
         if (pick) {
@@ -1876,6 +1902,7 @@
             confidence: pick.confidence || null,
             sourcePickId: pick.id
           });
+          addPassedId(pick.id);
           state.data.aiPicks = state.data.aiPicks.filter(p => String(p.id) !== String(pick.id));
           saveLocal();
           toast("Bet confirmed locally.", "success");
