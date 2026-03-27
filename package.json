@@ -1,0 +1,11 @@
+{
+  "name": "march-madness-tracker",
+  "private": true,
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@vercel/blob": "^0.27.0"
+  }
+}

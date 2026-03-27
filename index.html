@@ -1632,8 +1632,14 @@
     const FINAL_RESULTS = ["win", "won", "loss", "lost", "push"];
     const TYPE_LABELS = { spread: "Spread", total: "Total", ml: "Moneyline", parlay: "Parlay" };
     const CONFIDENCE_LABELS = { high: "High", medium: "Medium", low: "Low" };
-    const STORAGE_KEY = "march-madness-2026-bets-v2";
-    const DATA_URL = "data.json";
+    const UI_STATE_KEY = "march-madness-2026-ui-v1";
+    const API_ROUTES = {
+      data: "/api/data",
+      bets: "/api/bets",
+      picksPlace: "/api/picks/place",
+      picks: "/api/picks",
+      parlays: "/api/parlays"
+    };
 
     const TEAM_ALIASES = {
       TCU: ["TCU Horned Frogs", "TCU"],
@@ -1710,6 +1716,7 @@
       filter: "all",
       sort: "date-desc",
       expandedBets: new Set(),
+      expandedAiPickIds: new Set(),
       showAllPassedPicks: false,
       fadingPickIds: new Set(),
       mobileAllBetsFilter: "all",
@@ -1731,6 +1738,64 @@
     // === UTILITIES ===
     function cloneData(items) { return (items || []).map(item => ({ ...item })); }
     function createEmptyAddBetForm() { return { game: "", pick: "", odds: "", amount: "", sport: "ncaab", notes: "" }; }
+    function serializeUiState() {
+      return {
+        activeTab: state.activeTab,
+        expandedBets: [...state.expandedBets],
+        expandedAiPickIds: [...state.expandedAiPickIds],
+        showAllPassedPicks: state.showAllPassedPicks,
+        mobileAllBetsFilter: state.mobileAllBetsFilter,
+        selectedPickDate: state.selectedPickDate
+      };
+    }
+    function saveUiState() {
+      localStorage.setItem(UI_STATE_KEY, JSON.stringify(serializeUiState()));
+    }
+    function loadUiState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(UI_STATE_KEY) || "null");
+        if (!saved) return;
+        if (saved.activeTab) state.activeTab = saved.activeTab;
+        if (Array.isArray(saved.expandedBets)) state.expandedBets = new Set(saved.expandedBets.map(String));
+        if (Array.isArray(saved.expandedAiPickIds)) state.expandedAiPickIds = new Set(saved.expandedAiPickIds.map(String));
+        if (typeof saved.showAllPassedPicks === "boolean") state.showAllPassedPicks = saved.showAllPassedPicks;
+        if (saved.mobileAllBetsFilter) state.mobileAllBetsFilter = saved.mobileAllBetsFilter;
+        if (saved.selectedPickDate) state.selectedPickDate = saved.selectedPickDate;
+      } catch (error) {}
+    }
+    async function apiFetchJson(url, options = {}) {
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          ...(options.headers || {})
+        }
+      });
+      if (!response.ok) {
+        let message = `Request failed: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          if (errorData?.error) message = errorData.error;
+        } catch (error) {}
+        throw new Error(message);
+      }
+      if (response.status === 204) return null;
+      return response.json();
+    }
+    function applyServerData(data) {
+      bets = cloneData(data?.bets).map(bet => ({
+        ...bet,
+        result: sanitizeResult(bet.result) || (bet.status === "placed" ? "placed" : null)
+      }));
+      parlays = cloneData(data?.parlays).map(parlay => ({
+        ...parlay,
+        result: sanitizeResult(parlay.result) || (parlay.status === "placed" ? "placed" : null)
+      }));
+      aiPicks = cloneData(data?.aiPicks).map(pick => ({
+        ...pick,
+        status: pick.status || null
+      }));
+    }
     function escapeHtml(value) {
       return String(value ?? "")
         .replace(/&/g, "&amp;")
@@ -2164,34 +2229,19 @@
       return { picks, remaining, total: picks.length };
     }
 
-    function placeAiPick(id) {
-      const index = aiPicks.findIndex(pick => String(pick.id) === String(id));
-      if (index === -1) return;
-      const pick = aiPicks[index];
-      const units = Number(pick.units) || 1;
-      const line = Number(pick.odds) || -110;
-      bets.push({
-        id: nextBetId(),
-        date: pick.date || currentEtDate(),
-        gameTime: pick.gameTime || "TBD",
-        game: pick.game,
-        pick: pick.pick,
-        line,
-        originalLine: line,
-        units,
-        amount: unitToDollars(units),
-        book: BET_BOOK,
-        type: inferBetTypeFromPick(pick.pick),
-        confidence: pick.confidence >= 4 ? "high" : pick.confidence >= 2 ? "medium" : "low",
-        result: "placed",
-        status: "placed",
-        payout: 0,
-        sport: pick.sport || "ncaab",
-        notes: pick.analysis || "AI pick placed via app"
-      });
-      aiPicks.splice(index, 1);
-      saveState();
-      render();
+    async function placeAiPick(id) {
+      try {
+        const data = await apiFetchJson(API_ROUTES.picksPlace, {
+          method: "POST",
+          body: JSON.stringify({ id })
+        });
+        state.expandedAiPickIds.delete(String(id));
+        applyServerData(data);
+        saveUiState();
+        render();
+      } catch (error) {
+        console.error("Failed to place AI pick:", error);
+      }
     }
 
     function passAiPick(id) {
@@ -2200,11 +2250,21 @@
       const key = String(id);
       state.fadingPickIds.add(key);
       renderPicksTab();
-      window.setTimeout(() => {
+      window.setTimeout(async () => {
         state.fadingPickIds.delete(key);
-        aiPicks.splice(index, 1);
-        saveState();
-        renderPicksTab();
+        try {
+          const data = await apiFetchJson(`${API_ROUTES.picks}/${encodeURIComponent(id)}`, {
+            method: "DELETE"
+          });
+          state.expandedAiPickIds.delete(key);
+          applyServerData(data);
+          saveUiState();
+          renderPicksTab();
+          renderHeader();
+        } catch (error) {
+          console.error("Failed to pass AI pick:", error);
+          renderPicksTab();
+        }
       }, 300);
     }
 
@@ -2213,10 +2273,10 @@
     }
 
     function toggleAiPickExpanded(id) {
-      const pick = aiPicks.find(e => String(e.id) === String(id));
-      if (!pick) return;
-      pick.expanded = !pick.expanded;
-      saveState();
+      const key = String(id);
+      if (state.expandedAiPickIds.has(key)) state.expandedAiPickIds.delete(key);
+      else state.expandedAiPickIds.add(key);
+      saveUiState();
       renderPicksTab();
     }
 
@@ -2238,34 +2298,32 @@
       state.addBetForm[field] = value;
     }
 
-    function submitAddBetForm() {
+    async function submitAddBetForm() {
       const form = state.addBetForm;
       const odds = Number(form.odds);
       const amount = Number(form.amount);
       if (!form.game.trim() || !form.pick.trim() || !Number.isFinite(odds) || odds === 0 || !Number.isFinite(amount) || amount <= 0) return;
-      const units = amount / UNIT_SIZE;
-      bets.push({
-        id: nextBetId(),
-        date: currentEtDate(),
-        gameTime: "TBD",
-        game: form.game.trim(),
-        pick: form.pick.trim(),
-        line: odds,
-        originalLine: odds,
-        units,
-        amount,
-        book: BET_BOOK,
-        type: inferBetTypeFromPick(form.pick),
-        confidence: "medium",
-        result: "placed",
-        status: "placed",
-        payout: 0,
-        sport: form.sport || "ncaab",
-        notes: form.notes.trim()
-      });
-      saveState();
-      closeAddBetModal();
-      render();
+      try {
+        const data = await apiFetchJson(API_ROUTES.bets, {
+          method: "POST",
+          body: JSON.stringify({
+            date: currentEtDate(),
+            gameTime: "TBD",
+            game: form.game.trim(),
+            pick: form.pick.trim(),
+            line: odds,
+            originalLine: odds,
+            amount,
+            sport: form.sport || "ncaab",
+            notes: form.notes.trim()
+          })
+        });
+        applyServerData(data);
+        closeAddBetModal();
+        render();
+      } catch (error) {
+        console.error("Failed to add bet:", error);
+      }
     }
 
     function getLiveBankroll() {
@@ -2740,13 +2798,14 @@
     function aiPickCardMarkup(pick) {
       const isPassedPick = pick.status === "passed";
       const isFading = state.fadingPickIds.has(String(pick.id));
+      const isExpanded = state.expandedAiPickIds.has(String(pick.id));
       const actualOdds = Number(pick.odds);
       const actualUnits = Number(pick.units);
       const cat = pick.category || "value";
       const catLabel = cat === "core" ? "🎯 CORE" : cat === "moonshot" ? "🚀 MOONSHOT" : cat === "lean" ? "⚠️ LEAN" : "⚡ VALUE";
       const sportBadge = pick.sport === "soccer" ? `<span class="pick-sport-tag">⚽ ${pick.league || "Soccer"}</span>` : `<span class="pick-sport-tag">🏀 NCAAB</span>`;
 
-      return `<article class="pick-card ${cat} ${isPassedPick ? "is-passed" : ""} ${isFading ? "is-fading-out" : ""}"><div class="pick-inner"><div class="pick-header"><span class="pick-badge ${cat}">${catLabel}</span>${sportBadge}<span class="pick-time">${pick.gameTime || "TBD"}</span></div><div class="pick-game">${pick.game}</div><div class="pick-selection">${pick.pick}<span class="pick-odds-inline">${formatLineValue(actualOdds)}</span></div><div class="pick-sizing">💰 ${formatCurrency(kellyDollarAmount(pick.kellyPct, getLiveBankroll()), { signed: false })} recommended · Kelly ${Number(pick.kellyPct||0).toFixed(1)}%</div><div class="pick-edge">Edge: ${Number(pick.edgePts||0).toFixed(1)}pts · ${confidenceStars(pick.confidence)}</div><button type="button" class="pick-analysis-btn ${pick.expanded ? "expanded" : ""}" data-ai-pick-expand="${pick.id}"><div class="pick-analysis-preview">${String(pick.analysis||"").slice(0,90)}...</div><div class="pick-analysis-full">${pick.analysis||""}</div></button><div class="pick-actions" ${isPassedPick ? "hidden" : ""}><button type="button" class="pick-btn place" data-ai-pick-place="${pick.id}">Place Bet</button><button type="button" class="pick-btn pass" data-ai-pick-pass="${pick.id}">Pass</button></div></div></article>`;
+      return `<article class="pick-card ${cat} ${isPassedPick ? "is-passed" : ""} ${isFading ? "is-fading-out" : ""}"><div class="pick-inner"><div class="pick-header"><span class="pick-badge ${cat}">${catLabel}</span>${sportBadge}<span class="pick-time">${pick.gameTime || "TBD"}</span></div><div class="pick-game">${pick.game}</div><div class="pick-selection">${pick.pick}<span class="pick-odds-inline">${formatLineValue(actualOdds)}</span></div><div class="pick-sizing">💰 ${formatCurrency(kellyDollarAmount(pick.kellyPct, getLiveBankroll()), { signed: false })} recommended · Kelly ${Number(pick.kellyPct||0).toFixed(1)}%</div><div class="pick-edge">Edge: ${Number(pick.edgePts||0).toFixed(1)}pts · ${confidenceStars(pick.confidence)}</div><button type="button" class="pick-analysis-btn ${isExpanded ? "expanded" : ""}" data-ai-pick-expand="${pick.id}"><div class="pick-analysis-preview">${String(pick.analysis||"").slice(0,90)}...</div><div class="pick-analysis-full">${pick.analysis||""}</div></button><div class="pick-actions" ${isPassedPick ? "hidden" : ""}><button type="button" class="pick-btn place" data-ai-pick-place="${pick.id}">Place Bet</button><button type="button" class="pick-btn pass" data-ai-pick-pass="${pick.id}">Pass</button></div></div></article>`;
     }
 
     function floatingBetControlsMarkup() {
@@ -2806,54 +2865,15 @@
     }
 
     // === STATE PERSISTENCE ===
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({ bets, parlays, aiPicks }));
-    }
-
     async function loadState() {
       try {
-        // Always fetch fresh data.json first, then merge localStorage on top
-        const response = await fetch(DATA_URL + "?t=" + Date.now());
-        if (!response.ok) throw new Error("Failed to fetch " + DATA_URL);
-        const data = await response.json();
-        const serverBets = cloneData(data.bets).map(bet => ({ ...bet, result: sanitizeResult(bet.result) || (bet.status === "placed" ? "placed" : null) }));
-        const serverParlays = cloneData(data.parlays).map(parlay => ({ ...parlay, result: sanitizeResult(parlay.result) || (parlay.status === "placed" ? "placed" : null) }));
-        const serverPicks = cloneData(data.aiPicks).map(pick => ({ ...pick, expanded: Boolean(pick.expanded), status: pick.status || null }));
-
-        // Merge localStorage results on top (preserves live settling)
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
-        if (saved?.bets) {
-          const localBetMap = new Map(saved.bets.map(b => [b.id, b]));
-          serverBets.forEach(bet => {
-            const local = localBetMap.get(bet.id);
-            if (local && local.result && local.result !== "placed" && bet.result === "placed") {
-              bet.result = local.result;
-              bet.score = local.score || bet.score;
-              bet.payout = local.payout || bet.payout;
-            }
-          });
-          // Add any localStorage-only bets (added via Add Bet form)
-          saved.bets.forEach(lb => {
-            if (!serverBets.find(sb => sb.id === lb.id)) serverBets.push(lb);
-          });
-        }
-
-        bets = serverBets;
-        parlays = serverParlays;
-        aiPicks = serverPicks;
-        saveState();
+        const data = await apiFetchJson(`${API_ROUTES.data}?t=${Date.now()}`);
+        applyServerData(data);
       } catch(err) {
-        // Fallback to localStorage only if fetch fails
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
-        if (saved?.bets) {
-          bets = cloneData(saved.bets);
-          parlays = cloneData(saved.parlays || []);
-          aiPicks = cloneData(saved.aiPicks || []);
-        } else {
-          bets = [];
-          parlays = [];
-          aiPicks = [];
-        }
+        console.error("Failed to load API data:", err);
+        bets = [];
+        parlays = [];
+        aiPicks = [];
       }
     }
 
@@ -2873,6 +2893,8 @@
     async function fetchLiveScores() {
       try {
         const allGames = [];
+        const betPatches = new Map();
+        const parlayPatches = new Map();
         const fetches = [SPORT, ...EXTRA_SCORE_SPORTS].map(async sk => {
           try {
             const r = await fetch(`${ODDS_API_BASE}/sports/${sk}/scores/?apiKey=${ODDS_API_KEY}&daysFrom=1`);
@@ -2896,16 +2918,18 @@
             if (bet.result !== "placed") continue;
             const gameTeams = [away, home];
             if (!betMatchesGame(bet, gameTeams)) continue;
+            let betUpdated = false;
             bet.score = scoreStr;
             if (bet.type === "spread") {
               const pickParts = bet.pick.match(/(.+?)\s([+-][\d.]+)/);
-              if (pickParts) { const pickTeam = pickParts[1].trim(), spread = parseFloat(pickParts[2]); const isHome = teamMatches(pickTeam, home); const pickScore = isHome ? homeScore : awayScore, oppScore = isHome ? awayScore : homeScore; const margin = pickScore - oppScore + spread; bet.result = margin > 0 ? "win" : margin < 0 ? "loss" : "push"; updated = true; }
+              if (pickParts) { const pickTeam = pickParts[1].trim(), spread = parseFloat(pickParts[2]); const isHome = teamMatches(pickTeam, home); const pickScore = isHome ? homeScore : awayScore, oppScore = isHome ? awayScore : homeScore; const margin = pickScore - oppScore + spread; bet.result = margin > 0 ? "win" : margin < 0 ? "loss" : "push"; betUpdated = true; updated = true; }
             }
             if (bet.type === "total") {
               const isUnder = /under|u/i.test(bet.pick), totalLine = parseFloat(bet.pick.match(/[\d.]+/)?.[0] || 0);
               if (totalPoints < totalLine) bet.result = isUnder ? "win" : "loss";
               else if (totalPoints > totalLine) bet.result = isUnder ? "loss" : "win";
               else bet.result = "push";
+              betUpdated = true;
               updated = true;
             }
             if (bet.type === "moneyline" || bet.type === "ml") {
@@ -2918,8 +2942,18 @@
                 bet.result = pickScore > oppScore ? "win" : pickScore < oppScore ? "loss" : "push";
                 if (bet.result === "win") { bet.payout = unitToDollars(bet.units) + unitToDollars(bet.units) * (bet.line > 0 ? bet.line / 100 : 100 / Math.abs(bet.line)); }
                 else { bet.payout = 0; }
+                betUpdated = true;
                 updated = true;
               }
+            }
+            if (betUpdated && bet.result !== "placed") {
+              bet.status = bet.result;
+              betPatches.set(String(bet.id), {
+                result: bet.result,
+                status: bet.status,
+                score: bet.score,
+                payout: bet.payout ?? 0
+              });
             }
           }
         }
@@ -2987,9 +3021,36 @@
             if (allLegResults.some(r => r === "loss" || r === "lost")) { parlay.result = "loss"; parlay.payout = 0; updated = true; }
             else if (allLegResults.every(r => r === "win" || r === "won")) { parlay.result = "win"; parlay.payout = unitToDollars(parlay.units) + unitToDollars(parlay.units) * (parlay.line / 100); updated = true; }
             else if (allLegResults.every(r => ["win","won","push"].includes(r))) { parlay.result = "push"; updated = true; }
+            if (parlay.result !== "placed") {
+              parlay.status = parlay.result;
+              parlayPatches.set(String(parlay.id), {
+                result: parlay.result,
+                status: parlay.status,
+                payout: parlay.payout ?? 0,
+                legStates: parlay.legStates || {}
+              });
+            }
           }
         }
-        if (updated) { saveState(); render(); return; }
+        if (updated) {
+          await Promise.all([
+            ...[...betPatches.entries()].map(([id, payload]) =>
+              apiFetchJson(`${API_ROUTES.bets}/${encodeURIComponent(id)}`, {
+                method: "PATCH",
+                body: JSON.stringify(payload)
+              })
+            ),
+            ...[...parlayPatches.entries()].map(([id, payload]) =>
+              apiFetchJson(`${API_ROUTES.parlays}/${encodeURIComponent(id)}`, {
+                method: "PATCH",
+                body: JSON.stringify(payload)
+              })
+            )
+          ]);
+          await loadState();
+          render();
+          return;
+        }
         renderLiveTab();
       } catch(e) { console.log("Score fetch error:", e); }
     }
@@ -3006,6 +3067,7 @@
     // === TAB SWITCHING ===
     function switchTab(tab) {
       state.activeTab = tab;
+      saveUiState();
       document.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.id === `tab-${tab}`));
       document.querySelectorAll("[data-tab]").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
       if (tab === "stats") { requestAnimationFrame(() => renderStatsCharts()); }
@@ -3436,19 +3498,20 @@
 
         // Bets filter
         const filterBtn = e.target.closest("[data-mobile-filter]");
-        if (filterBtn) { state.mobileAllBetsFilter = filterBtn.dataset.mobileFilter; renderBetsTab(); return; }
+        if (filterBtn) { state.mobileAllBetsFilter = filterBtn.dataset.mobileFilter; saveUiState(); renderBetsTab(); return; }
 
         // Bet card expand
         const expandBtn = e.target.closest("[data-expand-id]");
         if (expandBtn) {
           const id = String(expandBtn.dataset.expandId);
           if (state.expandedBets.has(id)) state.expandedBets.delete(id); else state.expandedBets.add(id);
+          saveUiState();
           renderBetsTab(); return;
         }
 
         // Date pill in picks
         const datePillBtn = e.target.closest("[data-pick-date]");
-        if (datePillBtn) { state.selectedPickDate = datePillBtn.dataset.pickDate; renderPicksTab(); return; }
+        if (datePillBtn) { state.selectedPickDate = datePillBtn.dataset.pickDate; saveUiState(); renderPicksTab(); return; }
 
         // AI pick actions
         const aiPickExpandBtn = e.target.closest("[data-ai-pick-expand]");
@@ -3498,9 +3561,11 @@
 
     // === INIT ===
     async function init() {
+      loadUiState();
       await loadState();
       attachEvents();
       render();
+      switchTab(state.activeTab);
       fetchOddsData();
       fetchLiveScores();
       fetchEspnClock();
