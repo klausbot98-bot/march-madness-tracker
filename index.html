@@ -2269,6 +2269,16 @@
       render();
     }
 
+    function getLiveBankroll() {
+      const summary = summarize();
+      return STARTING_BANKROLL + summary.realized + BANKROLL_CORRECTION;
+    }
+
+    function kellyDollarAmount(kellyPct, bankroll) {
+      if (!bankroll || bankroll <= 0 || !kellyPct) return 0;
+      return Math.max(1, Math.round(bankroll * (kellyPct / 100) * 100) / 100);
+    }
+
     // === LIVE SCORE / ESPN INTEGRATION ===
     function getEspnClockForGame(game) {
       const searchNames = [];
@@ -2737,7 +2747,7 @@
       const catLabel = cat === "core" ? "🎯 CORE" : cat === "moonshot" ? "🚀 MOONSHOT" : cat === "lean" ? "⚠️ LEAN" : "⚡ VALUE";
       const sportBadge = pick.sport === "soccer" ? `<span class="pick-sport-tag">⚽ ${pick.league || "Soccer"}</span>` : `<span class="pick-sport-tag">🏀 NCAAB</span>`;
 
-      return `<article class="pick-card ${cat} ${isPassedPick ? "is-passed" : ""} ${isFading ? "is-fading-out" : ""}"><div class="pick-inner"><div class="pick-header"><span class="pick-badge ${cat}">${catLabel}</span>${sportBadge}<span class="pick-time">${pick.gameTime || "TBD"}</span></div><div class="pick-game">${pick.game}</div><div class="pick-selection">${pick.pick}<span class="pick-odds-inline">${formatLineValue(actualOdds)}</span></div><div class="pick-sizing">💰 ${formatCurrency(unitToDollars(actualUnits), { signed: false })} recommended · Kelly ${Number(pick.kellyPct||0).toFixed(1)}%</div><div class="pick-edge">Edge: ${Number(pick.edgePts||0).toFixed(1)}pts · ${confidenceStars(pick.confidence)}</div><button type="button" class="pick-analysis-btn ${pick.expanded ? "expanded" : ""}" data-ai-pick-expand="${pick.id}"><div class="pick-analysis-preview">${String(pick.analysis||"").slice(0,90)}...</div><div class="pick-analysis-full">${pick.analysis||""}</div></button><div class="pick-actions" ${isPassedPick ? "hidden" : ""}><button type="button" class="pick-btn place" data-ai-pick-place="${pick.id}">Place Bet</button><button type="button" class="pick-btn pass" data-ai-pick-pass="${pick.id}">Pass</button></div></div></article>`;
+      return `<article class="pick-card ${cat} ${isPassedPick ? "is-passed" : ""} ${isFading ? "is-fading-out" : ""}"><div class="pick-inner"><div class="pick-header"><span class="pick-badge ${cat}">${catLabel}</span>${sportBadge}<span class="pick-time">${pick.gameTime || "TBD"}</span></div><div class="pick-game">${pick.game}</div><div class="pick-selection">${pick.pick}<span class="pick-odds-inline">${formatLineValue(actualOdds)}</span></div><div class="pick-sizing">💰 ${formatCurrency(kellyDollarAmount(pick.kellyPct, getLiveBankroll()), { signed: false })} recommended</div><div class="pick-edge">Edge: ${Number(pick.edgePts||0).toFixed(1)}pts · ${confidenceStars(pick.confidence)}</div><button type="button" class="pick-analysis-btn ${pick.expanded ? "expanded" : ""}" data-ai-pick-expand="${pick.id}"><div class="pick-analysis-preview">${String(pick.analysis||"").slice(0,90)}...</div><div class="pick-analysis-full">${pick.analysis||""}</div></button><div class="pick-actions" ${isPassedPick ? "hidden" : ""}><button type="button" class="pick-btn place" data-ai-pick-place="${pick.id}">Place Bet</button><button type="button" class="pick-btn pass" data-ai-pick-pass="${pick.id}">Pass</button></div></div></article>`;
     }
 
     function floatingBetControlsMarkup() {
@@ -2823,6 +2833,16 @@
         parlays = [];
         aiPicks = [];
       }
+    }
+
+    function getLiveBankroll() {
+      const summary = summarize();
+      return STARTING_BANKROLL + summary.realized + BANKROLL_CORRECTION;
+    }
+
+    function kellyDollarAmount(kellyPct, bankroll) {
+      if (!bankroll || bankroll <= 0 || !kellyPct) return 0;
+      return Math.max(1, Math.round(bankroll * (kellyPct / 100) * 100) / 100);
     }
 
     // === LIVE SCORES FETCH ===
