@@ -1818,7 +1818,38 @@
         closeSheet();
         await loadData();
       } catch (error) {
-        toast(error.message || "Could not place this pick.", "error");
+        // Fall back to local placement
+        const pick = findAiPick(state.sheet.pickId);
+        if (pick) {
+          const form = state.sheet.form;
+          const line = coerceNumber(form.line) || coerceNumber(pick.line ?? pick.odds);
+          const amount = coerceNumber(form.amount) || UNIT_SIZE;
+          bets.unshift({
+            id: nextBetId(),
+            date: pick.date || todayET(),
+            gameTime: form.gameTime || pick.gameTime || "TBD",
+            game: form.game || pick.game || "TBD",
+            pick: form.pick || pick.pick || "",
+            line, originalLine: line, odds: line,
+            amount, units: Math.round((amount / UNIT_SIZE) * 100) / 100,
+            sport: pick.sport || "ncaab",
+            type: inferType(form.pick || pick.pick),
+            result: "placed",
+            book: form.book || pick.book || "draftkings",
+            notes: form.notes || pick.analysis || "",
+            confidence: pick.confidence || null,
+            sourcePickId: pick.id
+          });
+          aiPicks = aiPicks.filter(p => String(p.id) !== String(pick.id));
+          saveLocalData();
+          toast("Bet confirmed locally.", "success");
+          state.activeTab = "open";
+          closeSheet();
+          renderTab();
+          renderHeader();
+        } else {
+          toast("Could not place this pick.", "error");
+        }
       }
     }
 
@@ -1853,7 +1884,33 @@
         closeSheet();
         await loadData();
       } catch (error) {
-        toast(error.message || "Could not create the manual bet.", "error");
+        // Fall back to local
+        const form = state.sheet.form;
+        const line = coerceNumber(form.line);
+        const amount = coerceNumber(form.amount);
+        if (line && amount > 0) {
+          bets.unshift({
+            id: nextBetId(),
+            date: todayET(),
+            gameTime: form.gameTime || "TBD",
+            game: form.game || "TBD",
+            pick: form.pick || "",
+            line, originalLine: line, odds: line,
+            amount, units: Math.round((amount / UNIT_SIZE) * 100) / 100,
+            sport: form.sport || "ncaab",
+            type: inferType(form.pick),
+            result: "placed",
+            book: form.book || "draftkings",
+            notes: form.notes || ""
+          });
+          saveLocalData();
+          toast("Bet saved locally.", "success");
+          closeSheet();
+          renderTab();
+          renderHeader();
+        } else {
+          toast("Could not create the manual bet.", "error");
+        }
       }
     }
 
