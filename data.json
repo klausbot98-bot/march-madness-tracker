@@ -1132,12 +1132,12 @@
       "game": "Multi-game Parlay",
       "pick": "Acuff O23.5 + Wagler O14.5 + Illinois +2.5",
       "odds": 550,
-      "edgePts": 3.0,
-      "kellyPct": 2.0,
+      "edgePts": 4.4,
+      "kellyPct": 1.8,
       "confidence": 3,
       "units": 0.5,
       "gameTime": "9:45 PM ET",
-      "analysis": "Three independent legs across both late games. Acuff is Arkansas offense. Wagler benefits from Illinois keying on Flemings. Illinois +2.5 in a coin-flip game. All guard props \u2014 no foul risk.",
+      "analysis": "Three independent legs across both late games. Combined model probability 19.8% vs implied 15.4% at +550. Acuff is Arkansas offense (62% to hit 24+). Wagler benefits from Illinois keying on Flemings (58% to hit 15+). Illinois +2.5 in a coin-flip game (55%). All guard props \u2014 no foul risk.",
       "category": "value"
     }
   ]
