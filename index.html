@@ -1634,9 +1634,10 @@
         const pickId = target.dataset.pickId;
         if (pickId) {
           aiPicks = aiPicks.filter(p => String(p.id) !== String(pickId));
-          saveLocalData();
-          renderTab();
-          renderHeader();
+          try {
+            apiFetch(API_ROUTES.picks + "/" + encodeURIComponent(pickId), { method: "DELETE" });
+          } catch (e) {}
+          render();
         }
         return;
       }
@@ -1841,12 +1842,10 @@
             sourcePickId: pick.id
           });
           aiPicks = aiPicks.filter(p => String(p.id) !== String(pick.id));
-          saveLocalData();
           toast("Bet confirmed locally.", "success");
           state.activeTab = "open";
           closeSheet();
-          renderTab();
-          renderHeader();
+          render();
         } else {
           toast("Could not place this pick.", "error");
         }
@@ -1903,11 +1902,9 @@
             book: form.book || "draftkings",
             notes: form.notes || ""
           });
-          saveLocalData();
           toast("Bet saved locally.", "success");
           closeSheet();
-          renderTab();
-          renderHeader();
+          render();
         } else {
           toast("Could not create the manual bet.", "error");
         }
