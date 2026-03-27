@@ -880,7 +880,7 @@
     const LOCAL_KEY = "bet-tracker-state-v2";
     const PASSED_KEY = "bet-tracker-passed-v1";
     const UNIT_SIZE = 25;
-    const DEFAULT_DATA = { meta: { openingCash: 199.88 }, bets: [], parlays: [], aiPicks: [] };
+    const DEFAULT_DATA = { meta: { openingCash: 199.88 }, bets: [], parlays: [], aiPicks: [], passedPickIds: [] };
 
     const state = {
       activeTab: "picks",
@@ -929,29 +929,9 @@
       render();
       try {
         const serverData = await apiJson(API.data);
-        const localData = loadLocal();
-        if (localData && localData.bets) {
-          // Local is authoritative for mutations (pass, place, manual add)
-          // But merge any NEW server aiPicks not already in local
-          const localPickIds = new Set((localData.aiPicks || []).map(p => String(p.id)));
-          const newServerPicks = (serverData.aiPicks || []).filter(p => !localPickIds.has(String(p.id)));
-          // If local has fewer picks than server (user passed some), keep local's shorter list
-          // But add genuinely new server picks that local hasn't seen
-          const mergedPicks = [...(localData.aiPicks || []), ...newServerPicks];
-          state.data = normalizeData({ ...localData, aiPicks: mergedPicks, meta: serverData.meta || localData.meta });
-          // Also merge any new server bets not in local (e.g. from pipeline)
-          const localBetIds = new Set((localData.bets || []).map(b => String(b.id)));
-          const newServerBets = (serverData.bets || []).filter(b => !localBetIds.has(String(b.id)));
-          if (newServerBets.length) state.data.bets = [...state.data.bets, ...newServerBets];
-        } else {
-          state.data = normalizeData(serverData);
-        }
-        // Strip any previously passed picks
-        const passedIds = getPassedIds();
-        if (passedIds.size) {
-          state.data.aiPicks = state.data.aiPicks.filter(p => !passedIds.has(String(p.id)));
-          saveLocal();
-        }
+        state.data = normalizeData(serverData);
+        syncPassedIdsToLocal(state.data.passedPickIds || []);
+        saveLocal();
       } catch (error) {
         // Try localStorage as pure fallback
         const localData = loadLocal();
@@ -971,12 +951,15 @@
         meta: data?.meta || DEFAULT_DATA.meta,
         bets: Array.isArray(data?.bets) ? data.bets : [],
         parlays: Array.isArray(data?.parlays) ? data.parlays : [],
-        aiPicks: Array.isArray(data?.aiPicks) ? data.aiPicks : []
+        aiPicks: Array.isArray(data?.aiPicks) ? data.aiPicks : [],
+        passedPickIds: Array.isArray(data?.passedPickIds) ? data.passedPickIds.map((id) => String(id)) : []
       };
     }
 
 
     function saveLocal() {
+      state.data = normalizeData(state.data);
+      state.data.passedPickIds = [...getPassedIds()];
       try { localStorage.setItem(LOCAL_KEY, JSON.stringify(state.data)); } catch(e) {}
     }
 
@@ -993,13 +976,35 @@
         const raw = localStorage.getItem(PASSED_KEY);
         if (raw) return new Set(JSON.parse(raw));
       } catch(e) {}
+      if (Array.isArray(state.data?.passedPickIds)) {
+        return new Set(state.data.passedPickIds.map((id) => String(id)));
+      }
       return new Set();
     }
 
     function addPassedId(id) {
       const ids = getPassedIds();
       ids.add(String(id));
-      try { localStorage.setItem(PASSED_KEY, JSON.stringify([...ids])); } catch(e) {}
+      syncPassedIdsToLocal([...ids]);
+    }
+
+    function syncPassedIdsToLocal(ids) {
+      const normalized = Array.from(new Set((Array.isArray(ids) ? ids : []).map((id) => String(id))));
+      state.data.passedPickIds = normalized;
+      try { localStorage.setItem(PASSED_KEY, JSON.stringify(normalized)); } catch(e) {}
+    }
+
+    async function persistToRepo() {
+      try {
+        state.data = normalizeData(state.data);
+        state.data.passedPickIds = [...getPassedIds()];
+        await apiJson(API.data, {
+          method: "POST",
+          body: JSON.stringify(state.data)
+        });
+      } catch (error) {
+        console.error("Failed to persist tracker state to repo:", error);
+      }
     }
 
     async function apiJson(url, options = {}) {
@@ -1693,6 +1698,7 @@
           addPassedId(pickId);
           state.data.aiPicks = state.data.aiPicks.filter(p => String(p.id) !== String(pickId));
           saveLocal();
+          void persistToRepo();
           render();
         }
         return;
@@ -1875,6 +1881,7 @@
       addPassedId(pick.id);
       state.data.aiPicks = state.data.aiPicks.filter(p => String(p.id) !== String(pick.id));
       saveLocal();
+      void persistToRepo();
       toast("Bet confirmed and moved to Open Bets.", "success");
       state.activeTab = "open";
       closeSheet();
@@ -1888,56 +1895,35 @@
       if (!isPositiveNumber(form.amount)) return toast("Stake amount must be positive.", "error");
       if (!isNumber(form.line)) return toast("Odds / line must be valid.", "error");
 
-      try {
-        await apiJson(API.bets, {
-          method: "POST",
-          body: JSON.stringify({
-            game: form.game.trim(),
-            pick: form.pick.trim(),
-            line: coerceNumber(form.line),
-            originalLine: coerceNumber(form.line),
-            amount: roundMoney(form.amount),
-            units: roundUnits(form.amount),
-            book: form.book.trim() || "DraftKings",
-            type: form.type || inferType(form.pick),
-            date: form.date || todayString(),
-            gameTime: form.gameTime.trim() || "TBD",
-            notes: form.notes.trim(),
-            result: "placed",
-            status: "placed"
-          })
-        });
-        toast("Manual bet added to Open Bets.", "success");
-        state.activeTab = "open";
-        closeSheet();
-        await loadData();
-      } catch (error) {
-        // Fall back to local
-        const form = state.sheet.form;
-        const line = coerceNumber(form.line);
-        const amount = coerceNumber(form.amount);
-        if (line && amount > 0) {
-          bets.unshift({
-            id: nextBetId(),
-            date: todayET(),
-            gameTime: form.gameTime || "TBD",
-            game: form.game || "TBD",
-            pick: form.pick || "",
-            line, originalLine: line, odds: line,
-            amount, units: Math.round((amount / UNIT_SIZE) * 100) / 100,
-            sport: form.sport || "ncaab",
-            type: inferType(form.pick),
-            result: "placed",
-            book: form.book || "draftkings",
-            notes: form.notes || ""
-          });
-          toast("Bet saved locally.", "success");
-          closeSheet();
-          render();
-        } else {
-          toast("Could not create the manual bet.", "error");
-        }
-      }
+      const line = coerceNumber(form.line);
+      const amount = roundMoney(form.amount);
+      const maxId = state.data.bets.reduce((m, b) => Math.max(m, Number(b.id) || 0), 0);
+
+      state.data.bets.unshift({
+        id: maxId + 1,
+        date: form.date || todayString(),
+        gameTime: form.gameTime.trim() || "TBD",
+        game: form.game.trim(),
+        pick: form.pick.trim(),
+        line,
+        originalLine: line,
+        odds: line,
+        amount,
+        units: roundUnits(amount),
+        sport: "ncaab",
+        type: form.type || inferType(form.pick),
+        result: "placed",
+        status: "placed",
+        payout: 0,
+        book: form.book.trim() || "DraftKings",
+        notes: form.notes.trim()
+      });
+      saveLocal();
+      void persistToRepo();
+      toast("Manual bet added to Open Bets.", "success");
+      state.activeTab = "open";
+      closeSheet();
+      render();
     }
 
     async function saveTicket() {

@@ -1162,5 +1162,6 @@
       "analysis": "Opening day core play. Model probability 82.6% vs market implied 41.7%. Main drivers: bullpen gap +6.0, split offense gap +1.2, projected margin Yankees by ~2.6 runs.",
       "category": "core"
     }
-  ]
+  ],
+  "passedPickIds": []
 }
