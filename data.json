@@ -1109,6 +1109,51 @@
       "gameTime": "2:45 PM ET",
       "analysis": "KP raw total 147, deflated to 140 \u2014 6.5pt edge. Iowa St plays slowest pace in Big 12. Kentucky offense inconsistent in tournament. Two good defenses grinding it out.",
       "category": "core"
+    },
+    {
+      "id": "late-1",
+      "date": "2026-03-26",
+      "sport": "ncaab",
+      "game": "Arkansas vs Arizona",
+      "pick": "Arkansas/Arizona Over 165.5",
+      "odds": -110,
+      "edgePts": 0.9,
+      "kellyPct": 1.0,
+      "confidence": 3,
+      "units": 0.5,
+      "gameTime": "9:45 PM ET",
+      "analysis": "Two top-5 offenses, both play fast (71.4 and 69.7 tempo). KenPom total 166.4. Arkansas defense #53 leaks points. Shootout game.",
+      "category": "core"
+    },
+    {
+      "id": "late-2",
+      "date": "2026-03-26",
+      "sport": "ncaab",
+      "game": "Arkansas vs Arizona",
+      "pick": "Arkansas +8.5",
+      "odds": -110,
+      "edgePts": 0.5,
+      "kellyPct": 1.0,
+      "confidence": 3,
+      "units": 0.5,
+      "gameTime": "9:45 PM ET",
+      "analysis": "KenPom says Arizona by 9, getting 8.5. Acuff can single-handedly keep Arkansas in it. Fast chaotic team that covers.",
+      "category": "value"
+    },
+    {
+      "id": "late-3",
+      "date": "2026-03-26",
+      "sport": "ncaab",
+      "game": "Multi-game Parlay",
+      "pick": "Acuff O23.5 + Wagler O14.5 + Illinois +2.5",
+      "odds": 550,
+      "edgePts": 3.0,
+      "kellyPct": 2.0,
+      "confidence": 3,
+      "units": 0.5,
+      "gameTime": "9:45 PM ET",
+      "analysis": "Three independent legs across both late games. Acuff is Arkansas offense. Wagler benefits from Illinois keying on Flemings. Illinois +2.5 in a coin-flip game. All guard props \u2014 no foul risk.",
+      "category": "value"
     }
   ]
 }
