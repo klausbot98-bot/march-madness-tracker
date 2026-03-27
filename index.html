@@ -3852,10 +3852,20 @@
         }
 
         const aiPlaceCloseBtn = e.target.closest("[data-ai-place-close]");
-        if (aiPlaceCloseBtn) { closeAiPickPlacementModal(); return; }
+        if (aiPlaceCloseBtn) {
+          e.preventDefault();
+          e.stopPropagation();
+          closeAiPickPlacementModal();
+          return;
+        }
 
         const aiPlaceOverlay = e.target.closest("[data-ai-place-overlay]");
-        if (aiPlaceOverlay && e.target === aiPlaceOverlay) { closeAiPickPlacementModal(); return; }
+        if (aiPlaceOverlay && e.target === aiPlaceOverlay) {
+          e.preventDefault();
+          e.stopPropagation();
+          closeAiPickPlacementModal();
+          return;
+        }
       });
 
       document.addEventListener("input", e => {
@@ -3882,6 +3892,7 @@
         const aiPlaceForm = e.target.closest("[data-ai-place-form]");
         if (aiPlaceForm) {
           e.preventDefault();
+          e.stopPropagation();
           confirmAiPickPlacement();
         }
       });
