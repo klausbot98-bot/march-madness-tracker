@@ -928,15 +928,12 @@
       state.error = "";
       render();
       try {
-        const serverData = await apiJson(API.data);
-        state.data = normalizeData(serverData);
-        syncPassedIdsToLocal(state.data.passedPickIds || []);
-        saveLocal();
+        applyServerData(await apiJson(API.data));
       } catch (error) {
-        // Try localStorage as pure fallback
         const localData = loadLocal();
-        if (localData && localData.bets) {
+        if (localData) {
           state.data = normalizeData(localData);
+          syncPassedIdsToLocal(state.data.passedPickIds || []);
         } else {
           state.error = error.message || "Failed to load tracker data.";
         }
@@ -959,7 +956,7 @@
 
     function saveLocal() {
       state.data = normalizeData(state.data);
-      state.data.passedPickIds = [...getPassedIds()];
+      syncPassedIdsToLocal(state.data.passedPickIds || []);
       try { localStorage.setItem(LOCAL_KEY, JSON.stringify(state.data)); } catch(e) {}
     }
 
@@ -972,20 +969,14 @@
     }
 
     function getPassedIds() {
+      if (Array.isArray(state.data?.passedPickIds)) {
+        return new Set(state.data.passedPickIds.map((id) => String(id)));
+      }
       try {
         const raw = localStorage.getItem(PASSED_KEY);
         if (raw) return new Set(JSON.parse(raw));
       } catch(e) {}
-      if (Array.isArray(state.data?.passedPickIds)) {
-        return new Set(state.data.passedPickIds.map((id) => String(id)));
-      }
       return new Set();
-    }
-
-    function addPassedId(id) {
-      const ids = getPassedIds();
-      ids.add(String(id));
-      syncPassedIdsToLocal([...ids]);
     }
 
     function syncPassedIdsToLocal(ids) {
@@ -994,17 +985,9 @@
       try { localStorage.setItem(PASSED_KEY, JSON.stringify(normalized)); } catch(e) {}
     }
 
-    async function persistToRepo() {
-      try {
-        state.data = normalizeData(state.data);
-        state.data.passedPickIds = [...getPassedIds()];
-        await apiJson(API.data, {
-          method: "POST",
-          body: JSON.stringify(state.data)
-        });
-      } catch (error) {
-        console.error("Failed to persist tracker state to repo:", error);
-      }
+    function applyServerData(data) {
+      state.data = normalizeData(data);
+      saveLocal();
     }
 
     async function apiJson(url, options = {}) {
@@ -1695,11 +1678,7 @@
       if (action === "pass-pick") {
         const pickId = target.dataset.pickId;
         if (pickId) {
-          addPassedId(pickId);
-          state.data.aiPicks = state.data.aiPicks.filter(p => String(p.id) !== String(pickId));
-          saveLocal();
-          void persistToRepo();
-          render();
+          void passPick(pickId);
         }
         return;
       }
@@ -1848,6 +1827,27 @@
       renderSheet();
     }
 
+    async function passPick(pickId) {
+      const ids = getPassedIds();
+      ids.add(String(pickId));
+
+      try {
+        const data = await apiJson(API.data, {
+          method: "POST",
+          body: JSON.stringify({
+            ...state.data,
+            aiPicks: state.data.aiPicks.filter((pick) => String(pick.id) !== String(pickId)),
+            passedPickIds: Array.from(ids)
+          })
+        });
+        applyServerData(data);
+        toast("Pick passed.", "success");
+        render();
+      } catch (error) {
+        toast(error.message || "Could not pass this pick.", "error");
+      }
+    }
+
     async function submitPlacePick() {
       if (!state.sheet || state.sheet.type !== "place-pick") return;
       const pick = findAiPick(state.sheet.pickId);
@@ -1858,34 +1858,38 @@
       if (!isPositiveNumber(form.amount)) return toast("Stake amount must be positive.", "error");
       if (!isNumber(form.line)) return toast("Odds / line must be valid.", "error");
 
-      // Place directly into local state (no backend dependency)
       const line = coerceNumber(form.line) || coerceNumber(pick.line ?? pick.odds);
       const amount = coerceNumber(form.amount) || UNIT_SIZE;
-      const maxId = state.data.bets.reduce((m, b) => Math.max(m, Number(b.id) || 0), 0);
-      state.data.bets.unshift({
-        id: maxId + 1,
-        date: pick.date || todayString(),
-        gameTime: form.gameTime.trim() || pick.gameTime || "TBD",
-        game: pick.game || "TBD",
-        pick: form.pick.trim() || pick.pick || "",
-        line, originalLine: line, odds: line,
-        amount, units: roundUnits(amount),
-        sport: pick.sport || "ncaab",
-        type: inferType(form.pick || pick.pick),
-        result: "placed",
-        book: form.book.trim() || pick.book || "draftkings",
-        notes: form.notes.trim() || pick.analysis || "",
-        confidence: pick.confidence || null,
-        sourcePickId: pick.id
-      });
-      addPassedId(pick.id);
-      state.data.aiPicks = state.data.aiPicks.filter(p => String(p.id) !== String(pick.id));
-      saveLocal();
-      void persistToRepo();
-      toast("Bet confirmed and moved to Open Bets.", "success");
-      state.activeTab = "open";
-      closeSheet();
-      render();
+
+      try {
+        const data = await apiJson(API.picksPlace, {
+          method: "POST",
+          body: JSON.stringify({
+            id: pick.id,
+            gameTime: form.gameTime.trim() || pick.gameTime || "TBD",
+            game: pick.game || "TBD",
+            pick: form.pick.trim() || pick.pick || "",
+            line,
+            originalLine: line,
+            amount,
+            units: roundUnits(amount),
+            sport: pick.sport || "ncaab",
+            type: inferType(form.pick || pick.pick),
+            result: "placed",
+            status: "placed",
+            book: form.book.trim() || pick.book || "draftkings",
+            notes: form.notes.trim() || pick.analysis || "",
+            confidence: pick.confidence || null
+          })
+        });
+        applyServerData(data);
+        toast("Bet confirmed and moved to Open Bets.", "success");
+        state.activeTab = "open";
+        closeSheet();
+        render();
+      } catch (error) {
+        toast(error.message || "Could not place this bet.", "error");
+      }
     }
 
     async function submitManualBet() {
@@ -1895,35 +1899,35 @@
       if (!isPositiveNumber(form.amount)) return toast("Stake amount must be positive.", "error");
       if (!isNumber(form.line)) return toast("Odds / line must be valid.", "error");
 
-      const line = coerceNumber(form.line);
-      const amount = roundMoney(form.amount);
-      const maxId = state.data.bets.reduce((m, b) => Math.max(m, Number(b.id) || 0), 0);
-
-      state.data.bets.unshift({
-        id: maxId + 1,
-        date: form.date || todayString(),
-        gameTime: form.gameTime.trim() || "TBD",
-        game: form.game.trim(),
-        pick: form.pick.trim(),
-        line,
-        originalLine: line,
-        odds: line,
-        amount,
-        units: roundUnits(amount),
-        sport: "ncaab",
-        type: form.type || inferType(form.pick),
-        result: "placed",
-        status: "placed",
-        payout: 0,
-        book: form.book.trim() || "DraftKings",
-        notes: form.notes.trim()
-      });
-      saveLocal();
-      void persistToRepo();
-      toast("Manual bet added to Open Bets.", "success");
-      state.activeTab = "open";
-      closeSheet();
-      render();
+      try {
+        const data = await apiJson(API.bets, {
+          method: "POST",
+          body: JSON.stringify({
+            date: form.date || todayString(),
+            gameTime: form.gameTime.trim() || "TBD",
+            game: form.game.trim(),
+            pick: form.pick.trim(),
+            line: coerceNumber(form.line),
+            originalLine: coerceNumber(form.line),
+            amount: roundMoney(form.amount),
+            units: roundUnits(form.amount),
+            sport: "ncaab",
+            type: form.type || inferType(form.pick),
+            result: "placed",
+            status: "placed",
+            payout: 0,
+            book: form.book.trim() || "DraftKings",
+            notes: form.notes.trim()
+          })
+        });
+        applyServerData(data);
+        toast("Manual bet added to Open Bets.", "success");
+        state.activeTab = "open";
+        closeSheet();
+        render();
+      } catch (error) {
+        toast(error.message || "Could not add this manual bet.", "error");
+      }
     }
 
     async function saveTicket() {
@@ -1961,13 +1965,14 @@
       }
 
       try {
-        await apiJson(ticketRoute(state.sheet.ticketType, item.id), {
+        const data = await apiJson(ticketRoute(state.sheet.ticketType, item.id), {
           method: "PATCH",
           body: JSON.stringify(body)
         });
+        applyServerData(data);
         toast("Ticket saved.", "success");
         closeSheet();
-        await loadData();
+        render();
       } catch (error) {
         toast(error.message || "Could not save this ticket.", "error");
       }
@@ -1986,7 +1991,7 @@
       render();
       try {
         const data = await apiJson(API.settle, { method: "POST" });
-        state.data = normalizeData(data);
+        applyServerData(data);
         toast("Scores checked and tracker refreshed.", "success");
       } catch (error) {
         toast(error.message || "Auto settle failed.", "error");
