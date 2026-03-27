@@ -149,6 +149,41 @@
       font-weight: 500;
     }
 
+    .status-banner-layer {
+      position: fixed;
+      top: calc(var(--header-h) + 12px);
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 140;
+      width: min(420px, calc(100vw - 28px));
+      pointer-events: none;
+    }
+
+    .status-banner {
+      border-radius: 999px;
+      border: 1px solid var(--border-active);
+      background: rgba(18,20,26,0.94);
+      backdrop-filter: blur(18px) saturate(150%);
+      -webkit-backdrop-filter: blur(18px) saturate(150%);
+      box-shadow: 0 14px 32px rgba(0,0,0,0.28);
+      color: var(--text-primary);
+      font-size: 0.8rem;
+      font-weight: 600;
+      line-height: 1.35;
+      padding: 10px 14px;
+      text-align: center;
+    }
+
+    .status-banner.warning {
+      border-color: var(--amber-ring);
+      color: #ffd166;
+    }
+
+    .status-banner.success {
+      border-color: var(--green-ring);
+      color: #8ef0b0;
+    }
+
     /* === TAB BARS === */
     /* Mobile: fixed bottom */
     .tab-bar-bottom {
@@ -1611,6 +1646,7 @@
       </button>
     </nav>
   </div>
+  <div id="statusBanner" class="status-banner-layer" hidden></div>
 
   <script>
     // === CONSTANTS & DATA ===
@@ -1632,6 +1668,7 @@
     const TYPE_LABELS = { spread: "Spread", total: "Total", ml: "Moneyline", parlay: "Parlay" };
     const CONFIDENCE_LABELS = { high: "High", medium: "Medium", low: "Low" };
     const UI_STATE_KEY = "march-madness-2026-ui-v1";
+    const LOCAL_DATA_KEY = "march-madness-2026-local-data-v1";
     const API_ROUTES = {
       data: "/api/data",
       bankroll: "/api/bankroll",
@@ -1724,7 +1761,8 @@
       openDays: new Set(),
       selectedPickDate: null,
       isAddBetModalOpen: false,
-      addBetForm: { game: "", pick: "", odds: "", amount: "", sport: "ncaab", notes: "" }
+      addBetForm: { game: "", pick: "", odds: "", amount: "", sport: "ncaab", notes: "" },
+      statusBanner: null
     };
 
     let bets = [];
@@ -1736,6 +1774,7 @@
     let livePlayerStats = {};
     let espnClockData = {};
     let espnClockEvents = [];
+    let statusBannerTimer = null;
 
     // === UTILITIES ===
     function cloneData(items) { return (items || []).map(item => ({ ...item })); }
@@ -1764,6 +1803,38 @@
         if (saved.mobileAllBetsFilter) state.mobileAllBetsFilter = saved.mobileAllBetsFilter;
         if (saved.selectedPickDate) state.selectedPickDate = saved.selectedPickDate;
       } catch (error) {}
+    }
+    function serializeLocalData() {
+      return {
+        meta: { openingCash: openingCash() },
+        bets: cloneData(bets),
+        parlays: cloneData(parlays),
+        aiPicks: cloneData(aiPicks)
+      };
+    }
+    function saveLocalData() {
+      try {
+        localStorage.setItem(LOCAL_DATA_KEY, JSON.stringify(serializeLocalData()));
+      } catch (error) {
+        console.error("Failed to save local fallback data:", error);
+      }
+    }
+    function loadLocalData() {
+      try {
+        return JSON.parse(localStorage.getItem(LOCAL_DATA_KEY) || "null");
+      } catch (error) {
+        console.error("Failed to load local fallback data:", error);
+        return null;
+      }
+    }
+    function showStatusBanner(message, tone = "warning") {
+      state.statusBanner = { message, tone };
+      renderStatusBanner();
+      if (statusBannerTimer) window.clearTimeout(statusBannerTimer);
+      statusBannerTimer = window.setTimeout(() => {
+        state.statusBanner = null;
+        renderStatusBanner();
+      }, 3200);
     }
     async function apiFetchJson(url, options = {}) {
       const response = await fetch(url, {
@@ -1800,6 +1871,7 @@
         ...pick,
         status: pick.status || null
       }));
+      saveLocalData();
     }
     function escapeHtml(value) {
       return String(value ?? "")
@@ -2069,6 +2141,93 @@
       return bets.reduce((max, b) => { const n = Number(b.id); return Number.isFinite(n) ? Math.max(max, n) : max; }, 0) + 1;
     }
 
+    function amountToUnits(amount) {
+      return Math.round((Number(amount || 0) / UNIT_SIZE) * 100) / 100;
+    }
+
+    function findAiPickById(id) {
+      return aiPicks.find(entry => String(entry.id) === String(id)) || null;
+    }
+
+    function removeAiPickLocally(id) {
+      const key = String(id);
+      aiPicks = aiPicks.filter(entry => String(entry.id) !== key);
+      state.expandedAiPickIds.delete(key);
+      if (!aiPicks.some(entry => entry.date === state.selectedPickDate)) state.selectedPickDate = null;
+      saveLocalData();
+      saveUiState();
+    }
+
+    function buildBetFromAiPick(pick) {
+      const recommended = Math.round(kellyDollarAmount(pick.kellyPct, getLiveBankroll()) * 100) / 100;
+      const amount = Number.isFinite(recommended) && recommended > 0 ? recommended : UNIT_SIZE;
+      const rawLine = Number(pick.originalLine ?? pick.odds ?? pick.line);
+      const line = Number.isFinite(rawLine) && rawLine !== 0 ? rawLine : -110;
+      return {
+        id: nextBetId(),
+        date: pick.date || currentEtDate(),
+        gameTime: pick.gameTime || "TBD",
+        game: pick.game || "TBD",
+        pick: pick.pick || "",
+        line,
+        originalLine: line,
+        odds: line,
+        amount,
+        units: amountToUnits(amount),
+        sport: pick.sport || "ncaab",
+        type: inferBetTypeFromPick(pick.pick),
+        result: "placed",
+        notes: pick.notes || "",
+        confidence: pick.confidence || null,
+        kenpomGap: Number.isFinite(Number(pick.edgePts)) ? Number(pick.edgePts) : null
+      };
+    }
+
+    function placeAiPickLocally(id) {
+      const pick = findAiPickById(id);
+      if (!pick) return false;
+      bets = [buildBetFromAiPick(pick), ...bets];
+      removeAiPickLocally(id);
+      render();
+      return true;
+    }
+
+    function passAiPickLocally(id) {
+      if (!findAiPickById(id)) return false;
+      removeAiPickLocally(id);
+      renderPicksTab();
+      renderHeader();
+      return true;
+    }
+
+    function buildManualBetFromForm(form) {
+      const odds = Number(form.odds);
+      const amount = Math.round(Number(form.amount) * 100) / 100;
+      return {
+        id: nextBetId(),
+        date: currentEtDate(),
+        gameTime: "TBD",
+        game: form.game.trim(),
+        pick: form.pick.trim(),
+        line: odds,
+        originalLine: odds,
+        odds,
+        amount,
+        units: amountToUnits(amount),
+        sport: form.sport || "ncaab",
+        type: inferBetTypeFromPick(form.pick),
+        result: "placed",
+        notes: form.notes.trim()
+      };
+    }
+
+    function addBetLocally(form) {
+      bets = [buildManualBetFromForm(form), ...bets];
+      saveLocalData();
+      closeAddBetModal();
+      render();
+    }
+
     function sanitizeResult(result) {
       const normalized = normalizeResult(result);
       if (result === "declined") return "declined";
@@ -2258,6 +2417,7 @@
         render();
       } catch (error) {
         console.error("Failed to place AI pick:", error);
+        if (placeAiPickLocally(id)) showStatusBanner("Saved locally. API persistence is unavailable.", "warning");
       }
     }
 
@@ -2280,7 +2440,8 @@
           renderHeader();
         } catch (error) {
           console.error("Failed to pass AI pick:", error);
-          renderPicksTab();
+          if (passAiPickLocally(id)) showStatusBanner("Passed locally. API persistence is unavailable.", "warning");
+          else renderPicksTab();
         }
       }, 300);
     }
@@ -2340,6 +2501,8 @@
         render();
       } catch (error) {
         console.error("Failed to add bet:", error);
+        addBetLocally(form);
+        showStatusBanner("Bet saved locally. API persistence is unavailable.", "warning");
       }
     }
 
@@ -2819,7 +2982,11 @@
       const actualUnits = Number(pick.units);
       const cat = pick.category || "value";
       const catLabel = cat === "core" ? "🎯 CORE" : cat === "moonshot" ? "🚀 MOONSHOT" : cat === "lean" ? "⚠️ LEAN" : "⚡ VALUE";
-      const sportBadge = pick.sport === "soccer" ? `<span class="pick-sport-tag">⚽ ${pick.league || "Soccer"}</span>` : `<span class="pick-sport-tag">🏀 NCAAB</span>`;
+      const sportBadge = pick.sport === "soccer"
+        ? `<span class="pick-sport-tag">⚽ ${pick.league || "Soccer"}</span>`
+        : pick.sport === "mlb"
+          ? `<span class="pick-sport-tag">⚾ MLB</span>`
+          : `<span class="pick-sport-tag">🏀 NCAAB</span>`;
 
       return `<article class="pick-card ${cat} ${isPassedPick ? "is-passed" : ""} ${isFading ? "is-fading-out" : ""}"><div class="pick-inner"><div class="pick-header"><span class="pick-badge ${cat}">${catLabel}</span>${sportBadge}<span class="pick-time">${pick.gameTime || "TBD"}</span></div><div class="pick-game">${pick.game}</div><div class="pick-selection">${pick.pick}<span class="pick-odds-inline">${formatLineValue(actualOdds)}</span></div><div class="pick-sizing">💰 ${formatCurrency(kellyDollarAmount(pick.kellyPct, getLiveBankroll()), { signed: false })} recommended · Kelly ${Number(pick.kellyPct||0).toFixed(1)}%</div><div class="pick-edge">Edge: ${Number(pick.edgePts||0).toFixed(1)}pts · ${confidenceStars(pick.confidence)}</div><button type="button" class="pick-analysis-btn ${isExpanded ? "expanded" : ""}" data-ai-pick-expand="${pick.id}"><div class="pick-analysis-preview">${String(pick.analysis||"").slice(0,90)}...</div><div class="pick-analysis-full">${pick.analysis||""}</div></button><div class="pick-actions" ${isPassedPick ? "hidden" : ""}><button type="button" class="pick-btn place" data-ai-pick-place="${pick.id}">Place Bet</button><button type="button" class="pick-btn pass" data-ai-pick-pass="${pick.id}">Pass</button></div></div></article>`;
     }
@@ -2887,9 +3054,14 @@
         applyServerData(data);
       } catch(err) {
         console.error("Failed to load API data:", err);
-        bets = [];
-        parlays = [];
-        aiPicks = [];
+        const localData = loadLocalData();
+        if (localData) {
+          applyServerData(localData);
+        } else {
+          bets = [];
+          parlays = [];
+          aiPicks = [];
+        }
       }
     }
 
@@ -3365,11 +3537,24 @@
     // === FULL RENDER ===
     function render() {
       renderHeader();
+      renderStatusBanner();
       renderLiveTab();
       renderPicksTab();
       renderBetsTab();
       renderStatsTab();
       renderFloatingBetControls();
+    }
+
+    function renderStatusBanner() {
+      const container = document.getElementById("statusBanner");
+      if (!container) return;
+      if (!state.statusBanner?.message) {
+        container.hidden = true;
+        container.innerHTML = "";
+        return;
+      }
+      container.hidden = false;
+      container.innerHTML = `<div class="status-banner ${state.statusBanner.tone || "warning"}">${escapeHtml(state.statusBanner.message)}</div>`;
     }
 
     // === EVENT HANDLERS ===
