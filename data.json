@@ -715,11 +715,12 @@
       "book": "draftkings",
       "type": "parlay",
       "confidence": "high",
-      "result": "placed",
-      "status": "placed",
+      "result": "loss",
+      "status": "settled",
       "payout": 0,
       "sport": "ncaab",
-      "notes": "SGP+: Acuff O24.5 (-112) + Wagler O15.5 + Illinois +2.5. To return $73.59."
+      "notes": "SGP+: Acuff O24.5 (-112) + Wagler O15.5 + Illinois +2.5. To return $73.59. Manually settled as loss.",
+      "score": "SGP lost"
     }
   ],
   "parlays": [
