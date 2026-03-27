@@ -2150,7 +2150,7 @@
 
     function todayMetrics() {
       const today = currentEtDate();
-      const items = allTickets().filter(item => item.date === today);
+      const items = allTickets();
       const settled = items.filter(item => isSettled(item.result));
       const record = overallRecord(items);
       const pnl = items.reduce((sum, item) => sum + ticketProfit(item), 0);
@@ -2705,7 +2705,7 @@
     function liveBetEntries() {
       const today = currentEtDate();
       const singleEntries = bets
-        .filter(bet => isLiveTabEligibleResult(bet.result) && bet.date === today)
+        .filter(bet => isLiveTabEligibleResult(bet.result))
         .map(bet => {
           const teams = extractBetTeams(bet.game);
           const game = findTodayLiveGameForTeams(teams) || fallbackGameForBet(bet.date, bet.gameTime);
@@ -2714,7 +2714,7 @@
         }).filter(Boolean);
 
       const parlayEntries = parlays
-        .filter(parlay => isLiveTabEligibleResult(parlay.result) && (parlay.date === today || (parlay.legs || []).some(leg => bets.find(bet => bet.pick === leg && bet.date === today))))
+        .filter(parlay => isLiveTabEligibleResult(parlay.result))
         .map(parlay => {
           const legs = (parlay.legs || []).map(leg => {
             const legState = parlay.legStates?.[leg]?.result ?? bets.find(bet => bet.pick === leg)?.result ?? null;
@@ -3119,7 +3119,7 @@
 
       let html = "";
       if (!entries.length) {
-        html = `<div class="empty-state"><div class="empty-icon">🏀</div><div class="empty-title">No active bets today</div><div class="empty-meta">Check the Picks tab for today's recommendations</div></div>`;
+        html = `<div class="empty-state"><div class="empty-icon">🏀</div><div class="empty-title">No active bets</div><div class="empty-meta">Check the Picks tab for new recommendations</div></div>`;
       } else if (!liveEntries.length) {
         const nextGame = upcomingEntries[0];
         const nextTime = nextGame?.game?.displayTime || "";
