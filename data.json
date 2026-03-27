@@ -1051,21 +1051,6 @@
       "category": "value"
     },
     {
-      "id": "B3",
-      "date": "2026-03-26",
-      "sport": "ncaab",
-      "game": "Illinois vs Houston",
-      "pick": "Illinois/Houston Under 139.5",
-      "odds": -110,
-      "edgePts": 8,
-      "kellyPct": 5.8,
-      "confidence": 4,
-      "units": 1,
-      "gameTime": "12:00 PM ET",
-      "analysis": "Houston #4 defense in the country. KP adj total 132 (7pt deflator). Tournament games go under \u2014 yesterday proved it. Rock fight.",
-      "category": "core"
-    },
-    {
       "id": "B4",
       "date": "2026-03-22",
       "sport": "ncaab",
