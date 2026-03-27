@@ -632,11 +632,12 @@
       "book": "draftkings",
       "type": "total",
       "confidence": "high",
-      "result": "placed",
-      "status": "placed",
-      "payout": 0,
+      "result": "win",
+      "status": "settled",
+      "payout": 42.0,
       "sport": "ncaab",
-      "notes": "KenPom total 155.4 vs line 147.5 \u2014 7.9pt edge. Both teams elite offense, Texas pushes pace."
+      "notes": "KenPom total 155.4 vs line 147.5 \u2014 7.9pt edge. Both teams elite offense, Texas pushes pace.",
+      "score": "Texas 77 - Purdue 79 (156 total)"
     },
     {
       "id": 35,
@@ -651,11 +652,12 @@
       "book": "draftkings",
       "type": "spread",
       "confidence": "high",
-      "result": "placed",
-      "status": "placed",
+      "result": "loss",
+      "status": "settled",
       "payout": 0,
       "sport": "ncaab",
-      "notes": "KenPom: Nebraska by 3, getting -1.5. #6 defense in the country. To return $41.52."
+      "notes": "KenPom: Nebraska by 3, getting -1.5. #6 defense in the country. To return $41.52.",
+      "score": "Iowa 77 - Nebraska 71"
     },
     {
       "id": 36,
@@ -670,11 +672,12 @@
       "book": "draftkings",
       "type": "total",
       "confidence": "high",
-      "result": "placed",
-      "status": "placed",
-      "payout": 0,
+      "result": "win",
+      "status": "settled",
+      "payout": 28.64,
       "sport": "ncaab",
-      "notes": "Two top-5 offenses, fast tempo. To return $28.63."
+      "notes": "Two top-5 offenses, fast tempo. To return $28.63.",
+      "score": "Arkansas 88 - Arizona 109 (197 total)"
     },
     {
       "id": 37,
@@ -689,11 +692,12 @@
       "book": "draftkings",
       "type": "spread",
       "confidence": "high",
-      "result": "placed",
-      "status": "placed",
+      "result": "loss",
+      "status": "settled",
       "payout": 0,
       "sport": "ncaab",
-      "notes": "KenPom says Arizona by 9, got +7.5. To return $29.28."
+      "notes": "KenPom says Arizona by 9, got +7.5. To return $29.28.",
+      "score": "Arkansas 88 - Arizona 109"
     },
     {
       "id": 38,
